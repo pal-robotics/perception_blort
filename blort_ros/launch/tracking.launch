@@ -1,0 +1,23 @@
+<launch>
+
+    <!-- Tracker node -->
+    <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)">
+        <param name="launch_mode" value="tracking" />
+        <remap from="/blort_camera_info" to="/gscam/camera_info" />
+        <remap from="/blort_image" to="/gscam/image_raw" /> 
+<!--
+        <remap from="/blort_camera_info" to="/stereo_undistorted/left/camera_info" />
+        <remap from="/blort_image" to="/stereo_undistorted/left/image" /> 
+-->
+    </node>
+    
+    <!-- Detector node -->
+    <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)">
+        <remap from="/blort_camera_info" to="/gscam/camera_info" />
+<!--
+        <remap from="/blort_camera_info" to="/stereo_undistorted/left/camera_info" />
+-->
+    </node>
+
+</launch>
+

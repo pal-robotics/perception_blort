@@ -1,0 +1,397 @@
+/**
+ * $Id: Array.ic 34111 2012-07-03 14:29:54Z student5 $
+ * TODO: maybe some optimisations, beautifications
+ */
+
+#include <blort/Recognizer3D/Math.hh>
+
+namespace P 
+{
+
+#ifdef DEBUG_CHECKINDEX
+// this non-inline, non-template function enables the debugger to set a
+// breakpoint
+extern void CheckIndex(unsigned i, unsigned size);
+#endif
+
+/**
+ * Constructor with supplied initial size.
+ */ 
+template <class Elem>
+Array<Elem>::Array(unsigned s) throw(Except)
+{
+  capacity = s;
+  if(capacity > 0)
+  {
+    array = new Elem[capacity];
+    if(array == 0)
+      throw Except(__HERE__, "%s: failed to allocate array");
+  }
+  else
+    array = 0;
+  size = capacity;
+}
+
+template <class Elem>
+Array<Elem>::Array(const Array &a)
+{
+  capacity = 0;
+  size = 0;
+  array = 0;
+  DeepCopy(a);
+}
+
+/**
+ * Destructor, just frees memory.
+ */
+template <class Elem>
+Array<Elem>::~Array()
+{
+  delete[] array;
+}
+
+template <class Elem>
+inline void Array<Elem>::CheckIndex(unsigned i) const throw (Except)
+{
+#ifdef DEBUG_CHECKINDEX
+  Z::CheckIndex(i, size);
+#else
+  if(i >= size)
+    throw Except(__HERE__, "invalid index %u, valid range [0,%u)", i, size);
+#endif
+}
+
+/**
+ * Checked index operator.
+ */
+template <class Elem>
+inline Elem& Array<Elem>::operator[](unsigned i)
+{
+  CheckIndex(i);
+  return array[i];
+}
+
+/**
+ * Checked const index operator.
+ */
+template <class Elem>
+inline const Elem& Array<Elem>::operator[](unsigned i) const
+{
+  CheckIndex(i);
+  return array[i];
+}
+
+template <class Elem>
+inline Elem& Array<Elem>::First() throw(Except)
+{
+  if(size == 0)
+    throw Except(__HERE__, "array empty");
+  return array[0];
+}
+
+template <class Elem>
+inline const Elem& Array<Elem>::First() const throw(Except)
+{
+  if(size == 0)
+    throw Except(__HERE__, "array empty");
+  return array[0];
+}
+
+template <class Elem>
+inline Elem& Array<Elem>::Last() throw(Except)
+{
+  if(size == 0)
+    throw Except(__HERE__, "array empty");
+  return array[size - 1];
+}
+
+template <class Elem>
+inline const Elem& Array<Elem>::Last() const throw(Except)
+{
+  if(size == 0)
+    throw Except(__HERE__, "array empty");
+  return array[size - 1];
+}
+
+/**
+ * Grow the array if necessary.
+ * More memory is allocated, used size remains unchanged
+ */
+template <class Elem>
+void Array<Elem>::EnsureCapacity(unsigned need_size) throw(Except)
+{
+  if(need_size > capacity)
+  {
+    capacity = max(need_size, capacity > 0 ? 2*capacity : DEFAULT_SIZE);
+    Elem *new_array = new Elem[capacity];
+    if(new_array == 0)
+      throw Except(__HERE__, "failed to allocate array");
+    for(unsigned i = 0; i < size; i++)
+      new_array[i] = array[i];
+    delete[] array;
+    array = new_array;
+  }
+}
+
+/**
+ * Set size of array, growing if necessary.
+ * TODO: need method to set size exactly to specified value (saves a lot of
+ * memory for most cases)
+ */
+template <class Elem>
+void Array<Elem>::Resize(unsigned new_size)
+{
+  EnsureCapacity(new_size);
+  size = new_size;
+}
+
+/**
+ * Add a new element to the start of the array.
+ * If necessary the array grows (to double its original size).
+ * Note: this is an expensive operation requiring n shifts.
+ */
+template <class Elem>
+void Array<Elem>::PushFront(const Elem &el)
+{
+  Resize(size + 1);
+  for(unsigned i = size - 1; i > 0; i--)
+    array[i] = array[i-1];
+  array[0] = el;
+}
+
+/**
+ * Add a new element to the end of the array.
+ * If necessary the array grows (to double its original size).
+ */
+template <class Elem>
+void Array<Elem>::PushBack(const Elem &el)
+{
+  Resize(size + 1);
+  array[size - 1] = el;
+}
+
+/**
+ * Insert element before element i.
+ */
+template <class Elem>
+void Array<Elem>::InsertBefore(unsigned i, const Elem &el)
+{
+  CheckIndex(i);
+  Resize(size + 1);
+  for(unsigned j = size - 1; j > i; j--)
+    array[j] = array[j-1];
+  array[i] = el;
+}
+
+/**
+ * Insert element after element i.
+ */
+template <class Elem>
+void Array<Elem>::InsertAfter(unsigned i, const Elem &el)
+{
+  CheckIndex(i);
+  Resize(size + 1);
+  for(unsigned j = size - 1; j > i + 1; j--)
+    array[j] = array[j-1];
+  array[i + 1] = el;
+}
+
+/**
+ * Sort array according to given compare function.
+ */
+template <class Elem>
+void Array<Elem>::Sort(int(*compar)(const void *, const void *))
+{
+  qsort(array, size, sizeof(Elem), compar);
+}
+
+/**
+ * Returns true if the given item is in the array, false otherwise.
+ */
+template <class Elem>
+bool Array<Elem>::Contains(const Elem &el) const
+{
+  for(unsigned i = 0; i < size; i++)
+    if(array[i] == el)
+      return true;
+  return false;
+}
+
+/**
+ * Returns true if the given item is in the array, false otherwise.
+ * Starts seach at the end.
+ */
+template <class Elem>
+bool Array<Elem>::ContainsBackwards(const Elem &el) const
+{
+  // note that size - 1 would be max unsigned int for size == 0
+  for(unsigned i = size; i >= 1; i--)
+    if(array[i-1] == el)
+      return true;
+  return false;
+}
+
+/**
+ * Returns the index of the first occurrence of element or UNDEF_ID if element
+ * is not contained.
+ */
+template <class Elem>
+unsigned Array<Elem>::Find(const Elem &el)
+{
+  for(unsigned i = 0; i < size; i++)
+    if(array[i] == el)
+      return i;
+  return UNDEF_ID;
+}
+
+/**
+ * Returns the index of the first occurrence of element after (including) start
+ * or UNDEF_ID if element is not contained.
+ */
+template <class Elem>
+unsigned Array<Elem>::Find(unsigned start, const Elem &el)
+{
+  for(unsigned i = start; i < size; i++)
+    if(array[i] == el)
+      return i;
+  return UNDEF_ID;
+}
+
+/**
+ * Returns the index of the last occurrence of element or UNDEF_ID if element
+ * is not contained.
+ */
+template <class Elem>
+unsigned Array<Elem>::FindBackwards(const Elem &el)
+{
+  // note that size - 1 would be max unsigned int for size == 0
+  for(unsigned i = size; i >= 1; i--)
+    if(array[i-1] == el)
+      return i-1;
+  return UNDEF_ID;
+}
+
+/**
+ * Swap elements i and j
+ */
+template <class Elem>
+void Array<Elem>::Swap(unsigned i, unsigned j)
+{
+  CheckIndex(i);
+  CheckIndex(j);
+  Elem t = array[i];
+  array[i] = array[j];
+  array[j] = t;
+}
+
+/**
+ * Set all elements to given value.
+ */
+template <class Elem>
+void Array<Elem>::Set(const Elem &el)
+{
+  for(unsigned i = 0; i < size; i++)
+    array[i] = el;
+}
+
+template <class Elem>
+void Array<Elem>::DeepCopy(const Array &a)
+{
+  Resize(a.size);
+  for(unsigned i = 0; i < size; i++)
+    array[i] = a.array[i];
+}
+
+template <class Elem>
+inline unsigned Array<Elem>::CircularNext(unsigned i)
+{
+  if(i < size - 1)
+    return i + 1;
+  else
+    return 0;
+}
+
+template <class Elem>
+inline unsigned Array<Elem>::CircularPrev(unsigned i)
+{
+  if(i > 0)
+    return i - 1;
+  else
+    return size - 1;
+}
+
+template <class Elem>
+void Array<Elem>::Erase(unsigned i)
+{
+  CheckIndex(i);
+  while(++i < size)
+    array[i-1] = array[i];
+  size--;
+}
+
+template <class Elem>
+inline void Array<Elem>::EraseFirst()
+{
+  Erase(0);
+}
+
+template <class Elem>
+inline void Array<Elem>::EraseLast()
+{
+  Erase(size-1);
+}
+
+template <class Elem>
+void Array<Elem>::Reverse()
+{
+  if(size > 0)
+  {
+    Elem t;
+    unsigned l = 0, u = size - 1;
+    while(l < u)
+    {
+      t = array[l];
+      array[l] = array[u];
+      array[u] = t;
+      l++;
+      u--;
+    }
+  }
+}
+
+/**
+ * TODO: use proper binary search
+ */
+template <class Elem>
+void Array<Elem>::InsertSorted(const Elem &el,
+    int(*compar)(const void *, const void *))
+{
+  PushBack(el);
+  Sort(compar);
+}
+
+/**
+ * Returns whether both arrays share an element.
+ */
+template <class Elem>
+bool Array<Elem>::Intersect(const Array<Elem> &a)
+{
+  for(unsigned i = 0; i < size; i++)
+    if(a.Contains(array[i]))
+      return true;
+  return false;
+}
+
+/**
+ * Return a data pointer
+ */
+template <class Elem>
+void* Array<Elem>::Data()
+{
+  return (void*)array;
+}
+
+
+
+}
+

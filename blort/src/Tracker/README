@@ -1,0 +1,40 @@
+
+Author: Thomas Moerwald (Vienna University of Technology)
+Email: moerwald@acin.tuwien.ac.at
+
+https://codex.cs.bham.ac.uk/trac/cogx/wiki/cast/ObjectTracker
+
+Object Tracker
+API: Tracker.h
+
+The software tracks the pose of an object in real time, given it's shape and texture.
+
+    * Input: Camera image and ply file describing the 3D shape of the object (faces, vertices)
+    * Output: 3D pose of the object 
+
+Requirements
+
+    * NVIDIA graphics card, with correctly installed driver software
+    * TomGine
+
+OpenCV is used for loading and saving images, which also will be replaced in future by DevIL, a independent image library.
+Keyboard mapping
+
+    * [ESCAPE]: Close Tracker and OpenGL Window
+    * [1]: Set mismatch tolerance to 0 pixel
+    * [2]: Set mismatch tolerance to 1 pixel
+    * [3]: Set mismatch tolerance to 2 pixel
+    * [4]: Use EDGES for pose match evaluation (more robust convergence to true pose)
+    * [5]: Use COLOR for pose match evaluation (more robust to fast, blury movements)
+    * [a]: Toggle between high accuracy and robustness for fast movement (i.e. high accuracy needed for capturing textures)
+    * [e]: Show result of edge extraction of image
+    * [i]: Print information on current tracking status (number of particles, confidence, weight, variance, ...)
+    * [l]: Lock object at current pose / pause tracking
+    * [m]: Switch between different modes of displaying the object (textured, wireframed, edge match, dont display)
+    * [p]: Show particles
+    * [r]: Reset object to initial pose
+    * [s]: Save object and textures to ply/jpg files
+    * [t]: Capture texture from camera image and attach it to the object
+    * [u]: Untexture / remove texture from object 
+
+

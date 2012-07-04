@@ -1,0 +1,332 @@
+/**
+ * $Id: Vector2.ic 34111 2012-07-03 14:29:54Z student5 $
+ *
+ * Michael Zillich, 2004-3-04
+ */
+
+#ifndef P_VECTOR2_IC
+#define P_VECTOR2_IC
+
+#include <math.h>
+#include <sstream>
+#include <blort/Recognizer3D/Math.hh>
+
+namespace P
+{
+
+/**
+ * Fast constructor e.g. for constructing large arrays of vectors.
+ * values are uninitialised
+ */
+inline Vector2::Vector2()
+: x(0), y(0)
+{
+}
+
+inline Vector2::Vector2(double xx, double yy)
+: x(xx), y(yy)
+{
+}
+
+inline Vector2& Vector2::operator+=(const Vector2 &v)
+{
+  x += v.x;
+  y += v.y;
+  return *this;
+}
+
+inline Vector2& Vector2::operator-=(const Vector2 &v)
+{
+  x -= v.x;
+  y -= v.y;
+  return *this;
+}
+
+inline Vector2& Vector2::operator*=(double s)
+{
+  x *= s;
+  y *= s;
+  return *this;
+}
+
+inline Vector2& Vector2::operator/=(double s) throw(Except)
+{
+  if(s == 0)
+    throw Except(__HERE__, "division by zero");
+  x /= s;
+  y /= s;
+  return *this;
+}
+
+inline double Vector2::NormSquare() const
+{
+  return x*x + y*y;
+}
+
+inline double Vector2::LengthSquare() const
+{
+  return NormSquare();
+}
+
+inline double Vector2::Norm() const
+{
+  return sqrt(x*x + y*y);
+}
+
+inline double Vector2::Length() const
+{
+  return Norm();
+}
+
+inline void Vector2::Normalise()
+{
+  double n = Norm();
+  *this /= n;
+}
+
+inline Vector2 Vector2::Normal()
+{
+  return Vector2(-y, x);
+}
+
+/**
+ * Clockwise (mathematically negative) rotation, i.e. rotation to the right.
+ * ATTENTION: For typical image co-ordinate systems with x-axis pointiing to
+ * the right and y-axis pointing downwards things are reversed: clockwise
+ * rotation in this case means rotation to the left.
+ */
+inline Vector2 Vector2::NormalClockwise()
+{
+  return Vector2(y, -x);
+}
+
+/**
+ * Anti-clockwise (mathematically positive) rotation, i.e. rotation to the left.
+ * ATTENTION: For typical image co-ordinate systems with x-axis pointiing to
+ * the right and y-axis pointing downwards things are reversed: anti-clockwise
+ * rotation in this case means rotation to the right.
+ */
+inline Vector2 Vector2::NormalAntiClockwise()
+{
+  return Vector2(-y, x);
+}
+
+inline Vector2 operator-(const Vector2 &v)
+{
+  return Vector2(-v.x, -v.y);
+}
+
+inline bool operator==(const Vector2 &a, const Vector2 &b)
+{
+  return IsEqual(a.x, b.x) && IsEqual(a.y, b.y);
+}
+
+inline bool operator!=(const Vector2 &a, const Vector2 &b)
+{
+  return !operator==(a, b);
+}
+
+inline Vector2 operator+(const Vector2 &a, const Vector2 &b)
+{
+  return Vector2(a.x + b.x, a.y + b.y);
+}
+
+inline Vector2 operator-(const Vector2 &a, const Vector2 &b)
+{
+  return Vector2(a.x - b.x, a.y - b.y);
+}
+
+inline Vector2 operator*(const double s, const Vector2 &v)
+{
+  return Vector2(v.x*s, v.y*s);
+}
+
+inline Vector2 operator*(const Vector2 &v, const double s)
+{
+  return s*v;
+}
+
+inline Vector2 operator/(const Vector2 &v, const double s) throw(Except)
+{
+  if(s == 0)
+    throw Except(__HERE__, "division by zero");
+  return Vector2(v.x/s, v.y/s);
+}
+
+inline double PolarAngle(Vector2 &v)
+{
+  return atan2(v.y, v.x);
+}
+
+inline double Length(const Vector2 &v)
+{
+  return v.Norm();
+}
+
+inline Vector2 Normalise(const Vector2 &v)
+{
+  double n = v.Norm();
+  return v/n;
+}
+
+inline double Dot(const Vector2 &a, const Vector2 &b)
+{
+  return a.x*b.x + a.y*b.y;
+}
+
+/**
+ * Vector cross product.
+ * note: positive cross product a x b means b counterclockwise (i.e. left) to a
+ */
+inline double Cross(const Vector2 &a, const Vector2 &b)
+{
+  return a.x*b.y - a.y*b.x;
+}
+
+/**
+ * Returns true if b is left of a.
+ * Same as counterclockwise.
+ */
+inline bool LeftOf(const Vector2 &a, const Vector2 &b)
+{
+  return Cross(a, b) > 0.;
+}
+
+/**
+ * Returns true if b is counterclockwise to a.
+ * Same as left of.
+ */
+inline bool CounterClockwiseTo(const Vector2 &a, const Vector2 &b)
+{
+  return Cross(a, b) > 0.;
+}
+
+/**
+ * Returns true if b is right of a.
+ * Same as clockwise.
+ */
+inline bool RightOf(const Vector2 &a, const Vector2 &b)
+{
+  return Cross(a, b) < 0.;
+}
+
+/**
+ * Returns true if b is clockwise to a.
+ * Same as right of.
+ */
+inline bool ClockwiseTo(const Vector2 &a, const Vector2 &b)
+{
+  return Cross(a, b) < 0.;
+}
+
+inline double DistanceSquare(const Vector2 &a, const Vector2 &b)
+{
+  return Sqr(a.x - b.x) + Sqr(a.y - b.y);
+}
+
+inline double Distance(const Vector2 &a, const Vector2 &b)
+{
+  return sqrt(Sqr(a.x - b.x) + Sqr(a.y - b.y));
+}
+
+/*
+ * Calculate center of circle from 3 points.
+ * note: throws an exception if center cannot be calculated.
+ */
+inline Vector2 CircleCenter(const Vector2 &pi, const Vector2 &pj,
+   const Vector2 &pk)
+{
+  // throws an exception if intersection cannot be calculated
+  return LineIntersection(
+      Vector2((pi.x + pj.x)/2., (pi.y + pj.y)/2.),
+      Vector2(pj.y - pi.y, pi.x - pj.x),
+      Vector2((pj.x + pk.x)/2., (pj.y + pk.y)/2.),
+      Vector2(pk.y - pj.y, pj.x - pk.x));
+}
+
+/**
+ * Returns signed distance of point q from line defined by point p and unit
+ * direction vector d.
+ */
+inline double DistPointToLine(const Vector2 &q, const Vector2 &p,
+    const Vector2 &d)
+{
+  Vector2 p_to_q = q - p;
+  return Cross(p_to_q, d);
+}
+
+inline double AbsDistPointToLine(const Vector2 &q, const Vector2 &p,
+    const Vector2 &d)
+{
+  return fabs(DistPointToLine(q, p, d));
+}
+
+inline Vector2 Rotate(const Vector2 &a, double phi)
+{
+  double si = sin(phi), co = cos(phi);
+  return Vector2(co*a.x - si*a.y, si*a.x + co*a.y);
+}
+
+inline Vector2 MidPoint(const Vector2 &a, const Vector2 &b)
+{
+  return Vector2((a.x + b.x)/2., (a.y + b.y)/2.);
+}
+
+/**
+ * Print a vector to a stream: '[x y]`
+ */
+inline ostream& operator<<(ostream &os, const Vector2 &v)
+{
+  return os << '[' << v.x << ' ' << v.y <<  ']';
+}
+
+/**
+ * Read a vector from a stream.
+ * The expected format is: '[x y]', white spaces are ignored.
+ */
+inline istream& operator>>(istream &is, Vector2 &v) throw(Except)
+{
+  char c;
+  is >> c;
+  if(c == '[')
+  {
+    is >> v.x >> v.y >> c;
+    if(c != ']')
+      throw Except(__HERE__, "error reading Vector2: ']' expected");
+  }
+  else
+  {
+    throw Except(__HERE__, "error reading Vector2: '[' expected");
+  }
+  return is;
+}
+
+/**
+ * Append a vector to a string: '[x y]`
+ * Actually You should use stringstreams instead.
+ */
+inline string& operator<<(string &s, const Vector2 &v)
+{
+  stringstream ss;
+  ss << v;
+  s += ss.str();
+  return s;
+}
+
+/**
+ * Reads a point from the BEGINNING of a string. Subsequent calls of operator<<
+ * will always return the same point.
+ * The expected format is: '[x y]', white spaces are ignored.
+ * Actually You should use stringstreams instead.
+ */
+inline const string& operator>>(const string &s, Vector2 &v)
+{
+  stringstream ss(s);
+  ss >> v;
+  return s;
+}
+
+}
+
+#endif
+

@@ -1,0 +1,14 @@
+<launch>
+    <node pkg="dynamic_reconfigure" type="reconfigure_gui" name="reconfigure_gui" />
+
+    <!-- Visual feedback -->    
+    <node pkg="image_view" type="image_view" name="image_view_tracker">
+        <remap from="/image" to="/blort_tracker/image_result" />
+    </node>
+
+    <!-- Visual feedback -->    
+    <node pkg="image_view" type="image_view" name="image_view_detector">
+        <remap from="/image" to="/blort_detector/image_result" />
+    </node>
+</launch>
+

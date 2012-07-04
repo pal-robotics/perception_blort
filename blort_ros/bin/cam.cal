@@ -1,0 +1,83 @@
+# camera parameter file generated Fri Mar  2 13:07:26 2012
+
+# Intrinsic parameters for pinhole camera model.
+# The pinhole camera model is as follows:
+# m = A*(R*M + t)
+#
+# M .. 3x1 world point [mm]
+# A .. 3x3 camera intrinsic matrix
+#          |f_x  0  c_x|
+#      A = | 0  f_y c_y|
+#          | 0   0   1 |
+#      c_x, c_y .. principal point [pix]
+#      f_x, f_y .. focal length in [pix]
+#                  f_x = f/s_x, f_y = f/s_y
+#                  with f the focal length in [mm] and s_x, s_y the pixel
+#                  sizes in [mm/pix]
+# R,t .. 3x3 rotation matrix and 3x1 translation vector [mm]
+#      pose of camera w.r.t. world (= extrinsic parameters)
+# m .. 3x1 image point in homogenous co-ordinates
+#      image point in cartesian pixel co-ordinates is given as
+#      (x, y) = (m_x/m_z, m_y/m_z)
+# Note that only the ratios focal length to pixel size can be determined.
+# Given a (known) nominal focal length f (e.g. from camera data sheet) we
+# can calculate:
+# s_x = f/f_x .. horizontal pixel size [mm/pix]
+# s_y = f/f_y .. vertical pixel size [mm/pix]
+# r = s_x/s_y .. pixel aspect ratio
+#
+# Distortion is modelled as follows:
+# x_d = x + x*(k1*r^2 + k2*r^4) + 2*p1*x*y + p2*(r^2 + 2*x^2)
+# y_d = y + y*(k1*r^2 + k2*r^4) + 2*p1*x*y + p2*(r^2 + 2*y^2)
+#
+# where (x, y) are ideal, distortion-free image physical co-ordinates,
+# (x_d, y_d) are distorted image physical co-ordinates and r^2 = x^2 + y^2
+#
+# w, h .. image width and height
+
+# focal lengths in [pix]
+fx = 568.168672
+fy = 566.360327
+# principal point [pix]
+cx = 349.631248
+cy = 256.295344
+
+# (nominal) focal length [mm]
+f  = 3.080000
+# pixel size [mm/pix]
+sx = 0.005421
+sy = 0.005438
+# aspect ratio: pixel size x/y
+r  = 0.996817
+# image width and height
+w =  640
+h =  480
+
+# distortion parameters
+k1 = -0.059636
+k2 = 0.232352
+p1 = -0.003432
+p2 = 0.017361
+
+# mean reprojection error
+err = 0.083355
+
+# poses of calibration object w.r.t. camera for each image
+# 3x1 translation vector t [m] and 3x1 rotation vector
+nposes = 8
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img000.jpg
+pose0 = [109.329 35.966 439.824]  [1.804 -1.887 0.585]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img001.jpg
+pose1 = [33.701 55.914 296.492]  [2.140 -1.037 0.501]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img002.jpg
+pose2 = [158.519 -49.797 405.000]  [0.770 -2.662 -0.083]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img005.jpg
+pose3 = [83.430 31.208 371.919]  [-1.481 2.372 -1.247]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img006.jpg
+pose4 = [-81.768 55.776 229.373]  [2.527 -0.557 0.467]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img008.jpg
+pose5 = [145.767 96.427 442.254]  [-1.703 2.014 0.635]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img009.jpg
+pose6 = [121.458 80.015 283.173]  [1.537 -1.636 -0.213]
+# /home/student/Documents/Blort-2.2_updated/Calibration/logitech_s7500_images/img011.jpg
+pose7 = [-54.494 193.539 818.601]  [-0.878 1.458 -1.734]

@@ -1,0 +1,122 @@
+/**
+ * $Id: Geometry.ic 34111 2012-07-03 14:29:54Z student5 $
+ */
+
+#include <math.h>
+
+namespace P 
+{
+
+/**
+ * IsLeft(): tests if a point is Left|On|Right of an infinite line.
+ *    Input:  three points p0, p1, and p2
+ *    Return: >0 for p2 left of the line through p0 and p1
+ *            =0 for p2 on the line
+ *            <0 for p2 right of the line
+ */
+inline double IsLeft( Vector2 p0, Vector2 p1, Vector2 p2 )
+{
+  return (p1.x - p0.x)*(p2.y - p0.y) - (p2.x - p0.x)*(p1.y - p0.y);
+}
+
+
+/**
+ * IMin
+ * returns the smaler of two integers
+ */
+inline int IMin ( int i1, int i2 )
+{
+  if ( i1 < i2 )
+  {
+    return i1;
+  }
+  else
+  {
+    return i2;
+  }
+
+}
+
+/**
+ * IMax
+ * returns the larger of two integers
+ */
+inline int IMax ( int i1, int i2 )
+{
+  if ( i2 < i1 )
+  {
+    return i1;
+  }
+  else
+  {
+    return i2;
+  }
+}
+
+
+/**
+ * IModp 
+ * returns the nonnegative remainder of integer division.
+ */
+inline int IModp ( int i, int j )
+{
+  int value;
+
+  if ( j == 0 )
+  {
+    cout << "\n";
+    cout << "I_MODP - Fatal error!\n";
+    cout << "  I_MODP ( I, J ) called with J = " << j << "\n";
+    exit ( 1 );
+  }
+
+  value = i % j;
+
+  if ( value < 0 )
+  {
+    value = value + abs ( j );
+  }
+
+  return value;
+}
+
+/**
+ * IWrap
+ * forces an integer to lie between given limits by wrapping.
+ *
+ * Example:
+ *    ILO = 4, IHI = 8
+ *    I  I_WRAP
+ *    -2     8
+ *    -1     4
+ *     0     5
+ *     1     6
+ *     2     7
+ */
+inline int IWrap ( int ival, int ilo, int ihi )
+{
+  int jhi;
+  int jlo;
+  int value;
+  int wide;
+
+  jlo = IMin ( ilo, ihi );
+  jhi = IMax ( ilo, ihi );
+
+  wide = jhi + 1 - jlo;
+
+  if ( wide == 1 )
+  {
+    value = jlo;
+  }
+  else
+  {
+    value = jlo + IModp ( ival - jlo, wide );
+  }
+
+  return value;
+}
+
+
+}
+

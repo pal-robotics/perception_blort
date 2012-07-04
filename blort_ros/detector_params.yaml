@@ -1,0 +1,2 @@
+nn_match_threshold: 0.55
+ransac_n_points_to_match: 4

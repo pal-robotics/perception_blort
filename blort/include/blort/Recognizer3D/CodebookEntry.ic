@@ -1,0 +1,173 @@
+/**
+ * $Id: CodebookEntry.ic 34111 2012-07-03 14:29:54Z student5 $
+ */
+
+namespace P
+{
+
+
+inline KeypointDescriptor *CodebookEntry::Insert(KeypointDescriptor* oc)
+{
+  occurrences.PushBack(new KeypointDescriptor(oc));
+  return occurrences.Last();
+} 
+
+inline bool CodebookEntry::Insert(KeypointDescriptor* occ, float sqr_sigma)
+{
+  if (model->GetType() != occ->GetType())
+    return false;
+
+  occurrences.PushBack(new KeypointDescriptor(occ));
+
+  //compute new sigma
+  this->sqr_sigma = sqr_sigma; 
+
+  //compute new mean model of two clusters
+  model->Mul(Size());
+  model->Add(occ->GetVec());
+  model->Div(Size()+1.);
+
+  return true;
+}
+
+/**
+ * delete occurrences
+ */
+inline void CodebookEntry::Clear()
+{
+  for (unsigned i=0; i<occurrences.Size(); i++)
+    delete occurrences[i];
+  occurrences.Clear();
+}
+
+/**
+ * compute mean of all occurences and store as new model
+ */
+inline void CodebookEntry::ComputeModel()
+{
+  if (occurrences.Size()==0) return;
+  if (model==0) model=new KeypointDescriptor(occurrences[0]->GetType());
+  if (model->vec==0) model->AllocVec(occurrences[0]->GetSize());
+
+  register unsigned z;
+
+  model->SetZero();
+
+  for (z=0; z<occurrences.Size(); z++){
+    model->Add(occurrences[z]->vec);
+  }
+
+  model->Div((float)occurrences.Size());
+}
+
+/**
+ * Combine two clusters and compute new mean model and sigma
+ * sqr_sigma = 1/(N+M)(N*sqr_sigmaN+M*sqr_sigmaM+N*M/(N+M)*(meanN-meanM)²)
+ * mean = (N*meanN+M*meanM/(N+M))
+ */
+inline bool CodebookEntry::Combine(CodebookEntry *c)
+{
+  if (model->GetType() != c->model->GetType())
+    return false;
+
+  //compute new sigma
+  sqr_sigma = 1./(Size()+c->Size()) * (
+                Size()*sqr_sigma + 
+                c->Size()*c->sqr_sigma +
+                Size()*c->Size()/(Size()+c->Size()) * 
+                  model->DistSqr(model->GetVec(),c->model->GetVec(),model->GetSize()));
+
+  //compute new mean model of two clusters
+  model->Mul(Size());
+  c->model->Mul(c->Size());
+  model->Add(c->model->GetVec());
+  model->Div(Size()+c->Size());
+
+  //add occurrences from c
+  for (unsigned i=0; i<c->Size(); i++)
+    occurrences.PushBack(c->occurrences[i]);
+  c->Clear();
+ 
+  return true;
+}
+
+/**
+ * Compute the squared sigma of a combination of to codebook entries
+ */
+inline float CodebookEntry::CombinedSqrSigma(CodebookEntry *c)
+{
+  if (model->GetType() != c->model->GetType())
+    return FLT_MAX;
+
+  //compute new sigma
+  return 1./(Size()+c->Size()) * (
+              Size()*sqr_sigma + 
+              c->Size()*c->sqr_sigma +
+              Size()*c->Size()/(Size()+c->Size()) * 
+                 model->DistSqr(model->GetVec(),c->model->GetVec(),model->GetSize()));
+}
+
+/**
+ * Compute the squared sigma of a combination of to codebook entries
+ */
+inline float CodebookEntry::CombinedSqrSigma(KeypointDescriptor *occ)
+{
+  if (model->GetType() != occ->GetType())
+    return FLT_MAX;
+
+  //compute new sigma
+  return 1./(Size()+1.) * (
+              Size()*sqr_sigma + 
+              Size()/(Size()+1.) * 
+                 model->DistSqr(model->GetVec(),occ->GetVec(),model->GetSize()));
+}
+
+/**
+ * return similarity of two clusters
+ */
+inline float CodebookEntry::DistanceSqr(CodebookEntry *c)
+{
+  if (model->GetType() != c->model->GetType())
+    return FLT_MAX;
+
+  float dist;
+  dist = sqr_sigma +
+         c->sqr_sigma +
+         model->DistSqr(model->GetVec(),c->model->GetVec(),model->GetSize());
+
+  //set type dependant constants
+  switch(model->GetType())
+  {
+    case KeypointDescriptor::DOG_SIFT:
+      dist/=KeypointDescriptor::DOG_SIFT_THR;
+      break;
+    case KeypointDescriptor::LOWE_DOG_SIFT:
+      dist/=KeypointDescriptor::LOWE_DOG_SIFT_THR;
+      break;
+    case KeypointDescriptor::MSER_SIFT:
+      dist/=KeypointDescriptor::MSER_SIFT_THR;
+      break;
+    case KeypointDescriptor::UVMSER_SIFT:
+      dist/=KeypointDescriptor::MSER_SIFT_THR;
+      break;
+    case KeypointDescriptor::HESLAP_SIFT:
+      dist/=KeypointDescriptor::HESLAP_SIFT_THR;
+      break;
+    default:
+      cout<<"Error CodebookEntry: Unknown keypoint type!"<<endl;
+      dist = FLT_MAX;
+      break;
+  }
+
+  return dist;
+}
+
+inline void DeleteCodebook(Array<CodebookEntry*> &codebook)
+{
+  for (unsigned i=0; i<codebook.Size(); i++)
+    delete codebook[i];
+  codebook.Clear();
+}
+
+
+} //-- THE END --

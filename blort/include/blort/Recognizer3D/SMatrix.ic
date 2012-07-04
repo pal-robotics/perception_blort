@@ -1,0 +1,80 @@
+/**
+ * $Id: SMatrix.ic 34111 2012-07-03 14:29:54Z student5 $
+ */
+
+
+namespace P 
+{
+
+/**
+ * Matrix multiplication 3x3
+ */
+inline void Mul33(double *m1, double *m2, double *r)
+{
+  r[0] = m1[0]*m2[0] + m1[1]*m2[3] + m1[2]*m2[6];
+  r[1] = m1[0]*m2[1] + m1[1]*m2[4] + m1[2]*m2[7];
+  r[2] = m1[0]*m2[2] + m1[1]*m2[5] + m1[2]*m2[8];
+
+  r[3] = m1[3]*m2[0] + m1[4]*m2[3] + m1[5]*m2[6];
+  r[4] = m1[3]*m2[1] + m1[4]*m2[4] + m1[5]*m2[7];
+  r[5] = m1[3]*m2[2] + m1[4]*m2[5] + m1[5]*m2[8];
+
+  r[6] = m1[6]*m2[0] + m1[7]*m2[3] + m1[8]*m2[6];
+  r[7] = m1[6]*m2[1] + m1[7]*m2[4] + m1[8]*m2[7];
+  r[8] = m1[6]*m2[2] + m1[7]*m2[5] + m1[8]*m2[8];
+}
+
+/**
+ * Multiplication of a 3x3 matrix with a scalar
+ */
+inline void Mul33(double *m, double s, double *r)
+{
+  r[0] = m[0]*s; r[1] = m[1]*s; r[2] = m[2]*s;
+  r[3] = m[3]*s; r[4] = m[4]*s; r[5] = m[5]*s;
+  r[6] = m[6]*s; r[7] = m[7]*s; r[8] = m[8]*s;
+}
+
+/**
+ * Determinant of a 3x3 matrix
+ */
+inline double Det33(double *m)
+{
+  return m[0]*m[4]*m[8] + m[1]*m[5]*m[6] + m[2]*m[3]*m[7]
+        -m[0]*m[5]*m[7] - m[1]*m[3]*m[8] - m[2]*m[4]*m[6];
+}
+
+inline bool Inv33(double *m, double *r)
+{
+  r[0] = m[4]*m[8] - m[5]*m[7];
+  r[1] = m[2]*m[7] - m[1]*m[8];
+  r[2] = m[1]*m[5] - m[2]*m[4];
+
+  r[3] = m[5]*m[6] - m[3]*m[8];
+  r[4] = m[0]*m[8] - m[2]*m[6];
+  r[5] = m[2]*m[3] - m[0]*m[5];
+
+  r[6] = m[3]*m[7] - m[4]*m[6];
+  r[7] = m[1]*m[6] - m[0]*m[7];
+  r[8] = m[0]*m[4] - m[1]*m[3];
+
+  double det = Det33(r);
+
+  if (IsZero(det)) return false;
+
+  Mul33(r, 1./det, r);
+
+  return true;
+}
+
+/** 
+ * Transpose of a 3x3 matrix
+ */
+inline void Transpose33(double *m, double *r)
+{
+  r[0] = m[0]; r[1] = m[3]; r[2] = m[6];
+  r[3] = m[1]; r[4] = m[4]; r[5] = m[7];
+  r[6] = m[2]; r[7] = m[5]; r[8] = m[8];
+}
+
+}
+

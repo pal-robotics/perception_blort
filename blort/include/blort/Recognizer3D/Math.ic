@@ -1,0 +1,143 @@
+/**
+ * $Id: Math.ic 34111 2012-07-03 14:29:54Z student5 $
+ *
+ * Michael Zillich, 2004-3-04
+ */
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+namespace P 
+{
+
+static const double eps = 1e-12;
+static const double pi = M_PI;
+static const double two_pi = 2*M_PI;
+
+/**
+ * Returns true if the value is near zero (+/- epsilon)
+ * Our epsion is 1e-12
+ */
+inline bool IsZero(double d)
+{
+  return fabs(d) < eps;
+}
+
+/**
+ * Returns true if the values are equal (+/- epsilon)
+ * Our epsion is 1e-12
+ */
+inline bool IsEqual(double a, double b)
+{
+  return fabs(a - b) < eps;
+}
+
+template <class Num>
+inline Num Sqr(Num x)
+{
+  return x*x;
+}
+
+template <class Num>
+inline Num Max(Num a, Num b)
+{
+  return (a >= b ? a : b);
+}
+
+template <class Num>
+inline Num Min(Num a, Num b)
+{
+  return (a <= b ? a : b);
+}
+
+template <class Num>
+inline int Sign(Num x)
+{
+  if(x < (Num)0)
+    return -1;
+  else if(x > (Num)0)
+    return 1;
+  else
+    return 0;
+}
+
+template <class T>
+inline void Swap(T &a, T &b)
+{
+  T t = a;
+  a = b;
+  b = t;
+}
+
+template <class Num>
+inline bool Between(Num x, Num l, Num u)
+{
+  return l < x && x < u;
+}
+
+template <class Num>
+inline bool BetweenEq(Num x, Num l, Num u)
+{
+  return l <= x && x <= u;
+}
+
+/**
+ * Scale angle to [0..2pi[
+ */
+inline double ScaleAngle_0_2pi(double a)
+{
+  while(a >= two_pi) a -= two_pi;
+  while(a < 0.) a += two_pi;
+  return a;
+}
+
+/**
+ * Scale angle to [-pi..pi[
+ */
+inline double ScaleAngle_mpi_pi(double a)
+{
+  while(a >= pi) a -= two_pi;
+  while(a < -pi) a += two_pi;
+  return a;
+}
+
+/**
+ * Scale angle to [0..pi[
+ */
+inline double ScaleAngle_0_pi(double a)
+{
+  while(a >= pi) a -= pi;
+  while(a < 0.) a += pi;
+  return a;
+}
+
+/**
+ * Difference of two angles b - a. The resulting angle is scaled to [-pi..pi[
+ */
+inline double DiffAngle_mpi_pi(double b, double a)
+{
+  return ScaleAngle_mpi_pi(b - a);
+}
+
+/**
+ * Difference of two angles b - a. The resulting angle is scaled to [0..2pi[
+ */
+inline double DiffAngle_0_2pi(double b, double a)
+{
+  return ScaleAngle_0_2pi(b - a);
+}
+
+/**
+ * Scale an integer angle to [0..8[
+ */
+inline int ScaleIntAngle_0_8(int a)
+{
+  while(a >= 8) a -= 8;
+  while(a < 0) a += 8;
+  return a;
+}
+
+
+
+}
+

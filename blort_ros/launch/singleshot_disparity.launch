@@ -1,0 +1,19 @@
+<launch>
+
+    <!-- Tracker node -->
+    <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)">
+        <param name="launch_mode" value="singleshot" />
+        <remap from="/blort_camera_info" to="/disparity_segmentation/camera_info" />
+        <remap from="/blort_image_masked" to="/disparity_segmentation/image_masked" />
+    </node>
+
+    <group ns="/blort_detector">
+        <rosparam command="load" file="$(find blort_ros)/detector_params.yaml" />
+    </group>
+    
+    <!-- Detector node -->
+    <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)">
+    </node>
+
+</launch>
+

@@ -1,0 +1,20 @@
+
+Author: Thomas Moerwald (Vienna University of Technology)
+Email: moerwald@acin.tuwien.ac.at
+
+Recognizer 3D
+API: Recognizer3D.h
+
+The software recognizes the pose of an object using Sifts.
+
+    * Input: Camera image and sift file
+    * Output: 3D pose of the object 
+
+Requirements
+
+    * NVIDIA graphics card, with correctly installed driver software
+    * OpenGL
+    * OpenCV
+    * SiftGPU, DevIL (IL), Cg, CgGL
+    * GLEW, glut
+

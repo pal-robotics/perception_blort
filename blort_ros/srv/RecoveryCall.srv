@@ -1,0 +1,3 @@
+sensor_msgs/Image Image
+---
+geometry_msgs/Pose Pose

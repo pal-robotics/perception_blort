@@ -1,0 +1,70 @@
+/**
+ * $Id: Homography.ic 34111 2012-07-03 14:29:54Z student5 $
+ */
+
+#include <math.h>
+
+namespace P 
+{
+
+/**
+ * MapPoint
+ * mapping of a point.
+ * IN: p     ... point to map
+ *     mat    ... 3x3 transformation matrix
+ * OUT: r ... mapped point
+ *            returns -1 if mapping is not possible
+ */
+inline Vector2 MapPoint(Vector2 &p, Matrix &mat)
+{
+  //map point
+  if (mat.isSize(3,3)){
+    double x,y;
+    x = mat.tabMat[1][1]*p.x + mat.tabMat[1][2]*p.y +mat.tabMat[1][3];
+    y = mat.tabMat[2][1]*p.x + mat.tabMat[2][2]*p.y +mat.tabMat[2][3];
+    double t= mat.tabMat[3][1]*p.x + mat.tabMat[3][2]*p.y +mat.tabMat[3][3];
+    x /=t;
+    y /=t;
+
+    return Vector2(x,y);
+  }else{
+    return Vector2(DBL_MAX,DBL_MAX);
+  }
+}
+
+inline void MapPoint(double x, double y, Matrix &mat, double &xr, double &yr)
+{
+  //map point
+  if (mat.isSize(3,3)){
+    xr = mat.tabMat[1][1]*x + mat.tabMat[1][2]*y +mat.tabMat[1][3];
+    yr = mat.tabMat[2][1]*x + mat.tabMat[2][2]*y +mat.tabMat[2][3];
+    double t= mat.tabMat[3][1]*x + mat.tabMat[3][2]*y +mat.tabMat[3][3];
+    xr /=t;
+    yr /=t;
+  }else{
+    xr=-1.;
+    yr=-1.;
+  }
+}
+
+
+/**
+ * returns angle and scale from homography
+ */
+inline void GetPosScaleAngle( double x, double y, Matrix &H, double &xr, double &yr, double &scale, double &angle){
+
+  double x2=x+10.;
+  double y2=y;
+  double x2H,y2H;
+  MapPoint(x,y,H,xr,yr);
+  MapPoint(x2,y2,H,x2H,y2H);
+
+  double dxH=x2H-xr;
+  double dyH=y2H-yr;
+  scale=((sqrt(dxH*dxH+dyH*dyH))/10.);
+  angle=atan2(dyH,dxH);
+}
+
+
+}
+

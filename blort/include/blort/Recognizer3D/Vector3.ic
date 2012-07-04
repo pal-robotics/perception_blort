@@ -1,0 +1,256 @@
+/**
+ * $Id: Vector3.ic 34111 2012-07-03 14:29:54Z student5 $
+ */
+
+#ifndef P_VECTOR3_IC
+#define P_VECTOR3_IC
+
+#include <math.h>
+#include <sstream>
+#include <blort/Recognizer3D/Math.hh>
+
+namespace P{
+
+static const double epsilon = 1e-12;
+
+inline Vector3::Vector3()
+{
+}
+
+inline Vector3::Vector3(double xx, double yy, double zz)
+: x(xx), y(yy), z(zz)
+{
+}
+
+inline Vector3& Vector3::operator+=(const Vector3 &v)
+{
+  x += v.x;
+  y += v.y;
+  z += v.z;
+  return *this;
+}
+
+inline Vector3& Vector3::operator-=(const Vector3 &v)
+{
+  x -= v.x;
+  y -= v.y;
+  z -= v.z;
+  return *this;
+}
+
+
+inline Vector3& Vector3::operator*=(double s)
+{
+  x *= s;
+  y *= s;
+  z *= s;
+  return *this;
+}
+
+inline Vector3& Vector3::operator/=(double s) throw(Except)
+{
+  if(s == 0)
+    throw Except(__HERE__, "division by zero");
+  x /= s;
+  y /= s;
+  z /= s;
+  return *this;
+}
+
+
+inline double Vector3::NormSquare() const
+{
+  return x*x + y*y + z*z;
+}
+
+inline double Vector3::LengthSquare() const
+{
+  return NormSquare();
+}
+
+inline double Vector3::Norm() const
+{
+  return sqrt(x*x + y*y + z*z);
+}
+
+inline double Vector3::Length() const
+{
+  return Norm();
+}
+
+inline void Vector3::Normalise()
+{
+  double n = Norm();
+  *this /= n;
+}
+
+inline Vector3 operator-(const Vector3 &v)
+{
+  return Vector3(-v.x, -v.y, -v.z);
+}
+
+inline bool operator==(const Vector3 &a, const Vector3 &b)
+{
+  return (fabs(a.x-b.x)<epsilon) && (fabs(a.y-b.y)<epsilon) && (fabs(a.z-b.z)<epsilon);
+}
+
+inline bool operator!=(const Vector3 &a, const Vector3 &b)
+{
+  return !operator==(a, b);
+}
+
+inline Vector3 operator+(const Vector3 &a, const Vector3 &b)
+{
+  return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+inline Vector3 operator-(const Vector3 &a, const Vector3 &b)
+{
+  return Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+
+
+inline Vector3 operator*(const double s, const Vector3 &v)
+{
+  return Vector3(v.x*s, v.y*s, v.z*s);
+}
+
+inline Vector3 operator*(const Vector3 &v, const double s)
+{
+  return s*v;
+}
+
+inline Vector3 operator/(const Vector3 &v, const double s) throw(Except)
+{
+  if(s == 0)
+    throw Except(__HERE__, "division by zero");
+  return Vector3(v.x/s, v.y/s, v.z/s);
+}
+
+inline double Length(const Vector3 &v)
+{
+  return v.Norm();
+}
+
+inline Vector3 Normalise(const Vector3 &v)
+{
+  double n = v.Norm();
+  return v/n;
+}
+
+inline double Dot(const Vector3 &a, const Vector3 &b)
+{
+  return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+/**
+ * Vector cross product.
+ * note: positive cross product a x b means b counterclockwise (i.e. left) to a
+ */
+inline Vector3 Cross(const Vector3 &a, const Vector3 &b)
+{
+  return Vector3(-a.z*b.y+a.y*b.z,a.z*b.x-a.x*b.z,-a.y*b.x+a.x*b.y);
+}
+
+inline Vector3 MidPoint(const Vector3 &a, const Vector3 &b)
+{
+  return Vector3((a.x + b.x)/2., (a.y + b.y)/2., (a.z + b.z)/2.);
+}
+
+inline double AngleBetween(const Vector3 &a, const Vector3 &b)
+{
+  double cosalpha=Dot(a,b)/(a.Norm()*b.Norm());
+  return (fabs(1-cosalpha)<epsilon?0:acos(cosalpha));
+}
+
+inline double DistanceSquare(const Vector3 &a, const Vector3 &b)
+{
+  return Sqr(a.x - b.x) + Sqr(a.y - b.y) + Sqr(a.z - b.z);
+}
+
+
+inline double Distance(const Vector3 &a, const Vector3 &b)
+{
+  return sqrt(Sqr(a.x - b.x) + Sqr(a.y - b.y) + Sqr(a.z - b.z));
+}
+
+/**
+ * PlaneExp2Normal
+ * returns the normal vector to a plan
+ * n.q = lambda 
+ */
+inline Vector3 PlaneExp2Normal(const Vector3 &a, const Vector3 &b, const Vector3 &c)
+{
+
+  Vector3 d1=b-a;
+  Vector3 d2=c-b;
+  
+  /*Vector3 n;
+  n.x = ( b.y - a.y ) * ( c.z - a.z )
+      - ( b.z - a.z ) * ( c.y - a.y ); 
+  n.y = ( b.z - a.z ) * ( c.x - a.x )
+      - ( b.x - a.x ) * ( c.z - a.z ); 
+  n.z = ( b.x - a.x ) * ( c.y - a.y )
+      - ( b.y - a.y ) * ( c.x - a.x );*/
+
+  return Normalise(Cross(d1,d2));
+}
+
+
+/**
+ * Print a vector to a stream: '[x y z]`
+ */
+inline ostream& operator<<(ostream &os, const Vector3 &v)
+{
+  return os << '[' << v.x << ' ' << v.y << ' '<< v.z <<']';
+}
+
+/**
+ * Read a vector from a stream.
+ * The expected format is: '[x y z]', white spaces are ignored.
+ */
+inline istream& operator>>(istream &is, Vector3 &v) throw(Except)
+{
+  char c;
+  is >> c;
+  if(c == '[')
+  {
+    is >> v.x >> v.y >> v.z >> c;
+    if(c != ']')
+      throw Except(__HERE__, "error reading Vector2: ']' expected");
+  }
+  else
+  {
+    throw Except(__HERE__, "error reading Vector2: '[' expected");
+  }
+  return is;
+}
+
+/**
+ * Append a vector to a string: '[x y z]`
+ * Actually You should use stringstreams instead.
+ */
+inline string& operator<<(string &s, const Vector3 &v)
+{
+  stringstream ss;
+  ss << v;
+  s += ss.str();
+  return s;
+}
+
+/**
+ * Reads a point from the BEGINNING of a string. Subsequent calls of operator<<
+ * will always return the same point.
+ * The expected format is: '[x y z]', white spaces are ignored.
+ * Actually You should use stringstreams instead.
+ */
+inline const string& operator>>(const string &s, Vector3 &v)
+{
+  stringstream ss(s);
+  ss >> v;
+  return s;
+}
+
+
+}
+#endif
