@@ -1,10 +1,10 @@
 libglew:
   ubuntu:
     apt:
-        packages: [libglew1.5, libglew1.5-dev]
+      packages: [libglew1.5, libglew1.5-dev]
 
 libdevil:
   ubuntu:
     apt:
-        packages: [libdevil1c2, libdevil-dev]
+      packages: [libdevil1c2, libdevil-dev]
 
