@@ -2,13 +2,13 @@
 
     <node pkg="blort_ros" type="learnsifts" name="blort_learnsifts" args="$(find blort_ros)">
 <!--
-        <remap from="/blort_camera" to="/stereo/left/camera_info" />
-        <remap from="/blort_image" to="/stereo/left/image" /> 
+        <remap from="/blort_camera" to="/gscam/camera_info" />
+        <remap from="/blort_image" to="/gscam/image_raw" /> 
         <remap from="/blort_camera" to="/disparity_segment/camera_info" />
         <remap from="/blort_image" to="/disparity_segment/image_rect_masked" /> 
 -->
-        <remap from="/blort_camera" to="/gscam/camera_info" />
-        <remap from="/blort_image" to="/gscam/image_raw" /> 
+        <remap from="/blort_camera" to="/stereo/left/camera_info" />
+        <remap from="/blort_image" to="/stereo/left/image" /> 
     </node>
 
 </launch>
