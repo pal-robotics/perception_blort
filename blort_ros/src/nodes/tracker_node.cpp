@@ -44,6 +44,8 @@
 #include <ros/time.h>
 
 #include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
+#include <message_filters/time_synchronizer.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Pose.h>
@@ -110,14 +112,15 @@ public:
         delete mode;
     }
     
-    void imageCb(const sensor_msgs::ImageConstPtr& msg)
+    void imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, const sensor_msgs::ImageConstPtr& trackerImgMsg )
     {
         if(tracker != 0)
         {
-            cv_bridge::CvImagePtr cv_ptr;
+            cv_bridge::CvImagePtr cv_detector_ptr, cv_tracker_ptr;
             try
             {
-                cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+                cv_detector_ptr = cv_bridge::toCvCopy(detectorImgMsg, sensor_msgs::image_encodings::BGR8);
+                cv_tracker_ptr  = cv_bridge::toCvCopy(trackerImgMsg,  sensor_msgs::image_encodings::BGR8);
             }
             catch (cv_bridge::Exception& e)
             {
@@ -127,7 +130,7 @@ public:
 
             if(tracker->getMode() == blort_ros::TRACKER_RECOVERY_MODE)
             {
-                blort_ros::RecoveryCall srv = mode->recovery(msg);
+                blort_ros::RecoveryCall srv = mode->recovery(detectorImgMsg);
 
                 if(recovery_client.call(srv))
                 {
@@ -140,7 +143,7 @@ public:
             }
             else
             {
-                tracker->process(cv_ptr->image);
+                tracker->process(cv_tracker_ptr->image);
 
                 confidences_pub.publish(tracker->getConfidences());
                 if(tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD)
@@ -152,7 +155,7 @@ public:
                 }
 
                 cv_bridge::CvImage out_msg;
-                out_msg.header = msg->header;
+                out_msg.header = trackerImgMsg->header;
                 out_msg.header.stamp = ros::Time::now();
                 out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
                 out_msg.image = tracker->getImage();
@@ -187,14 +190,15 @@ private:
     class TrackingMode : public Mode
     {
     private:
-        ros::Subscriber cam_info_sub;
-        image_transport::Subscriber image_sub;
+        ros::Subscriber cam_info_sub;        
+        boost::shared_ptr<image_transport::SubscriberFilter> detector_image_sub, tracker_image_sub;
+        boost::shared_ptr< message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image > > imageSynchronizer;
         TrackerNode* parent_;
     public:
         TrackingMode(TrackerNode* parent) : parent_(parent)
         {
             ROS_INFO("Blort tracker launched in tracking mode.");
-            cam_info_sub = parent_->nh_.subscribe("/blort_camera_info", 10, &TrackerNode::TrackingMode::cam_info_callback, this);
+            cam_info_sub = parent_->nh_.subscribe("/detector_camera_info", 10, &TrackerNode::TrackingMode::cam_info_callback, this);
         }
 
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level)
@@ -223,7 +227,16 @@ private:
                 cam_info_sub.shutdown();
                 parent_->tracker = new blort_ros::GLTracker(msg, parent_->root_, true);
 
-                image_sub = parent_->it_.subscribe("/blort_image", 10, &TrackerNode::imageCb, parent_);
+                image_transport::TransportHints transportHint("raw");
+
+                detector_image_sub.reset( new image_transport::SubscriberFilter(parent_->it_, "/detector_image",   1, transportHint) );
+                tracker_image_sub.reset( new image_transport::SubscriberFilter(parent_->it_, "/tracker_image",   1, transportHint) );
+
+                imageSynchronizer.reset( new message_filters::TimeSynchronizer<sensor_msgs::Image,
+                                                                               sensor_msgs::Image>(*detector_image_sub, *tracker_image_sub, 1) );
+
+                imageSynchronizer->registerCallback(boost::bind(&TrackerNode::imageCb, parent_, _1, _2));
+
                 parent_->control_service = parent_->nh_.advertiseService("tracker_control", &TrackerNode::trackerControlServiceCb, parent_);
                 parent_->server_ = std::auto_ptr<dynamic_reconfigure::Server<blort_ros::TrackerConfig> >
                                    (new dynamic_reconfigure::Server<blort_ros::TrackerConfig>());
@@ -255,7 +268,7 @@ private:
             detector_set_caminfo_service = parent_->nh_.serviceClient<blort_ros::SetCameraInfo>("/blort_detector/set_camera_info");
             singleshot_service = parent_->nh_.advertiseService("singleshot_service", &TrackerNode::SingleShotMode::singleShotService, this);
             image_sub = parent_->it_.subscribe("/blort_image_rect_masked", 10, &TrackerNode::SingleShotMode::imageCallback, this);
-            cam_info_sub = parent_->nh_.subscribe("/blort_camera_info", 10, &TrackerNode::SingleShotMode::cameraCallback, this);
+            cam_info_sub = parent_->nh_.subscribe("/detector_camera_info", 10, &TrackerNode::SingleShotMode::cameraCallback, this);
 
             parent_->control_service = parent_->nh_.advertiseService("tracker_control", &TrackerNode::trackerControlServiceCb, parent_);
             parent_->server_ = std::auto_ptr<dynamic_reconfigure::Server<blort_ros::TrackerConfig> >
@@ -335,7 +348,7 @@ private:
                 while(ros::Time::now().toSec()-start_secs < time_to_run_singleshot)
                 {
                     ROS_INFO("Remaining time %f", time_to_run_singleshot+start_secs-ros::Time::now().toSec());
-                    parent_->imageCb(lastImage);
+                    parent_->imageCb(lastImage, lastImage);
                     if(parent_->tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD)
                     {
                         // instead of returning right away let's store the result
@@ -378,7 +391,7 @@ int main(int argc, char *argv[] )
     ros::init(argc, argv, "blort_tracker");
     //FIXME: hardcoded size, 1x1 is not good, renders the tracker unfunctional in runtime
     // size should be not smaller the image size, too big size is also wrong
-    pal_blort::GLXHidingWindow window(640, 480, "Tracker"); // a window which should hide itself after start
+    pal_blort::GLXHidingWindow window(656, 492, "Tracker"); // a window which should hide itself after start
     //blortGLWindow::GLWindow window(640  , 480, "Window"); // a normal opengl window
     TrackerNode node(argv[1]);
     ros::spin();

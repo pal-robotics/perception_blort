@@ -78,7 +78,7 @@ namespace blort_ros
         virtual void recovery() = 0;
         void process(cv::Mat img)
         {
-            last_image = img;
+            last_image       = img;            
             switch(current_mode)
             {
             case TRACKER_RECOVERY_MODE:
