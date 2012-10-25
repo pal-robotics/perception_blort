@@ -59,8 +59,9 @@
 #include <blort/GLWindow/glxhidingwindow.h>
 #include <blort/blort/pal_util.h>
 #include "../gltracker.h"
+#include <boost/noncopyable.hpp>
 
-class TrackerNode
+class TrackerNode : boost::noncopyable
 {
 private:
     class Mode;
@@ -165,11 +166,11 @@ public:
     }
     
     bool trackerControlServiceCb(blort_ros::TrackerCommand::Request &req,
-                                 blort_ros::TrackerCommand::Response &resp)
+                                 blort_ros::TrackerCommand::Response &)
     {
         if(tracker != 0)
         {
-            tracker->trackerControl(req.code);
+            tracker->trackerControl(req.code, req.param);
             return true;
         } else {
             ROS_WARN("Please publish camera_info for the tracker initialization.");

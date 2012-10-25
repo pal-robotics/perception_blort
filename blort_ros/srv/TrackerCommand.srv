@@ -1,2 +1,17 @@
+#
+# TrackerCommand.srv
+#
+# code:
+# 
+# 0 --> toggle Lock flag
+# 1 --> reset tracker
+# 2 --> set visualization model mode to param
+# 3 --> toggle draw particles flag
+# 4 --> show edges image
+# 5 --> show color image
+# 6 --> toggle edges image flag
+# 7 --> print statistics
+#
 uint8 code
+uint8 param
 ---

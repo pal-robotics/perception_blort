@@ -35,7 +35,9 @@ rosbuild_add_executable(gltracker_node src/nodes/tracker_node.cpp
                                        src/gltracker.cpp)
 target_link_libraries(gltracker_node ${OpenCV_INCLUDE_DIRS}
                                    module_tomgine 
-                                   module_tracker)
+                                   module_tracker
+                                   module_glwindow
+                                  GLU GL glut X11 rt)
 
 rosbuild_add_executable(gldetector_node src/nodes/detector_node.cpp
                                       src/gldetector.cpp)

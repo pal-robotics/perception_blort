@@ -135,7 +135,7 @@ int main(int argc, char *argv[] )
     std::string ply_model, sift_file, model_name;
 
     GetPlySiftFilenames(tracking_ini.c_str(), ply_model, sift_file, model_name);
-    printf("%s\n", model_name.c_str());
+    printf("Object name: %s\n", model_name.c_str());
     sift_file = pal_blort::addRoot(sift_file, config_root);
 
     // Get Parameter from file
@@ -145,6 +145,7 @@ int main(int argc, char *argv[] )
     getCamPose(pose_cal.c_str(), camPose);
     camPoseT = camPose.Transpose();
 
+    printf("=> Getting camera intrinsics ... ");
     // wait for the first camera_info message
     need_cam_init = true;
     while(need_cam_init)
@@ -154,8 +155,12 @@ int main(int argc, char *argv[] )
     setCameraPose(tgCamParams, pose_cal.c_str());
     trackParams.camPar = tgCamParams;
 
+    printf("OK\n");
+
     // Initialise image
     IplImage *image = cvCreateImage( cvSize(camera_info.width, camera_info.height), 8, 3 ); //FIXME dirty
+
+    printf("=> Initialising tracker ... ");
 
     // Create OpenGL Window and Tracker
     CRecognizerThread* pThreadRec =
@@ -164,13 +169,19 @@ int main(int argc, char *argv[] )
     Tracking::TextureTracker tracker;
     tracker.init(trackParams);
     float rec_time = 0.0f;
+    printf("OK\n");
 
     // Model for Tracker
     TomGine::tgPose trPose;
     trPose.t = vec3(0.0, 0.1, 0.0);
-    trPose.Rotate(0.0f, 0.0f, 0.5f);
-    int modelID = tracker.addModelFromFile(pal_blort::addRoot(ply_model, config_root).c_str(), trPose, model_name.c_str(), true);
+    trPose.Rotate(0.0f, 0.0f, 0.5f);    
+    std::string modelFullPath = pal_blort::addRoot(ply_model, config_root);
+    printf("=> Trying to get the object model from file: %s\n", modelFullPath.c_str());
+    int modelID = tracker.addModelFromFile(modelFullPath.c_str(), trPose, model_name.c_str(), true);
+    printf(" OK\n");
     tracker.setLockFlag(true);
+
+
 
     // Model for Recognizer / TomGine (ray-model intersection)
     TomGine::tgModel model;
@@ -188,7 +199,7 @@ int main(int argc, char *argv[] )
         ros::spinOnce();
     }
     *image = lastImage;
-    
+
     pThreadRec->Event();
 
     bool quit = false;

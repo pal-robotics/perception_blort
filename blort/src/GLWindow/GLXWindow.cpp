@@ -8,7 +8,7 @@
 
 namespace blortGLWindow{
 
-void GLWindow::init(unsigned int width, unsigned int height, const char* name){
+void GLWindow::init(unsigned int width, unsigned int height, const char* name, bool visible){
 	GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 	dpy = XOpenDisplay(NULL);
 
@@ -31,7 +31,9 @@ void GLWindow::init(unsigned int width, unsigned int height, const char* name){
 	wmDelete = XInternAtom(dpy, "WM_DELETE_WINDOW", true);
 	XSetWMProtocols(dpy, glWin, &wmDelete, 1);
 
-	XMapWindow(dpy, glWin);
+  if ( visible )
+    XMapWindow(dpy, glWin); //makes it visible
+
 	XStoreName(dpy, glWin, name);
 
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
@@ -55,8 +57,8 @@ GLWindow::GLWindow(){
 GLWindow::GLWindow(unsigned int width, unsigned int height){
 	init(width, height, "OpenGL Window");
 }
-GLWindow::GLWindow(unsigned int width, unsigned int height, const char* name){
-	init(width, height, name);
+GLWindow::GLWindow(unsigned int width, unsigned int height, const char* name, bool visible){
+  init(width, height, name, visible);
 }
 GLWindow::~GLWindow(){
 	quit();

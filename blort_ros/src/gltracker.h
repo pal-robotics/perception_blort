@@ -121,8 +121,10 @@ namespace blort_ros
         void reconfigure(blort_ros::TrackerConfig config);
 
         /** @brief Control the tracker with a single int code.
-         *  @param integer code associated with command, can be used with enums. */
-        void trackerControl(int code);
+         *  @param code integer code associated with command, can be used with enums.
+         *  @param param parameter of the command
+         */
+        void trackerControl(int code, int param = -1);
 
         void resetWithPose(const geometry_msgs::Pose& new_pose);
 

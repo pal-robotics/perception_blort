@@ -1802,7 +1802,9 @@ char **get_words(FILE *fp, int *nwords, char **orig_line)
     /* save pointer to beginning of word */
     if (num_words >= max_words) {
       max_words += 10;
-      words = (char **) realloc (words, sizeof (char *) * max_words);
+      //Jordi: why the first realloc is necessary?? It is called with the same arguments
+      //than the second!!
+      //words = (char **) realloc (words, sizeof (char *) * max_words);
       char** words_backup = words;
       words = (char **) realloc (words, sizeof (char *) * max_words);
       if(words == NULL)

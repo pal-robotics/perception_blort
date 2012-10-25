@@ -152,7 +152,8 @@ void GLTracker::track()
 
     if(tracker_confidence == Tracking::ST_GOOD && movement == Tracking::ST_STILL && quality != Tracking::ST_LOCKED)
     {
-        ROS_WARN("Tracker is really confident. Sorry, no learning with this node.");
+      ROS_DEBUG_STREAM("Tracker is really confident (edge conf: " << tracker_confidences.edgeConf <<
+                      " lost conf: " << tracker_confidences.lostConf << ". Sorry, no learning with this node.");
     }
 }
 
@@ -184,7 +185,7 @@ void GLTracker::reconfigure(blort_ros::TrackerConfig config)
     }
 }
 
-void GLTracker::trackerControl(int code)
+void GLTracker::trackerControl(int code, int param)
 {
     switch(code)
     {
@@ -196,7 +197,10 @@ void GLTracker::trackerControl(int code)
         this->reset();
         break;
     case 2: //m
-        tracker.setModelModeFlag( tracker.getModelModeFlag()+1 );
+        if ( param != -1 )
+          tracker.setModelModeFlag( param );
+        else
+          tracker.setModelModeFlag( tracker.getModelModeFlag()+1 );
         break;
     case 3: //p
         tracker.setDrawParticlesFlag( !tracker.getDrawParticlesFlag() );

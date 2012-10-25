@@ -42,10 +42,11 @@ public:
 	/** @brief Construction of an OpenGL Window (Rendering Context)
 	*   @param width Window and OpenGL viewport width in pixel
 	*   @param height Window and OpenGL viewport height in pixel
-	*   @param name Caption of the window in the titel bar */
+  *   @param name Caption of the window in the titel bar
+  *   @param visible if false the window will not be mapped to the display */
   GLWindow();
   GLWindow(unsigned int width, unsigned int height);
-  GLWindow(unsigned int width, unsigned int height, const char* name);
+  GLWindow(unsigned int width, unsigned int height, const char* name, bool visible = true);
   ~GLWindow();
 
   /** @brief Activate window for usage (set focus) */
@@ -85,7 +86,7 @@ protected:
   XWindowAttributes     	gwa;
 #endif
 
-  void init(unsigned int width, unsigned int height, const char* name);
+  void init(unsigned int width, unsigned int height, const char* name, bool visible = true);
   void quit();
   
 };

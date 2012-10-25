@@ -1,6 +1,6 @@
 <launch>
 
-    <node pkg="blort_ros" type="learnsifts" name="blort_learnsifts" args="$(find blort_ros)">
+    <node pkg="blort_ros" type="learnsifts" name="blort_learnsifts" args="$(find blort_ros)" output="screen">
 <!--
         <remap from="/blort_camera" to="/gscam/camera_info" />
         <remap from="/blort_image" to="/gscam/image_raw" /> 

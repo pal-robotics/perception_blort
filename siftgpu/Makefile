@@ -1,7 +1,20 @@
 all: siftgpu
 
-TARBALL = build/siftgpu.zip
-TARBALL_URL = http://wwwx.cs.unc.edu/~ccwu/cgi-bin/siftgpu.cgi
+
+#TARBALL = build/siftgpu.zip
+#TARBALL_URL = http://wwwx.cs.unc.edu/~ccwu/cgi-bin/siftgpu.cgi
+
+#The following tarball has been generated as follows:
+#  cd build/SiftGPU
+#  rm -rf bin
+#  rm -rf build
+#  cd ..
+#  zip siftgpu.zip SiftGPU -r
+#  mv siftgpu.zip ..
+#
+#  once compilation warnings have been fixed in build/SiftGPU
+#
+TARBALL = siftgpu.zip
 SOURCE_DIR = build/SiftGPU
 MD5SUM_FILE = siftgpu.zip.md5sum
 UNPACK_CMD = unzip -o
