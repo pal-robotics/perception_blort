@@ -102,7 +102,9 @@ public:
                 cv_bridge::CvImagePtr cv_ptr;
                 try
                 {
-                    cv_ptr = cv_bridge::toCvCopy(req.Image, sensor_msgs::image_encodings::BGR8);
+                    //cv_ptr = cv_bridge::toCvCopy(req.Image, sensor_msgs::image_encodings::BGR8);
+                  cv_ptr = cv_bridge::toCvCopy(req.Image, req.Image.encoding);
+                  ROS_INFO_STREAM("\n\nENCODING = " << req.Image.encoding << "\n\n\n");
                 }
                 catch (cv_bridge::Exception& e)
                 {
@@ -117,7 +119,8 @@ public:
             cv_bridge::CvImage out_msg;
             out_msg.header = req.Image.header;
             out_msg.header.stamp = ros::Time::now();
-            out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
+            //out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
+            out_msg.encoding = sensor_msgs::image_encodings::BGR8;
             out_msg.image = detector->getImage();
             image_pub.publish(out_msg.toImageMsg());
 

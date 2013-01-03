@@ -1,4 +1,4 @@
-
+#include <ros/console.h>
 #include <blort/Tracker/TextureTracker.h>
 #include <blort/TomGine/tgLighting.h>
 #include <blort/TomGine/tgMaterial.h>

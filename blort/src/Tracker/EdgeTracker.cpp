@@ -1,4 +1,4 @@
-
+#include <ros/console.h>
 #include <blort/Tracker/EdgeTracker.h>
 
 using namespace Tracking;

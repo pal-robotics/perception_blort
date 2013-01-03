@@ -20,7 +20,7 @@
   <depend package="siftgpu"/>
   <rosdep name="libglu1"/>
   <export>
-     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib -lros"/>
+     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib"/>
   </export>
 </package>
 

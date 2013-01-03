@@ -1,3 +1,4 @@
+#include <ros/console.h>
 
 #include <blort/Tracker/ImageProcessor.h>
 #include <blort/TomGine/tgError.h>

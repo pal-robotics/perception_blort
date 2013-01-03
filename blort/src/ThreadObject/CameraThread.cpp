@@ -1,5 +1,6 @@
 
 #include <blort/ThreadObject/CameraThread.h>
+#include <opencv2/legacy/compat.hpp>
 #include <stdexcept>
 
 

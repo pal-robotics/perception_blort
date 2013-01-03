@@ -12,7 +12,8 @@
 #define CV_GEOMETRY_H
 
 #include <stdio.h>
-#include <opencv/cv.h>
+//#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 
 
 /**

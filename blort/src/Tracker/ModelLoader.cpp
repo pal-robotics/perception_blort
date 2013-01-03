@@ -1,4 +1,4 @@
-
+#include <ros/console.h>
 #include <blort/Tracker/ModelLoader.h>
 #include <stdexcept>
 
@@ -528,7 +528,7 @@ bool ModelLoader::SavePly(TrackerModel &model, const char* name){
         }
 
         texname.append("-");
-        sprintf(number, "%.5d", i);
+        sprintf(number, "%.5u", i);
         texname.append(number);
         texname.append(".jpg");
         texfilename.append(texname);
@@ -626,7 +626,7 @@ bool ModelLoader::SavePly(TrackerModel &model, const char* name){
         }
         sprintf(number, " %f %f %f %f", p->x,  p->y,  p->w,  p->h);
         fputs(number, pFile);
-        sprintf(number, " %d", i);
+        sprintf(number, " %u", i);
         fputs(number, pFile);
         fputs("\n", pFile);
     }

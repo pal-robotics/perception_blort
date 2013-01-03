@@ -1,5 +1,5 @@
 /**
- * $Id: Geometry.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: Geometry.hh 37501 2012-11-21 20:33:13Z dani $
  *
  * Johann Prankl, 30.11.2006 
  */
@@ -12,10 +12,11 @@
 #include <blort/Recognizer3D/Except.hh>
 #include <blort/Recognizer3D/Array.hh>
 #include <blort/Recognizer3D/Vector2.hh>
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+/*#include <opencv/highgui.h>
 #include <opencv/cxcore.h>
-
+*/
 
 namespace P 
 {

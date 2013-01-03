@@ -1,3 +1,4 @@
+#include <ros/console.h>
 
 #include <blort/Tracker/Tracker.h>
 #include <stdexcept>
@@ -1137,7 +1138,7 @@ void Tracker::printStatistics(){
     
     for(unsigned i=0; i<m_modellist.size(); i++){
         tgPose pMean =  m_modellist[i]->distribution.getMean();
-        printf("	Object %d '%s'\n", i, m_modellist[i]->label.c_str());
+        printf("	Object %u '%s'\n", i, m_modellist[i]->label.c_str());
         printf("		FPS: %.1f\n", 1.0f/m_ftime);
         printf("		Textured: %d\n", m_modellist[i]->model.m_textured);
         printf("		Recursions: %i\n", m_modellist[i]->num_recursions );

@@ -190,12 +190,12 @@ void tgModel::Clear(){
 void tgModel::Print() const{
 	
 	for(unsigned i=0; i<m_vertices.size(); i++){
-	  printf("Vertex %d: %f %f %f, %f %f %f\n", i, m_vertices[i].pos.x, m_vertices[i].pos.y, m_vertices[i].pos.z, m_vertices[i].normal.x, m_vertices[i].normal.y, m_vertices[i].normal.z);
+	  printf("Vertex %u: %f %f %f, %f %f %f\n", i, m_vertices[i].pos.x, m_vertices[i].pos.y, m_vertices[i].pos.z, m_vertices[i].normal.x, m_vertices[i].normal.y, m_vertices[i].normal.z);
 	}
 	
 	for(unsigned i=0; i<m_faces.size(); i++){
 		
-		printf("Face %d:",i);
+		printf("Face %u:",i);
 		for(unsigned j=0; j<m_faces[i].v.size(); j++){
 			printf(" %d", m_faces[i].v[j]);
 		}

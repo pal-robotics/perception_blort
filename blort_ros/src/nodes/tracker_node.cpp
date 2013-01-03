@@ -158,7 +158,8 @@ public:
                 cv_bridge::CvImage out_msg;
                 out_msg.header = trackerImgMsg->header;
                 out_msg.header.stamp = ros::Time::now();
-                out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
+                //out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
+                out_msg.encoding = sensor_msgs::image_encodings::BGR8;
                 out_msg.image = tracker->getImage();
                 image_pub.publish(out_msg.toImageMsg());
             }

@@ -1,4 +1,4 @@
-
+#include <ros/console.h>
 #include <blort/Tracker/Distribution.h>
 #include <blort/TomGine/tgError.h>
 

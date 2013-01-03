@@ -1,5 +1,5 @@
 /**
- * $Id: Homography.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: Homography.hh 37501 2012-11-21 20:33:13Z dani $
  * Johann Prankl, 2010-03-30
  * prankl@acin.tuwien.ac.at
  */
@@ -9,8 +9,9 @@
 
 #include <iostream>
 #include <float.h>
-#include <opencv/cv.h>
-#include <opencv/cxcore.h>
+//#include <opencv/cv.h>
+//#include <opencv/cxcore.h>
+#include <opencv2/opencv.hpp>
 #include <blort/Recognizer3D/Vector2.hh>
 #include <blort/Recognizer3D/Array.hh>
 #include <blort/Recognizer3D/PNamespace.hh>

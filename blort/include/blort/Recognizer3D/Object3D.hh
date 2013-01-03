@@ -1,5 +1,5 @@
 /**
- * $Id: Object3D.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: Object3D.hh 37501 2012-11-21 20:33:13Z dani $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */
@@ -7,7 +7,8 @@
 #ifndef P_OBJECT_3D_HH
 #define P_OBJECT_3D_HH
 
-#include <opencv/cv.h>
+//#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 #include <map>
 #include <blort/Recognizer3D/PNamespace.hh>
 #include <blort/Recognizer3D/Array.hh>

@@ -1,6 +1,7 @@
 
 #include <blort/ThreadObject/RecognizerThread.h>
 #include <stdexcept>
+#include <opencv2/legacy/compat.hpp>
 
 using namespace std;
 

@@ -28,7 +28,8 @@
 #endif
 
 // OpenCV2.x include has extra directory level
-#include <opencv/highgui.h>
+//#include <opencv/highgui.h>
+#include <opencv2/highgui/highgui.hpp>
 
 #include <stdio.h>
 #include <stdlib.h>

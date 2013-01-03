@@ -1,5 +1,5 @@
 /**
- * $Id: PoseCv.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: PoseCv.hh 37501 2012-11-21 20:33:13Z dani $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */
@@ -9,8 +9,9 @@
 
 #include <limits.h>
 #include <map>
-#include <opencv/cv.h>
-#include <opencv/cxcore.h>
+//#include <opencv/cv.h>
+//#include <opencv/cxcore.h>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <blort/Recognizer3D/PNamespace.hh>
 #include <blort/Recognizer3D/Array.hh>

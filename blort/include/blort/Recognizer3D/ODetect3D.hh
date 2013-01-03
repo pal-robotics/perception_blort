@@ -1,5 +1,5 @@
 /**
- * $Id: ODetect3D.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: ODetect3D.hh 37501 2012-11-21 20:33:13Z dani $
  * Simple RANSAC based 3d object detector
  *
  * Johann Prankl, 2010-01-27 
@@ -9,7 +9,8 @@
 #ifndef P_DOBJECT_3D_HH
 #define P_DOBJECT_3D_HH
 
-#include <opencv/cv.h>
+//#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 #include <SiftGPU.h>
 #include <blort/Recognizer3D/KeyClusterPair.hh>
 #include <blort/Recognizer3D/Definitions.hh>

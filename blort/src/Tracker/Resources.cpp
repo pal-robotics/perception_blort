@@ -1,4 +1,4 @@
-
+#include <ros/console.h>
 #include <blort/Tracker/Resources.h>
 
 using namespace Tracking;

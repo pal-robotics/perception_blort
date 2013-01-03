@@ -1,7 +1,7 @@
 
 #include <blort/TomGine/tgTexture.h>
 #include <blort/TomGine/tgError.h>
-#include <highgui.h>
+#include <opencv2/highgui/highgui.hpp>
 #include <stdexcept>
 
 using namespace TomGine;

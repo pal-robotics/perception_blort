@@ -1,4 +1,5 @@
 
+#include <ros/console.h>
 #include <blort/Tracker/TrackerModel.h>
 #include <blort/Tracker/Resources.h>
 
@@ -590,7 +591,7 @@ void TrackerModel::unwarpTexturesBox_hacky(const char* name){
 
 		std::string texname = std::string(name);
 		texname.append("-unwrap-");
-		sprintf(charbuffer, "%.5d", p);
+		sprintf(charbuffer, "%.5u", p);
 		texname.append(charbuffer);
 		texname.append(".jpg");
 		tex.save(texname.c_str());

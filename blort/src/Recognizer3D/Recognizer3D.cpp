@@ -1,9 +1,11 @@
 
 #include <blort/Recognizer3D/Recognizer3D.h>
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
-#include <opencv/cxcore.h>
+//#include <opencv/cv.h>
+//#include <opencv/highgui.h>
+//#include <opencv/cxcore.h>
+#include <opencv2/core/core.hpp>
+
 #include <blort/Recognizer3D/SDraw.hh>
 #include <blort/Recognizer3D/cvgeometry.h>
 #include <blort/TomGine/tgModelLoader.h>
