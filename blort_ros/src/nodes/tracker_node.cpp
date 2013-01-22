@@ -49,6 +49,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Pose.h>
+#include <blort_ros/ObjectPoseList.h>
+#include <blort_ros/ObjectPose.h>
 #include <dynamic_reconfigure/server.h>
 
 #include <blort_ros/TrackerConfig.h>
@@ -74,6 +76,7 @@ private:
     image_transport::Publisher image_pub;
     image_transport::Publisher image_debug_pub;
     ros::Publisher detection_result;
+    ros::Publisher detected_object_pose_list;
     ros::Publisher confidences_pub;
 
     const std::string root_;
@@ -92,6 +95,7 @@ public:
     {
         nh_.param<std::string>("launch_mode", launch_mode, "tracking");
         detection_result = nh_.advertise<geometry_msgs::Pose>("detection_result", 100);
+        detected_object_pose_list = nh_.advertise<blort_ros::ObjectPoseList>("outputOPL", 100);
         confidences_pub = nh_.advertise<blort_ros::TrackerConfidences>("confidences", 100);
         image_pub = it_.advertise("image_result", 1);
 
@@ -153,6 +157,16 @@ public:
                                                                                      tracker->getDetections()[0]);
 
                     detection_result.publish(target_pose);
+
+                    blort_ros::ObjectPoseList target_object_pose_list;
+                    blort_ros::ObjectPose target_object_pose;
+                    target_object_pose.name = tracker->getModelName();
+                    target_object_pose.pose = target_pose;
+                    target_object_pose_list.object_list = std::vector<blort_ros::ObjectPose>(1); //size 1 as this tracker can only track one object
+                    target_object_pose_list.object_list[0] = target_object_pose;
+                    target_object_pose_list.originalTimeStamp = ros::Time::now();
+                    target_object_pose_list.header.frame_id = (*trackerImgMsg).header.frame_id;
+                    detected_object_pose_list.publish(target_object_pose_list);
                 }
 
                 cv_bridge::CvImage out_msg;

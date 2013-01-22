@@ -137,6 +137,9 @@ namespace blort_ros
         /** @brief Get the constant camera reference of Blort. */
         const geometry_msgs::Pose getCameraReferencePose(){ return fixed_cam_pose; }
 
+        /** @brief Get the "constant" model_name */
+        const std::string getModelName(){return model_name;}
+
         /** @brief Get the rendered image for visualization. */
         cv::Mat getImage();
 
