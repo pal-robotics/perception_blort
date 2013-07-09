@@ -1,7 +1,7 @@
 libglew:
   ubuntu:
     apt:
-      packages: [libglew1.5, libglew1.5-dev]
+      packages: [libglew1.6, libglew1.6-dev]
 
 libdevil:
   ubuntu:
