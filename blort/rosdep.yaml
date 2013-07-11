@@ -1,4 +1,0 @@
-libglu1:
-    ubuntu:
-        apt:
-            packages: [libglu1-mesa-dev]
