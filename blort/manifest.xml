@@ -18,7 +18,7 @@
   <depend package="sensor_msgs"/>
   <depend package="tf"/>
   <depend package="siftgpu"/>
-  <rosdep name="libglu1"/>
+  <rosdep name="opengl"/>  <!-- libglu1 -->
   <export>
      <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib"/>
   </export>

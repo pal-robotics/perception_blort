@@ -1,9 +1,0 @@
-libdevil:
-  ubuntu: [libdevil-dev]
-
-libglew:
-  ubuntu: [libglew1.5]
-
-libglu1:
-  ubuntu: [libglu1-mesa-dev]
-

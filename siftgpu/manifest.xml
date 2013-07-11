@@ -15,7 +15,7 @@
          lflags="-L${prefix}/lib -lsiftgpu"
      />
   </export>
-  <rosdep name="libglew"/>
-  <rosdep name="libdevil"/>
+  <rosdep name="libglew-dev"/>
+  <rosdep name="libdevil-dev"/>
 
 </package>
