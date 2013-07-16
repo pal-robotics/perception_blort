@@ -78,7 +78,7 @@ public:
 		float zFar;
 		
 		void print(){
-			printf("%d %d\n", width, height);
+			printf("%u %u\n", width, height);
 			printf("%f %f\n", fx, fy);
 			printf("%f %f\n", cx, cy);
 			printf("%f %f %f\n", k1, k2, k3);

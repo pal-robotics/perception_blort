@@ -49,8 +49,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Pose.h>
-#include <blort_ros/ObjectPoseList.h>
-#include <blort_ros/ObjectPose.h>
 #include <dynamic_reconfigure/server.h>
 
 #include <blort_ros/TrackerConfig.h>
@@ -76,8 +74,9 @@ private:
     image_transport::Publisher image_pub;
     image_transport::Publisher image_debug_pub;
     ros::Publisher detection_result;
-    ros::Publisher detected_object_pose_list;
     ros::Publisher confidences_pub;
+
+    //sensor_msgs::CameraInfo _msg;
 
     const std::string root_;
     ros::ServiceServer control_service;
@@ -95,7 +94,6 @@ public:
     {
         nh_.param<std::string>("launch_mode", launch_mode, "tracking");
         detection_result = nh_.advertise<geometry_msgs::Pose>("detection_result", 100);
-        detected_object_pose_list = nh_.advertise<blort_ros::ObjectPoseList>("outputOPL", 100);
         confidences_pub = nh_.advertise<blort_ros::TrackerConfidences>("confidences", 100);
         image_pub = it_.advertise("image_result", 1);
 
@@ -134,20 +132,26 @@ public:
             }
 
             if(tracker->getMode() == blort_ros::TRACKER_RECOVERY_MODE)
-            {
+            {              
                 blort_ros::RecoveryCall srv = mode->recovery(detectorImgMsg);
 
+                ROS_INFO("tracker_node in TRACKER_RECOVERY_MODE: calling detector_node recovery service ...");
                 if(recovery_client.call(srv))
                 {
-                    tracker->resetWithPose(srv.response.Pose);
+                  //tracker = new blort_ros::GLTracker(_msg, root_, true);
+                  ROS_INFO("reseting tracker with pose from detector\n");
+                  tracker->resetWithPose(srv.response.Pose);
+                  ROS_INFO("AFTER reseting tracker with pose from detector\n");
                 }
                 else
                 {
-                    ROS_WARN("Detector not confident enough.");
+                    ROS_WARN("Detector not confident enough.\n");
                 }
             }
-            else
+            else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
             {
+              ROS_INFO("\n----------------------------------------------\n");
+              ROS_INFO("TrackerNode::imageCb: calling tracker->process");
                 tracker->process(cv_tracker_ptr->image);
 
                 confidences_pub.publish(tracker->getConfidences());
@@ -157,16 +161,6 @@ public:
                                                                                      tracker->getDetections()[0]);
 
                     detection_result.publish(target_pose);
-
-                    blort_ros::ObjectPoseList target_object_pose_list;
-                    blort_ros::ObjectPose target_object_pose;
-                    target_object_pose.name = tracker->getModelName();
-                    target_object_pose.pose = target_pose;
-                    target_object_pose_list.object_list = std::vector<blort_ros::ObjectPose>(1); //size 1 as this tracker can only track one object
-                    target_object_pose_list.object_list[0] = target_object_pose;
-                    target_object_pose_list.originalTimeStamp = ros::Time::now();
-                    target_object_pose_list.header.frame_id = (*trackerImgMsg).header.frame_id;
-                    detected_object_pose_list.publish(target_object_pose_list);
                 }
 
                 cv_bridge::CvImage out_msg;
@@ -240,8 +234,10 @@ private:
             if(parent_->tracker == 0)
             {
                 ROS_INFO("Camera parameters received, ready to run.");
+                //parent_->_msg = msg; //2012-11-27 Jordi: keep a copy to reset the tracker when necessary
                 cam_info_sub.shutdown();
                 parent_->tracker = new blort_ros::GLTracker(msg, parent_->root_, true);
+                parent_->tracker->setVisualizeObjPose(true);
 
                 image_transport::TransportHints transportHint("raw");
 

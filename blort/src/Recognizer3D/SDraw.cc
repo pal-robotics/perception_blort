@@ -1,5 +1,5 @@
 /**
- * $Id: SDraw.cc 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: SDraw.cc 37445 2012-11-21 10:05:46Z jordi $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */
@@ -18,8 +18,9 @@ void SDraw::DrawLine(IplImage *img, double x1, double y1, double x2, double y2, 
      y2+.5 > 0 && y2+.5 < img->width)
     {
         cvLine(img,cvPoint((int)(x1+.5), (int)(y1+.5)), cvPoint((int)(x2+.5), (int)(y2+.5)), c, thickness);
-    } else {
-        ROS_WARN("Line parameters out of scope!!");
+    } else
+    {
+        //ROS_WARN("Line parameters out of scope!!");
     }
 }
 

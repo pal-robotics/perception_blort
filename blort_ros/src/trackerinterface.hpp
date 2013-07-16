@@ -44,6 +44,7 @@
 #define BLORTTRACKER_H
 
 #include <opencv2/core/core.hpp>
+#include <ros/console.h> //TODO: remove
 
 namespace blort_ros
 {

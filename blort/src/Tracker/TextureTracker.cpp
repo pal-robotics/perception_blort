@@ -440,9 +440,11 @@ void TextureTracker::image_processing(unsigned char* image, int model_id, const 
 	glDepthMask(1);
 }
 
-bool TextureTracker::track(){
-	if(!m_tracker_initialized){
-                ROS_DEBUG("[TextureTracker::track()] Error tracker not initialised!\n");
+bool TextureTracker::track()
+{
+  if(!m_tracker_initialized)
+  {
+    ROS_ERROR("[TextureTracker::track()] Error tracker not initialised!\n");
 		return false;
 	}
 	
@@ -501,14 +503,15 @@ bool TextureTracker::track(){
 	return true;
 }
 
-bool TextureTracker::track(ModelEntry *modelEntry){
+bool TextureTracker::track(ModelEntry *modelEntry)
+{
 
 	// Process model (texture reprojection, edge detection)
-        model_processing(modelEntry);
+  model_processing(modelEntry);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if(m_drawimage)
-		drawImage(false);
+		drawImage(NULL);
 
 	// Apply particle filtering
 	if(!modelEntry->lock){
@@ -520,26 +523,30 @@ bool TextureTracker::track(ModelEntry *modelEntry){
 	}
 
 	modelEntry->confidence_edge = evaluateParticle(modelEntry, m_shadeTexEdgeTest);
-	modelEntry->confidence_color = evaluateParticle(modelEntry, m_shadeTexColorTest);
+	modelEntry->confidence_color = evaluateParticle(modelEntry, m_shadeTexColorTest);    
 	
 	modelEntry->filter_pose();
-        modelEntry->evaluate_states(params.variation, params.num_recursions,
-                                    params.c_th_base, params.c_th_min, params.c_th_fair,
-                                    params.c_mv_not, params.c_mv_slow, params.c_th_lost);
-	
-	m_ftime = (float)m_timer.Update();
+  modelEntry->evaluate_states(params.variation, params.num_recursions,
+                              params.c_th_base, params.c_th_min, params.c_th_fair,
+                              params.c_mv_not, params.c_mv_slow, params.c_th_lost);
+
+  m_ftime = (float)m_timer.Update();
 	return true;
 }
 
-bool TextureTracker::track(int id){
-	if(!m_tracker_initialized){
-                ROS_DEBUG("[TextureTracker::track(int)] Error tracker not initialised!\n");
+bool TextureTracker::track(int id)
+{
+  if(!m_tracker_initialized)
+  {
+    ROS_ERROR("[TextureTracker::track(int)] Error tracker not initialised!\n");
 		return false;
 	}
 	
 	ModelEntryList::iterator it = m_modellist.begin();
-	while(it != m_modellist.end()){
-		if(id==(*it)->id){
+  while(it != m_modellist.end())
+  {
+    if(id==(*it)->id)
+    {
 			track(m_modellist[id]);
 			tgCheckError("TextureTracker::track(int)");
 			return true;
@@ -761,7 +768,7 @@ vector<float> TextureTracker::getPDFxy(ModelEntry* modelEntry,
                                        int res)
 {
 	int i = 0;
-        ROS_DEBUG("Evaluating PDF constrained to x,y movement only");
+  ROS_DEBUG("Evaluating PDF constrained to x,y movement only");
 	float x_step = (x_max-x_min) / res;
 	float y_step = (y_max-y_min) / res;
 	float scale = 0.1f;
@@ -783,7 +790,6 @@ vector<float> TextureTracker::getPDFxy(ModelEntry* modelEntry,
 		for(int m=0; m<res; m++){
 			if(frustum->PointInFrustum(modelEntry->pose.t.x, modelEntry->pose.t.y, modelEntry->pose.t.z)){
 				p = evaluateParticle(modelEntry, m_shadeTexEdgeTest) * scale;
-// 				ROS_DEBUG("%f %f %f %f\n", modelEntry->pose.t.x, modelEntry->pose.t.y, modelEntry->pose.t.z, p);
 			}else{
 				p = 0.0;
 			}
@@ -932,7 +938,7 @@ void TextureTracker::savePDF(vector<float> vPDFMap,
 			fprintf(fd, "3 %d %d %d\n", indexlist[i], indexlist[i+1], indexlist[i+2]);
 		}
 		
-                ROS_DEBUG("  output written to '%s'", meshfile);
+    ROS_DEBUG("  output written to '%s'", meshfile);
 		
 		fclose(fd);
 	}
@@ -943,7 +949,7 @@ void TextureTracker::savePDF(vector<float> vPDFMap,
 		for(x=0; x<res; x++){
 			fprintf(fd2, "%f\n", vPDFMap[y*res+x]);
 		}
-                ROS_DEBUG("  output written to '%s'", xfile);
+    ROS_DEBUG("  output written to '%s'", xfile);
 		fclose(fd2);
 	}
 }

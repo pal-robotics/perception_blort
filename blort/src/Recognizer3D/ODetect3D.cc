@@ -1,5 +1,5 @@
 /**
- * $Id: ODetect3D.cc 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: ODetect3D.cc 37511 2012-11-22 10:44:00Z jordi $
  *
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
@@ -15,6 +15,10 @@
 #include <blort/TomGine/tgPose.h>
 #include <blort/blort/pal_util.h>
 #include <blort/Recognizer3D/Recognizer3D.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/gpu/gpu.hpp>
 
 namespace P 
 {
@@ -140,32 +144,37 @@ namespace P
      */
     void ODetect3D::MatchKeypointsGPU(Array<KeypointDescriptor *> &keys, Array<CodebookEntry *> &cb, Array<KeyClusterPair* > &matches)
     {
-        if (keys.Size()<4)
-            return;
+      double ticksBefore = cv::getTickCount();
 
-        int num;
-        int (*match_buf)[2] = new int[(int)keys.Size()][2];
+      if (keys.Size()<4)
+        return;
 
-        if (matcherSize < (int)keys.Size()) matcher->SetMaxSift((int)keys.Size());
-        if (matcherSize < (int)cb.Size()) matcher->SetMaxSift((int)cb.Size());
+      int num;
+      int (*match_buf)[2] = new int[(int)keys.Size()][2];
 
-        P::Array<float> desc1(cb.Size()*128);
-        P::Array<float> desc2(keys.Size()*128);
+      if (matcherSize < (int)keys.Size()) matcher->SetMaxSift((int)keys.Size());
+      if (matcherSize < (int)cb.Size()) matcher->SetMaxSift((int)cb.Size());
 
-        for (unsigned i=0; i<cb.Size(); i++)
-            CopyVec(cb[i]->model->vec, &(desc1[i*128]), cb[i]->model->GetSize());
-        for (unsigned i=0; i<keys.Size(); i++)
-            CopyVec(keys[i]->vec, &(desc2[i*128]), keys[i]->GetSize());
+      P::Array<float> desc1(cb.Size()*128);
+      P::Array<float> desc2(keys.Size()*128);
 
-        matcher->SetDescriptors(0, (int)cb.Size(), &desc1[0]); //codebook
-        matcher->SetDescriptors(1, (int)keys.Size(), &desc2[0]); //keys
+      for (unsigned i=0; i<cb.Size(); i++)
+        CopyVec(cb[i]->model->vec, &(desc1[i*128]), cb[i]->model->GetSize());
+      for (unsigned i=0; i<keys.Size(); i++)
+        CopyVec(keys[i]->vec, &(desc2[i*128]), keys[i]->GetSize());
 
-        num = matcher->GetSiftMatch(keys.Size(), match_buf);
+      matcher->SetDescriptors(0, (int)cb.Size(), &desc1[0]); //codebook
+      matcher->SetDescriptors(1, (int)keys.Size(), &desc2[0]); //keys
 
-        for (unsigned i=0; i<(unsigned)num; i++)
-            matches.PushBack(new KeyClusterPair(keys[match_buf[i][1]], cb[match_buf[i][0]], 0));
+      num = matcher->GetSiftMatch(keys.Size(), match_buf);
 
-        delete[] match_buf;
+      for (unsigned i=0; i<(unsigned)num; i++)
+        matches.PushBack(new KeyClusterPair(keys[match_buf[i][1]], cb[match_buf[i][0]], 0));
+
+      delete[] match_buf;
+
+      ROS_INFO("\tODetect3D::MatchKeypointsGPU() time: %f ms",
+               1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
     }
 
 
@@ -226,93 +235,162 @@ namespace P
         cvReleaseMat(&pos);
     }
 
+    void ODetect3D::FitModelRANSAC_GPU(Array<KeyClusterPair*> &matches, PoseCv &pose, unsigned &numInl)
+    {
+      cv::Mat camMatrix(cameraMatrix);
+      cv::Mat distortionCoeff(distCoeffs);
+      cv::Mat modelPoints, imgPoints;
+      cv::Mat rvec, tvec;
+
+      modelPoints.create(1, matches.Size(), CV_32FC3);
+      imgPoints.create(1, matches.Size(), CV_32FC2);
+
+      KeyClusterPair* kp;
+
+      double ticksBefore = cv::getTickCount();
+      for (unsigned i=0; i<matches.Size(); i++)
+      {
+        kp = matches[i];
+        CvMat *pos = kp->c->occurrences[rand()%kp->c->Size()]->pos;
+
+        cv::Point3f p3f;
+        p3f.x = pos->data.fl[0]; p3f.y = pos->data.fl[1]; p3f.z = pos->data.fl[2];
+
+        modelPoints.at<cv::Point3f>(0, i) = p3f;
+
+        cv::Point2f p2f;
+        p2f.x = kp->k->p.x; p2f.y = kp->k->p.y;
+        imgPoints.at<cv::Point2f>(0, i) = p2f;
+      }
+
+      bool useGPU = false;
+
+      if ( useGPU )
+      {
+        std::vector<int> inliersIdx;
+        //reemh3-2m timing with:
+        //rosbag play pringles_single_stereo_image.bag --loop
+        //roslaunch blort_ros tracking.launch
+        //time: 789 ms
+        cv::gpu::solvePnPRansac(modelPoints, imgPoints, camMatrix, distortionCoeff, rvec, tvec, false, Def::DO_MAX_RANSAC_TRIALS, Def::DO_RANSAC_INL_DIST, 100, &inliersIdx);
+        numInl = inliersIdx.size();
+        ROS_INFO("\tODetect3D::Detect: FitModelRANSAC_GPU(OpenCV::gpu) time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+      }
+      else
+      {
+        cv::Mat inliersIdx;
+        //reemh3-2m timing with:
+        //rosbag play pringles_single_stereo_image.bag --loop
+        //roslaunch blort_ros tracking.launch
+        //time: 706 ms
+        cv::solvePnPRansac(modelPoints, imgPoints, camMatrix, distortionCoeff, rvec, tvec, false, Def::DO_MAX_RANSAC_TRIALS, Def::DO_RANSAC_INL_DIST, 100, inliersIdx);
+        numInl = inliersIdx.rows;
+        ROS_INFO("\tODetect3D::Detect: FitModelRANSAC_GPU(OpenCV) time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+      }
+
+      ROS_INFO_STREAM("\tInliers: " << numInl);
+
+      cv::Mat rotation;
+      cv::Rodrigues(rvec, rotation);      
+      ROS_INFO_STREAM("Rotation (depth: " << rotation.depth() << ") :\n" << rotation << "\n");
+
+      if ( rotation.depth() == CV_32F )
+      {
+        cvmSet(pose.R, 0, 0, rotation.at<float>(0,0)); cvmSet(pose.R, 0, 1, rotation.at<float>(0,1)); cvmSet(pose.R, 0, 2, rotation.at<float>(0,2));
+        cvmSet(pose.R, 1, 0, rotation.at<float>(1,0)); cvmSet(pose.R, 1, 1, rotation.at<float>(1,1)); cvmSet(pose.R, 1, 2, rotation.at<float>(1,2));
+        cvmSet(pose.R, 2, 0, rotation.at<float>(2,0)); cvmSet(pose.R, 2, 1, rotation.at<float>(2,1)); cvmSet(pose.R, 2, 2, rotation.at<float>(2,2));
+      }
+      else
+      {
+        cvmSet(pose.R, 0, 0, rotation.at<double>(0,0)); cvmSet(pose.R, 0, 1, rotation.at<double>(0,1)); cvmSet(pose.R, 0, 2, rotation.at<double>(0,2));
+        cvmSet(pose.R, 1, 0, rotation.at<double>(1,0)); cvmSet(pose.R, 1, 1, rotation.at<double>(1,1)); cvmSet(pose.R, 1, 2, rotation.at<double>(1,2));
+        cvmSet(pose.R, 2, 0, rotation.at<double>(2,0)); cvmSet(pose.R, 2, 1, rotation.at<double>(2,1)); cvmSet(pose.R, 2, 2, rotation.at<double>(2,2));
+      }
+
+      if ( tvec.depth() == CV_32F )
+      {
+        cvmSet(pose.t, 0, 0, tvec.at<float>(0,0));
+        cvmSet(pose.t, 1, 0, tvec.at<float>(1,0));
+        cvmSet(pose.t, 2, 0, tvec.at<float>(2,0));
+      }
+      else
+      {
+        cvmSet(pose.t, 0, 0, tvec.at<double>(0,0));
+        cvmSet(pose.t, 1, 0, tvec.at<double>(1,0));
+        cvmSet(pose.t, 2, 0, tvec.at<double>(2,0));
+      }
+    }
 
     /**
      * Verify object model
      */
     void ODetect3D::FitModelRANSAC(Array<KeyClusterPair*> &matches,
                                    PoseCv &pose, unsigned &numInl)
-    {
-        if (matches.Size()<n_points_to_match)
+    {     
+      //reemh3-2m timing with:
+      //rosbag play pringles_single_stereo_image.bag --loop
+      //roslaunch blort_ros tracking.launch
+      //time: 408 ms
+
+      if (matches.Size()<n_points_to_match)
+      {
+        ROS_WARN("matches.Size(): %d while n_points_to_match is %d",
+                 matches.Size(), n_points_to_match);
+        return;
+      }
+
+      double eps = n_points_to_match/(double)matches.Size();
+      int inl, inls = 0;
+      Array<unsigned> idx, idx2;
+      CvMat *modelPoints = cvCreateMat( n_points_to_match, 3, CV_32F );
+      CvMat *imgPoints = cvCreateMat( n_points_to_match, 2, CV_32F );
+      srand(time(NULL));
+      KeyClusterPair* kp;
+      PoseCv tempPose;
+      CvMat *rod = cvCreateMat(3,1,CV_32F);
+
+      double ticksBefore = cv::getTickCount();
+      int k, iterations = 0;
+      for(k=0; (pow(1. - pow(eps,n_points_to_match),k) >= Def::DO_RANSAC_ETA0 &&
+                k<Def::DO_MAX_RANSAC_TRIALS); ++k)
+      {
+        GetRandIdx(matches.Size(), n_points_to_match, idx);
+
+        for (unsigned i=0; i<n_points_to_match; i++)
         {
-            ROS_WARN("matches.Size(): %d while n_points_to_match is %d",
-                     matches.Size(), n_points_to_match);
-            return;
+          kp = matches[idx[i]];
+          CvMat *pos = kp->c->occurrences[rand()%kp->c->Size()]->pos;
+          cvmSet( modelPoints, i, 0, pos->data.fl[0] );
+          cvmSet( modelPoints, i, 1, pos->data.fl[1] );
+          cvmSet( modelPoints, i, 2, pos->data.fl[2] );
+          cvmSet( imgPoints, i, 0, kp->k->p.x);
+          cvmSet( imgPoints, i, 1, kp->k->p.y);
         }
 
-        double eps = n_points_to_match/(double)matches.Size();
-        int inl, inls = 0;
-        Array<unsigned> idx, idx2;
-        CvMat *modelPoints = cvCreateMat( n_points_to_match, 3, CV_32F );
-        CvMat *imgPoints = cvCreateMat( n_points_to_match, 2, CV_32F );
-        srand(time(NULL));
-        KeyClusterPair* kp;
-        PoseCv tempPose;
-        CvMat *rod = cvCreateMat(3,1,CV_32F);
-        //double ticksBefore = cv::getTickCount();
-        int k;
-        for(k=0; (pow(1. - pow(eps,n_points_to_match),k) >= Def::DO_RANSAC_ETA0 &&
-                  k<Def::DO_MAX_RANSAC_TRIALS); ++k)
+        cvFindExtrinsicCameraParams2(modelPoints, imgPoints,
+                                     cameraMatrix, distCoeffs, rod, tempPose.t);
+        cvRodrigues2(rod,tempPose.R);
+        GetInlier(matches,tempPose,inl);
+
+        //if it is the transfom providing most inliers save it
+        if (inl > inls)
         {
-            GetRandIdx(matches.Size(), n_points_to_match, idx);
-
-            for (unsigned i=0; i<n_points_to_match; i++)
-            {
-                kp = matches[idx[i]];
-                CvMat *pos = kp->c->occurrences[rand()%kp->c->Size()]->pos;
-                cvmSet( modelPoints, i, 0, pos->data.fl[0] );
-                cvmSet( modelPoints, i, 1, pos->data.fl[1] );
-                cvmSet( modelPoints, i, 2, pos->data.fl[2] );
-                cvmSet( imgPoints, i, 0, kp->k->p.x);
-                cvmSet( imgPoints, i, 1, kp->k->p.y);
-            }
-            //DEBUG
-            //            ROS_INFO("%f", pow(1. - pow(eps,n_points_to_match),k));
-            //            ROS_INFO("fitmodelransac run: %f ms",
-            //                     1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
-
-            cvFindExtrinsicCameraParams2(modelPoints, imgPoints,
-                                         cameraMatrix, distCoeffs, rod, tempPose.t);
-            cvRodrigues2(rod,tempPose.R);
-            GetInlier(matches,tempPose,inl);
-
-            if (inl > inls
-                //                && cvmGet(tempPose.R, 0, 2) < 0.4 && cvmGet(tempPose.R, 0, 2) > -0.4 &&
-                //                cvmGet(tempPose.R, 1, 2) < -0.5 && cvmGet(tempPose.R, 1, 2) > -0.99 &&
-                //                cvmGet(tempPose.R, 2, 2) < -0.2 && cvmGet(tempPose.R, 2, 2) > -0.8
-                )
-            {
-                //DEBUG
-                //                mat3 cR;
-                //                vec3 ct;
-                //                cR[0] = cvmGet(tempPose.R,0,0); cR[3] = cvmGet(tempPose.R,0,1); cR[6] = cvmGet(tempPose.R,0,2);
-                //                cR[1] = cvmGet(tempPose.R,1,0); cR[4] = cvmGet(tempPose.R,1,1); cR[7] = cvmGet(tempPose.R,1,2);
-                //                cR[2] = cvmGet(tempPose.R,2,0); cR[5] = cvmGet(tempPose.R,2,1); cR[8] = cvmGet(tempPose.R,2,2);
-                //
-                //                ct.x = cvmGet(tempPose.t,0,0);
-                //                ct.y = cvmGet(tempPose.t,1,0);
-                //                ct.z = cvmGet(tempPose.t,2,0);
-                //
-                //                ROS_INFO("ct and cR in inl > inls: [%f %f %f] \n [%f %f %f] \n [%f %f %f] \n [%f %f %f]",
-                //                         ct.x, ct.y, ct.z, cR[0], cR[3], cR[6], cR[1], cR[4], cR[7], cR[2], cR[5], cR[8]);
-
-                inls = inl;
-                eps = (double)inls / (double)matches.Size();
-                CopyPoseCv(tempPose, pose);
-            }
+          inls = inl;
+          eps = (double)inls / (double)matches.Size();
+          CopyPoseCv(tempPose, pose);
         }
-        //DEBUG
-        //        ROS_INFO("fitmodelransac run: %f ms, iterations: %d, eps: %f, escape cond: %f",
-        //                 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency(),
-        //                 k, eps, pow(1. - pow(eps,n_points_to_match),k));
-        //        ROS_INFO("inliers: %d, total #points: %d", inls, matches.Size());
+        ++iterations;
+      }
 
+      numInl=inls;
 
-        numInl=inls;
+      ROS_INFO_STREAM("Inliers: " << numInl << " iterations: " << iterations);
 
-        cvReleaseMat(&modelPoints);
-        cvReleaseMat(&imgPoints);
-        cvReleaseMat(&rod);
+      cvReleaseMat(&modelPoints);
+      cvReleaseMat(&imgPoints);
+      cvReleaseMat(&rod);
+
+      ROS_INFO("\tODetect3D::Detect: FitModelRANSAC time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
     }
 
     /**
@@ -365,9 +443,11 @@ namespace P
         ct.y = cvmGet(pose.t,1,0);
         ct.z = cvmGet(pose.t,2,0);
 
-        ROS_INFO("ct and cR in RefinePoseLS: [%f %f %f] \n [%f %f %f] \n [%f %f %f] \n [%f %f %f]",
-                 ct.x, ct.y, ct.z, cR[0], cR[3], cR[6], cR[1], cR[4], cR[7], cR[2], cR[5], cR[8]);
-
+        ROS_INFO("\t\tct and cR in RefinePoseLS:");
+        ROS_INFO("\t\t [%.04f  %.04f  %.04f]", ct.x, ct.y, ct.z);
+        ROS_INFO("\t\t [%.04f  %.04f  %.04f]", cR[0], cR[3], cR[6]);
+        ROS_INFO("\t\t [%.04f  %.04f  %.04f]", cR[1], cR[4], cR[7]);
+        ROS_INFO("\t\t [%.04f  %.04f  %.04f]", cR[2], cR[5], cR[8]);
 
         double dist, minz=DBL_MAX, maxz=DBL_MIN;
         Array<Point3D> modelPoints;
@@ -506,31 +586,19 @@ namespace P
         clock_gettime(CLOCK_REALTIME, &start2);
 #endif
 
-        FitModelRANSAC(matches, object.pose, numInl); // ransac pose
+        FitModelRANSAC(matches, object.pose, numInl); //This is the fastest
+        //FitModelRANSAC_GPU(matches, object.pose, numInl);
 
 #ifdef DEBUG
         clock_gettime(CLOCK_REALTIME, &end2);
         clock_gettime(CLOCK_REALTIME, &start3);
 #endif
 
+        double ticksBefore = cv::getTickCount();
         RefinePoseLS(matches, object.pose, numInl, object.err);     // least squares pose
+        ROS_INFO("\tODetect3D::Detect: RefinePoseLS time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+
         ComputeConfidence(keys, numInl, object);
-
-
-        //DEBUG
-//        mat3 cR;
-//        vec3 ct;
-//        cR[0] = cvmGet(object.pose.R,0,0); cR[3] = cvmGet(object.pose.R,0,1); cR[6] = cvmGet(object.pose.R,0,2);
-//        cR[1] = cvmGet(object.pose.R,1,0); cR[4] = cvmGet(object.pose.R,1,1); cR[7] = cvmGet(object.pose.R,1,2);
-//        cR[2] = cvmGet(object.pose.R,2,0); cR[5] = cvmGet(object.pose.R,2,1); cR[8] = cvmGet(object.pose.R,2,2);
-//
-//        ct.x = cvmGet(object.pose.t,0,0);
-//        ct.y = cvmGet(object.pose.t,1,0);
-//        ct.z = cvmGet(object.pose.t,2,0);
-//
-//        ROS_INFO("ct and cR in DETECT: [%f %f %f] \n [%f %f %f] \n [%f %f %f] \n [%f %f %f]",
-//                 ct.x, ct.y, ct.z, cR[0], cR[3], cR[6], cR[1], cR[4], cR[7], cR[2], cR[5], cR[8]);
-
 
 #ifdef DEBUG
         clock_gettime(CLOCK_REALTIME, &end3);

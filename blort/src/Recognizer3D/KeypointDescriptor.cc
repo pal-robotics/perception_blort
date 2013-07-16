@@ -1,5 +1,5 @@
 /**
- * $Id: KeypointDescriptor.cc 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: KeypointDescriptor.cc 42909 2013-07-01 09:35:25Z victor $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */
@@ -329,7 +329,7 @@ void KeypointDescriptor::SavePatch(IplImage *img)
  
   cvReleaseMat(&G);
   #ifdef SAVE_PATCHES
-  snprintf(fname,1024,"log/patch_%04d.png",mcnt);
+  snprintf(fname,1024,"log/patch_%04u.png",mcnt);
   cvSaveImage(fname,patch);
   mcnt++;
   #endif

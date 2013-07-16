@@ -1,6 +1,6 @@
 <launch>
     <!-- Tracker node -->
-    <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)" output="screen">
+    <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)">
         <param name="launch_mode" value="tracking" />
         <remap from="/detector_camera_info" to="/stereo/left/camera_info" />
         <remap from="/detector_image" to="/histogram_segmentation/image_masked" />
@@ -8,7 +8,7 @@
     </node>
     
     <!-- Detector node -->
-    <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)">
+    <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)" output="screen">
         <remap from="/blort_camera_info" to="/stereo/left/camera_info" />
     </node>
 </launch>

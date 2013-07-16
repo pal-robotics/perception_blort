@@ -2223,7 +2223,7 @@ void get_binary_item(
       fprintf (stderr, "get_binary_item: bad type = %d\n", type);
       exit (-1);
   }
-  printf("read size: %d", size);
+  printf("read size: %zu", size);
 }
 
 

@@ -173,26 +173,37 @@ bool Recognizer3D::recognize(IplImage* tFrame, TomGine::tgPose& pose, float &con
     grey = cvCreateImage( cvGetSize ( tFrame ), 8, 1 );
 
     // undistort
+    double ticksBefore = cv::getTickCount();
     if(do_undistort)
     {
         cvRemap(tFrame, tImg, pMapX, pMapY);
     }else{
         cvCopy(tFrame, tImg);
     }
+    ROS_INFO("Recognizer3D::recognize: undistort time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+
 
     // convert to gray scale image
     cvConvertImage(tImg, grey);
 
     // extract sifts from current image
+    ticksBefore = cv::getTickCount();
     sift.Operate(grey, m_image_keys);
+    ROS_INFO("Recognizer3D::recognize: extract sift time: %.01f ms", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+
     m_detect.SetDebugImage(tImg);
 
     if(m_display)
-        sift.Draw(tImg, m_image_keys);
+    {
+        sift.Draw(tImg, m_image_keys);        
+    }
 
     //EXPERIMENTAL
     //cv_detect->detect(cv::Mat(grey, true), m_sift_model);
-    if(m_detect.Detect(m_image_keys, m_sift_model))
+    ticksBefore = cv::getTickCount();
+    bool detectResult = m_detect.Detect(m_image_keys, m_sift_model);
+    ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+    if ( detectResult )
     {
         if(m_sift_model.conf > 0.03)
         {

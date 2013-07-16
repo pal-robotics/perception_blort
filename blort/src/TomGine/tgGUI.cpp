@@ -89,7 +89,7 @@ void tgGUI::Screenshot(const char *filename) const
 	
 	FILE *ppm;
 	ppm = fopen(filename,"w");
-	fprintf(ppm,"P6\n%d %d\n255\n",m_width,m_height);
+	fprintf(ppm,"P6\n%u %u\n255\n",m_width,m_height);
 	fwrite(&data, 1, 3*m_width*m_height, ppm);
 	fclose(ppm);
 }

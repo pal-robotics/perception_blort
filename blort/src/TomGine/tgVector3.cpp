@@ -13,13 +13,15 @@
 using namespace TomGine;
 
 tgVector3::tgVector3()
+:x(0), y(0), z(0)
 {
-	tgVector3(0.0f);
+//	tgVector3(0.0f);
 }
 
 tgVector3::tgVector3(float all)
+:x(all), y(all), z(all)
 {
-	tgVector3(all,all,all);
+	//tgVector3(all,all,all);
 	
 }
 

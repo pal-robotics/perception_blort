@@ -79,8 +79,8 @@ public:
         cam_info_service = nh_.advertiseService("set_camera_info", &DetectorNode::setCameraInfoCb, this);
         counter = 0;
 
-        nh_.param<double>("nn_match_threshold", nn_match_threshold, 0.55);
-        nh_.param<int>("ransac_n_points_to_match", ransac_n_points_to_match, 4);
+        nh_.param<double>("nn_match_threshold", nn_match_threshold, 0.65); //0.55
+        nh_.param<int>("ransac_n_points_to_match", ransac_n_points_to_match, 4); //4
 
     }
     
@@ -130,6 +130,10 @@ public:
 //            debug_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
 //            debug_msg.image = detector->getDebugImage();
 //            debug_pub.publish(debug_msg.toImageMsg());
+
+            ROS_INFO("\n");
+            ROS_INFO_STREAM("= > detector_node returned " << result << "\n");
+            ROS_INFO("\n");
 
             return result;
         } else {

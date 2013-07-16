@@ -1,5 +1,5 @@
 /**
- * $Id: SPolygon.hh 34111 2012-07-03 14:29:54Z student5 $
+ * $Id: SPolygon.hh 43083 2013-07-04 14:58:30Z dani $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */
@@ -46,7 +46,7 @@ public:
   inline unsigned NumVertices(){return v.Size();}
   inline void Insert(Vector2 &p){v.PushBack(p);}
   inline void Move(Vector2 &dist);
-  inline double Area(){return SPolygon::Area(v);}
+  inline double Area(){return Area(v);}
   void CenterOfGravity();
 
   static bool Inside(Array<Vector2> &vs, Vector2 &p);

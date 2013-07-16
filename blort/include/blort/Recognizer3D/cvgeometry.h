@@ -206,7 +206,7 @@ inline void cvProjectPoint(const CvMat *pMintMext, const CvPoint2D64f *pSrc, CvP
 * @param pDes	destination point 2D [x, y]
 **/
 template <typename A, typename B> inline void cvProjectPoint(const CvMat *pMintMext, const A *pSrc, B *pDes) {
-    double src[] = {pSrc->x, pSrc->y}, des[2];
+    double src[] = {pSrc->x, pSrc->y, pSrc->z}, des[2];
     cvProjectPoint(pMintMext->data.db, (const double *) src, (double *) des);
     pDes->x = cvRound(des[0]), pDes->y = cvRound(des[1]);
 }

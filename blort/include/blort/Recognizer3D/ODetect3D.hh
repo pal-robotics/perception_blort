@@ -1,5 +1,5 @@
 /**
- * $Id: ODetect3D.hh 37501 2012-11-21 20:33:13Z dani $
+ * $Id: ODetect3D.hh 37862 2012-12-11 10:54:23Z dani $
  * Simple RANSAC based 3d object detector
  *
  * Johann Prankl, 2010-01-27 
@@ -59,6 +59,7 @@ private:
   void MatchKeypointsGPU(Array<KeypointDescriptor *> &keys, Array<CodebookEntry *> &cb,
                          Array<KeyClusterPair* > &matches);
   void FitModelRANSAC(Array<KeyClusterPair*> &matches, PoseCv &pose, unsigned &numInl);
+  void FitModelRANSAC_GPU(Array<KeyClusterPair*> &matches, PoseCv &pose, unsigned &numInl);
   void GetRandIdx(unsigned size, unsigned num, P::Array<unsigned> &idx);
   void GetInlier(Array<KeyClusterPair*> &matches, PoseCv &pose, int &inl);
   bool GetBestCorner(PoseCv &pose, KeypointDescriptor *k, CodebookEntry *cbe,

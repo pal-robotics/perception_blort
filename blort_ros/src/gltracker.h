@@ -82,6 +82,7 @@ namespace blort_ros
         Tracking::TextureTracker tracker;   // tracking module
 
         //config files //FIXME
+        std::string config_root_, ply_model_;
         std::string model_name, sift_file; // name of the current model
         std::string pose_cal;   // filename with the pose calibration values
 
@@ -137,9 +138,6 @@ namespace blort_ros
         /** @brief Get the constant camera reference of Blort. */
         const geometry_msgs::Pose getCameraReferencePose(){ return fixed_cam_pose; }
 
-        /** @brief Get the "constant" model_name */
-        const std::string getModelName(){return model_name;}
-
         /** @brief Get the rendered image for visualization. */
         cv::Mat getImage();
 
@@ -149,6 +147,8 @@ namespace blort_ros
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
         void setPublisMode(TrackerPublishMode mode){ publish_mode = mode; }
+
+        void resetParticleFilter();
 
         ~GLTracker();
 

@@ -518,7 +518,7 @@ bool ModelLoader::SavePly(TrackerModel &model, const char* name){
     for(i=0; i<model.m_passlist.size(); i++){
         texname = string("");
         texfilename = string("");
-        unsigned int start = filename.find_last_of("/");
+        size_t start = filename.find_last_of("/");
         if(start!=filename.npos){
             string modelname(name);
             texname.append(modelname.begin()+start+1, modelname.end());

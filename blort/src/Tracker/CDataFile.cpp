@@ -674,7 +674,7 @@ t_Str CDataFile::CommentStr(const t_Str& szComment)
 // remainder.  Returns the key
 t_Str GetNextWord(t_Str& CommandLine)
 {
-        unsigned nPos = CommandLine.find_first_of(EqualIndicators);
+        size_t nPos = CommandLine.find_first_of(EqualIndicators);
 	t_Str sWord = t_Str("");
 
 	if ( nPos != string::npos )

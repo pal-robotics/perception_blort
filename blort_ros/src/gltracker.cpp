@@ -54,7 +54,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
 {
     //this line should force opengl to run software rendering == no GPU
     //putenv("LIBGL_ALWAYS_INDIRECT=1");
-
+    config_root_ = config_root;
     conf_threshold = 0.4;
     recovery_conf_threshold = 0.05;
     publish_mode = 1;
@@ -81,6 +81,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     std::string ply_model;
 
     GetPlySiftFilenames(tracking_ini.c_str(), ply_model, sift_file, model_name);
+    ply_model_ = ply_model;
     GetTrackingParameter(track_params, tracking_ini.c_str(), config_root);
 
     tgcam_params = TomGine::tgCamera::Parameter(camera_info);
@@ -105,13 +106,26 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     fixed_cam_pose = pal_blort::tgPose2RosPose(cam_pose);
 }
 
+//2012-11-27: added by Jordi
+void GLTracker::resetParticleFilter()
+{
+  tracker.removeModel(model_id);  
+  model_id = tracker.addModelFromFile(pal_blort::addRoot(ply_model_, config_root_).c_str(), trPose, model_name.c_str(), true);
+  movement = Tracking::ST_SLOW;
+  quality  = Tracking::ST_LOST;
+  tracker_confidence = Tracking::ST_BAD;  
+}
+
 void GLTracker::track()
 {
     *image = last_image;
 
     // Track object
     tracker.image_processing((unsigned char*)image->imageData);
+
+    ROS_INFO_STREAM("GLTracker::track: quality before TextureTracker::track is " << quality);
     tracker.track();
+    ROS_INFO_STREAM("GLTracker::track: quality after TextureTracker::track is " << quality);
 
     tracker.drawImage(0);
     tracker.drawCoordinates();
@@ -120,7 +134,7 @@ void GLTracker::track()
 
     // visualize current object pose if needed. moving this piece of code is troublesome,
     // has to stay right after drawImage(), because of OpenGL
-    if(visualize_obj_pose)
+    if( 1 || visualize_obj_pose)
     {
         trPose.Activate();
         glBegin(GL_LINES);
@@ -147,7 +161,8 @@ void GLTracker::track()
     }
     else if(quality == Tracking::ST_LOST)
     {
-        switchToRecovery();
+      ROS_INFO("GLTracker::track: switching tracker to RECOVERY_MODE because object LOST\n");
+      switchToRecovery();
     }
 
     if(tracker_confidence == Tracking::ST_GOOD && movement == Tracking::ST_STILL && quality != Tracking::ST_LOCKED)
@@ -161,9 +176,17 @@ void GLTracker::resetWithPose(const geometry_msgs::Pose& new_pose)
 {
     ConvertCam2World(pal_blort::rosPose2TgPose(new_pose), cam_pose, trPose);
     tracker.setModelInitialPose(model_id, trPose);
-    tracker.resetUnlockLock(); // this does one run of the tracker to update the probabilities
+    //2012-11-28: commented by Jordi because the resetParticleFilter will reset the ModelEntry
+    //tracker.resetUnlockLock(); // this does one run of the tracker to update the probabilities
+
+    //2012-11-27: added by Jordi
+    resetParticleFilter();
+
     switchToTracking();
-    update();
+
+    //2012-11-27: commented by Jordi
+    //update();
+
     // make sure that the tracker will start tracking after a recovery,
     // not standing still in locked mode
     tracker.setLockFlag(false);
@@ -285,6 +308,7 @@ void GLTracker::update()
     // although the implementation would allow it, at several places, lacks this at several other.
     tracker.getModelMovementState(model_id, movement);
     tracker.getModelQualityState(model_id, quality);
+    ROS_INFO_STREAM("GLTracker::update: the tracked model has set quality to " << quality);
     tracker.getModelConfidenceState(model_id, tracker_confidence);
 
     switch(tracker_confidence)
@@ -293,7 +317,7 @@ void GLTracker::update()
         this->current_conf = blort_ros::TRACKER_CONF_GOOD;
         updatePoseResult();
         break;
-    case Tracking::ST_FAIR:
+    case Tracking::ST_FAIR:      
         this->current_conf = blort_ros::TRACKER_CONF_FAIR;
         if(publish_mode == TRACKER_PUBLISH_GOOD_AND_FAIR ||
            publish_mode == TRACKER_PUBLISH_ALL)
@@ -315,7 +339,8 @@ void GLTracker::update()
 
 void GLTracker::reset()
 {
-    switchToRecovery();
+  ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE\n");
+  switchToRecovery();
 }
 
 GLTracker::~GLTracker()

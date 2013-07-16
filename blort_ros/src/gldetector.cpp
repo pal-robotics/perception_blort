@@ -81,6 +81,7 @@ bool GLDetector::recoveryWithLast(blort_ros::RecoveryCall::Response &resp)
 
     TomGine::tgPose recPose;
     float conf;
+    ROS_INFO("\n");
     recognizer->recognize(image_, recPose, conf);
 
     ROS_INFO("object conf: %f", conf);
@@ -96,7 +97,8 @@ bool GLDetector::recoveryWithLast(blort_ros::RecoveryCall::Response &resp)
     }
     else // else don't propose
     {
-        return false;
+      ROS_INFO_STREAM("GLDetector::recoveryWithLast: returning false because confidence <= " << recovery_conf_threshold);
+      return false;
     }
 }
 

@@ -340,8 +340,9 @@ int Tracker::addModelFromFile(const char* filename, tgPose& p, std::string label
         sprintf(errmsg, "[Tracker::addModelFromFile()] Error tracker not initialised!");
         throw std::runtime_error(errmsg);
     }
-    
+
     ModelEntry* modelEntry = new ModelEntry();
+
     modelEntry->label = label;
     modelEntry->model.setBFC(bfc);
     
@@ -510,8 +511,10 @@ void Tracker::getModelMovementState(int id, movement_state &m){
 void Tracker::getModelQualityState(int id, quality_state &q){
     ModelEntryList::iterator it = m_modellist.begin();
     
-    while(it != m_modellist.end()){
-        if(id==(*it)->id){
+    while(it != m_modellist.end())
+    {
+        if(id==(*it)->id)
+        {
             q = (*it)->st_quality;
             return;
         }
@@ -903,7 +906,13 @@ void Tracker::drawModelWireframe(const TomGine::tgModel &m, const tgPose &p, flo
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Tracker::drawCoordinateSystem(float linelength, float linewidth, TomGine::tgPose pose){
+void Tracker::drawCoordinateSystem(float linelength, float linewidth, TomGine::tgPose pose)
+{
+  //2012-11-27: Added by jordi to prevent painting the coordinate system.
+  //If the function is simply not called then the wired view of the tracked object does
+  //not appears properly.
+  bool ENABLE_LINES = false;
+
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     m_cam_perspective.Activate();
@@ -919,22 +928,32 @@ void Tracker::drawCoordinateSystem(float linelength, float linewidth, TomGine::t
     
     glPushMatrix();
     glColor3f(1,0,0);
-    glBegin(GL_LINES);
-    glVertex3f(o.x, o.y, o.z);
-    glVertex3f(x.x, x.y, x.z);
-    glEnd();
+    if ( ENABLE_LINES )
+    {
+      glBegin(GL_LINES);
+      glVertex3f(o.x, o.y, o.z);
+      glVertex3f(x.x, x.y, x.z);
+      glEnd();
+    }
     
     glColor3f(0,1,0);
-    glBegin(GL_LINES);
-    glVertex3f(o.x, o.y, o.z);
-    glVertex3f(y.x, y.y, y.z);
-    glEnd();
+    if ( ENABLE_LINES )
+    {
+      glBegin(GL_LINES);
+      glVertex3f(o.x, o.y, o.z);
+      glVertex3f(y.x, y.y, y.z);
+      glEnd();
+    }
     
     glColor3f(0,0,1);
-    glBegin(GL_LINES);
-    glVertex3f(o.x, o.y, o.z);
-    glVertex3f(z.x, z.y, z.z);
-    glEnd();
+    if ( ENABLE_LINES )
+    {
+      glBegin(GL_LINES);
+      glVertex3f(o.x, o.y, o.z);
+      glVertex3f(z.x, z.y, z.z);
+      glEnd();
+    }
+
     glPopMatrix();
 }
 
@@ -1163,7 +1182,7 @@ void Tracker::reset()
                 m_modellist[i]->initial_pose, params.variation);
         m_modellist[i]->pose = m_modellist[i]->initial_pose;
         // TODO evaluate Distribution::v_max (for the right confidence value when the model is locked)
-        //m_modellist[i]->m_lpf_cl.Set(0.0f);
+        //m_modellist[i]->m_lpf_cl.Set(0.0f);        
     }
 }
 

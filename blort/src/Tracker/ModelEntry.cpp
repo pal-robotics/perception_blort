@@ -7,13 +7,15 @@ using namespace Tracking;
 /** @brief class ModelEntry */
 ModelEntry::ModelEntry()
 : m_lpf_a(0.7f), m_lpf_t(0.7f), m_lpf_cs(0.2f), m_lpf_cl(0.99f)
-{
+{  
 	del_predictor = predictor = new Predictor();
 	bfc = false;
 	lock = false;
 	mask_geometry_edges = false;
 	num_convergence = 0;
+  st_quality = ST_OK; //2012-11-28: added by Jordi
 	mask = 0;
+  ROS_WARN_STREAM("ModelEntry(): st_quality = " << st_quality );
 }
 
 ModelEntry::ModelEntry(const TomGine::tgModel& m)
@@ -89,7 +91,8 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
                                  float c_mv_not, float c_mv_slow, float c_th_lost)
 {
 	
-	if(lock){
+  if(lock)
+  {    
 		st_quality = ST_LOCKED;
 		return;
 	}
@@ -107,9 +110,8 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 	t = m_lpf_t.Process(t);
 	a = m_lpf_a.Process(a);
 	
-        c_edge = m_lpf_cs.Process(this->confidence_edge);
-        //ROS_INFO("c_edge: %f, this->confidence_edge: %f", c_edge, this->confidence_edge);
-	
+  c_edge = m_lpf_cs.Process(this->confidence_edge);  
+
 	abs_a = abs(a);
 	abs_t = abs(t);
 	
@@ -119,7 +121,7 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 	if(c_edge < c_th)
 		c_lost = m_lpf_cl.Process(c_th - c_edge);
 	else
-		c_lost = m_lpf_cl.Process(0.0f);
+		c_lost = m_lpf_cl.Process(0.0f);  
 
 	// Movement detection
 	if( abs_a<c_mv_not && abs_t < c_mv_not )
@@ -128,18 +130,31 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 		st_movement = ST_SLOW;
 	else
 		st_movement = ST_FAST;
+
+  ROS_INFO_STREAM("ModeEntry: evaluate_states: c_edge = " << c_edge << "  c_lost = " << c_lost << "  c_th_lost = " << c_th_lost);
+  ROS_INFO_STREAM("                            st_movement = " << st_movement << "  st_quality = " << st_quality);
 	
 	//// Lost detection
-	if( c_lost > c_th_lost ){
+  if( c_lost > c_th_lost )
+  {
 		if( st_movement != ST_STILL && st_quality != ST_OCCLUDED)
+    {
 			st_quality = ST_LOST;
-		else if( st_quality != ST_LOST)
-			st_quality = ST_OCCLUDED;
-	}else if( st_quality != ST_LOST && st_quality != ST_OCCLUDED ){
+    }
+    else if( st_quality != ST_LOST)
+    {
+      st_quality = ST_OCCLUDED;
+    }
+  }
+  else if( st_quality != ST_LOST && st_quality != ST_OCCLUDED )
+  {
 		st_quality = ST_OK;
 	}
+
 	if( st_quality == ST_OCCLUDED && st_movement == ST_FAST )
+  {
 		st_quality = ST_LOST;
+  }   
 	
 	// Quality detection
 	if( c_edge > c_th_base )
@@ -149,8 +164,11 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 	else
 		st_confidence = ST_BAD;
 		
-	if( st_movement == ST_STILL && c_edge >= c_th_base ){
+  if( st_movement == ST_STILL && c_edge >= c_th_base )
+  {
 		st_quality = ST_OK;
 	}
+
+  ROS_INFO_STREAM("ModelEntry::evaluate_states has set st_confidence = " << st_confidence << "  st_quality = " << st_quality);
 	
 }
