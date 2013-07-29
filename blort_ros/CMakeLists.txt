@@ -103,7 +103,6 @@ add_executable(pose2Tf
 ) 
 target_link_libraries(pose2Tf
   ${PROJECT_NAME}
-#  ${catkin_LIBRARIES}
 )
 
 add_executable(pose2Tf_repeat
@@ -111,7 +110,6 @@ add_executable(pose2Tf_repeat
 )
 target_link_libraries(pose2Tf_repeat
   ${PROJECT_NAME}
-#  ${catkin_LIBRARIES}
 )
 
 if(roslaunch_VERSION GREATER 1.9.45)

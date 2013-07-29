@@ -17,7 +17,6 @@ find_package(DevIL REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-#  DEPENDS GLEW DevIL
 )
 
 ###########
