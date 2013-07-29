@@ -1,42 +1,75 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(siftgpu)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
+## Find catkin macros and libraries
+find_package(catkin REQUIRED)
 
-rosbuild_init()
+find_package(GLEW REQUIRED)
+find_package(DevIL REQUIRED)
 
-INCLUDE(FindPkgConfig)
+###################################
+## catkin specific configuration ##
+###################################
 
-pkg_check_modules(GLEW REQUIRED glew)
+## Catkin package definition
+## INCLUDE_DIRS: include directory
+## LIBRARIES: libraries that are provided
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+#  DEPENDS GLEW DevIL
+)
 
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+###########
+## Build ##
+###########
 
-rosbuild_add_library(${PROJECT_NAME} src/CLTexImage.cpp
-                                     src/CuTexImage.cpp
-                                     src/FrameBufferObject.cpp
-                                     src/GlobalUtil.cpp
-                                     src/GLTexImage.cpp
-                                     src/ProgramCG.cpp
-                                     src/ProgramCL.cpp
-                                     src/ProgramGLSL.cpp
-                                     src/ProgramGPU.cpp
-                                     src/PyramidCL.cpp
-                                     src/PyramidCU.cpp
-                                     src/PyramidGL.cpp
-                                     src/ShaderMan.cpp
-                                     src/SiftGPU.cpp
-                                     src/SiftMatch.cpp
-                                     src/SiftMatchCU.cpp
-                                     src/SiftPyramid.cpp)
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+include_directories(include
+  ${catkin_INCLUDE_DIRS}
+  ${GLEW_INCLUDE_DIRS}
+  ${IL_INCLUDE_DIR}
+)
 
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES} IL)
+## Declare a cpp library
+add_library(${PROJECT_NAME}
+  src/CLTexImage.cpp
+  src/CuTexImage.cpp
+  src/FrameBufferObject.cpp
+  src/GlobalUtil.cpp
+  src/GLTexImage.cpp
+  src/ProgramCG.cpp
+  src/ProgramCL.cpp
+  src/ProgramGLSL.cpp
+  src/ProgramGPU.cpp
+  src/PyramidCL.cpp
+  src/PyramidCU.cpp
+  src/PyramidGL.cpp
+  src/ShaderMan.cpp
+  src/SiftGPU.cpp
+  src/SiftMatch.cpp
+  src/SiftMatchCU.cpp
+  src/SiftPyramid.cpp
+)
 
+## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${GLEW_LIBRARIES}
+  ${IL_LIBRARIES}
+)
 
+#############
+## Install ##
+#############
+
+# Install header files
+install(DIRECTORY include
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+# Install libraries
+install(FILES ${PROJECT_NAME}
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
 

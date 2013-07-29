@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+  <name>blort_ros</name>
+  <version>2.2.0</version>
+  <description>
+    BLORT - The Blocks World Robotic Vision Toolbox <br/>
+    ROS interface classes and nodes for the BLORT library.
+  </description>
+  <author>Bence Magyar</author>
+
+  <license>BSD</license>
+  <url>http://ros.org/wiki/blort_ros</url>
+  <maintainer email="jordi.pages@pal-robotics.com">Jordi Pages</maintainer>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>blort</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>roslaunch</build_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>blort</run_depend>
+
+  <export>
+  </export>
+</package>

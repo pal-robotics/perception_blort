@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>siftgpu</name>
+  <version>0.0.0</version>
+  <description>
+  The SiftGPU library is an implementation of SIFT for GPU.
+  </description>
+
+  <author>Changchang Wu (library)</author>
+  <author>Bence Magyar (ROS wrapper)</author>
+
+  <license>non-profit license from University of North Carolina</license>
+  <url>http://ros.org/wiki/siftgpu</url>
+  <maintainer email="jordi.pages@pal-robotics.com">Jordi Pages</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>GLEW</build_depend>
+  <build_depend>DevIL</build_depend>
+
+  <export>
+  </export>
+</package>
