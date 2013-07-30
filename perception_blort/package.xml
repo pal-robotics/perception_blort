@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <name>perception_blort</name>
+  <version>0.0.1</version>
+  <description>
+    BLORT - The Blocks World Robotic Vision Toolbox <br/>
+    Ported and refactored version of the library.
+  </description>
+
+  <author>Bence Magyar</author>
+
+  <license>BSD, Modified BSD, non-profit license from University of North Carolina</license>
+  <url>http://ros.org/wiki/perception_blort</url>
+  <maintainer email="jordi.pages@pal-robotics.com">Jordi Pages</maintainer>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>siftgpu</run_depend>
+  <run_depend>blort</run_depend>
+  <run_depend>blort_ros</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
