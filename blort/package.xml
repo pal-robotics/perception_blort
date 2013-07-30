@@ -12,6 +12,7 @@
   <author>Johann Prankl</author>
   <author>Andreas Richtsfeld</author>
   <author>Bence Magyar (ROS version)</author>
+  <author>Thiemo Wiedemeyer (migration to catkin building system)</author>
 
   <license>BSD</license>
   <url>http://ros.org/wiki/blort</url>

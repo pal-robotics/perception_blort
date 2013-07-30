@@ -7,6 +7,7 @@
     ROS interface classes and nodes for the BLORT library.
   </description>
   <author>Bence Magyar</author>
+  <author>Thiemo Wiedemeyer (migration to catkin building system)</author>
 
   <license>BSD</license>
   <url>http://ros.org/wiki/blort_ros</url>

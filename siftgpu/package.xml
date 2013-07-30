@@ -8,6 +8,7 @@
 
   <author>Changchang Wu (library)</author>
   <author>Bence Magyar (ROS wrapper)</author>
+  <author>Thiemo Wiedemeyer (migration to catkin building system)</author>
 
   <license>non-profit license from University of North Carolina</license>
   <url>http://ros.org/wiki/siftgpu</url>
