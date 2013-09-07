@@ -1,14 +1,10 @@
 <launch>
+    <arg name="info" default="/stereo/left/camera_info" />
+    <arg name="image" default="/stereo/left/image" />
 
     <node pkg="blort_ros" type="learnsifts" name="blort_learnsifts" args="$(find blort_ros)" output="screen">
-<!--
-        <remap from="/blort_camera" to="/gscam/camera_info" />
-        <remap from="/blort_image" to="/gscam/image_raw" /> 
-        <remap from="/blort_camera" to="/disparity_segment/camera_info" />
-        <remap from="/blort_image" to="/disparity_segment/image_rect_masked" /> 
--->
-        <remap from="/blort_camera" to="/stereo/left/camera_info" />
-        <remap from="/blort_image" to="/stereo/left/image" /> 
+        <remap from="/blort_camera" to="$(arg info)" />
+        <remap from="/blort_image" to="$(arg image)" />
     </node>
 
 </launch>
