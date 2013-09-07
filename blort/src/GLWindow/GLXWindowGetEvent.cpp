@@ -32,12 +32,16 @@ bool GLWindow::GetEvent(Event &event){
 		{
 			event.type = TMGL_Press;
 			MapMouse(xev.xbutton.button, event.input);
+            event.motion.x = xev.xbutton.x;
+            event.motion.y = xev.xbutton.y;
 		}
 		// Mouse Button Release
 		else if(XCheckWindowEvent(dpy, glWin, ButtonReleaseMask, &xev))
 		{
 			event.type = TMGL_Release;
 			MapMouse(xev.xbutton.button, event.input);
+            event.motion.x = xev.xbutton.x;
+            event.motion.y = xev.xbutton.y;
 		}
 		// Mouse Motion
 		else if(XCheckWindowEvent(dpy, glWin, PointerMotionMask, &xev))
