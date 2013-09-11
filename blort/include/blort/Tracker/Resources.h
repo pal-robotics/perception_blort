@@ -14,7 +14,7 @@
 #define FN_LEN 256
 #endif
 
-#define g_Resources Resources::GetInstance()
+#define g_Resources Tracking::Resources::GetInstance()
 
 namespace Tracking{
 
