@@ -349,7 +349,7 @@ private:
                 } else {
                     parent_->tracker->reset();
                 }
-                parent_->tracker->setPublisMode(blort_ros::TRACKER_PUBLISH_GOOD);
+                parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD);
                 parent_->tracker->setVisualizeObjPose(true);
                 blort_ros::SetCameraInfo camera_info;
                 camera_info.request.CameraInfo = *lastCameraInfo;

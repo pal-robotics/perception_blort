@@ -146,7 +146,9 @@ namespace blort_ros
 
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
-        void setPublisMode(TrackerPublishMode mode){ publish_mode = mode; }
+        void setPublishMode(TrackerPublishMode mode){ publish_mode = mode; }
+
+        TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
         void resetParticleFilter();
 
