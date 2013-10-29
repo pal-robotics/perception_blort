@@ -77,6 +77,8 @@ private:
     ros::Publisher confidences_pub;
 
     //sensor_msgs::CameraInfo _msg;
+    unsigned int pose_seq;
+    std::string camera_frame_id;
 
     const std::string root_;
     ros::ServiceServer control_service;
@@ -90,10 +92,10 @@ private:
 public:
     
     TrackerNode(std::string root = ".")
-        : nh_("blort_tracker"), it_(nh_), root_(root), tracker(0)
+        : nh_("blort_tracker"), it_(nh_), pose_seq(0), camera_frame_id("0"), root_(root), tracker(0)
     {
         nh_.param<std::string>("launch_mode", launch_mode, "tracking");
-        detection_result = nh_.advertise<geometry_msgs::Pose>("detection_result", 100);
+        detection_result = nh_.advertise<geometry_msgs::PoseStamped>("detection_result", 100);
         confidences_pub = nh_.advertise<blort_ros::TrackerConfidences>("confidences", 100);
         image_pub = it_.advertise("image_result", 1);
 
@@ -113,6 +115,11 @@ public:
         if(tracker != 0)
             delete(tracker);
         delete mode;
+    }
+
+    void setCameraFrameID(const std::string & id)
+    {
+        camera_frame_id = id;
     }
     
     void imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, const sensor_msgs::ImageConstPtr& trackerImgMsg )
@@ -158,7 +165,11 @@ public:
                 if(tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD ||
                     (tracker->getConfidence() == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
                 {
-                    geometry_msgs::Pose target_pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
+                    geometry_msgs::PoseStamped target_pose;
+                    target_pose.header.seq = pose_seq++;
+                    target_pose.header.stamp = ros::Time::now();
+                    target_pose.header.frame_id = camera_frame_id;
+                    target_pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
                                                                                      tracker->getDetections()[0]);
 
                     detection_result.publish(target_pose);
@@ -235,6 +246,7 @@ private:
             if(parent_->tracker == 0)
             {
                 ROS_INFO("Camera parameters received, ready to run.");
+                parent_->setCameraFrameID(msg.header.frame_id);
                 //parent_->_msg = msg; //2012-11-27 Jordi: keep a copy to reset the tracker when necessary
                 cam_info_sub.shutdown();
                 parent_->tracker = new blort_ros::GLTracker(msg, parent_->root_, true);
