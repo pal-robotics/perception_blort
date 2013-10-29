@@ -37,6 +37,7 @@ rosbuild_add_compile_flags(module_glwindow -DLINUX)
 target_link_libraries(module_glwindow GLU GL glut X11 rt)
 
 rosbuild_add_library(module_tomgine
+    src/TomGine/tgMathlib.cpp
     src/TomGine/tgVector3.cpp 
     src/TomGine/tgTimer.cpp 
     src/TomGine/tgTexture.cpp 

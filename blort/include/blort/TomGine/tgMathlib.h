@@ -22,6 +22,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <ostream>
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -846,6 +847,8 @@ struct mat4 {
 
     float mat[16];
 };
+
+std::ostream & operator<<(std::ostream & out, const mat3 & m);
 
 inline mat3::mat3(const mat4 &m) {
     mat[0] = m[0]; mat[3] = m[4]; mat[6] = m[8];
