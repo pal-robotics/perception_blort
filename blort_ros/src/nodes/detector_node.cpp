@@ -97,6 +97,7 @@ public:
         {
             ROS_INFO("Detector called the %u-th time.", ++counter);
             bool result;
+            resp.object_id = req.object_id;
             if(!req.Image.data.empty())
             {
                 cv_bridge::CvImagePtr cv_ptr;
@@ -111,10 +112,10 @@ public:
                     ROS_ERROR("cv_bridge exception: %s", e.what());
                     return false;
                 }
-                result = detector->recovery(cv_ptr->image, resp);
+                result = detector->recovery(req.object_id.data, cv_ptr->image, resp);
             } else {
                 ROS_INFO("Running detector on latest image.");
-                result = detector->recoveryWithLast(resp);
+                result = detector->recoveryWithLast(req.object_id.data, resp);
             }
             cv_bridge::CvImage out_msg;
             out_msg.header = req.Image.header;

@@ -66,8 +66,8 @@ namespace blort_ros
         boost::shared_ptr<blortRecognizer::Recognizer3D> recognizer; // recovery component
 
         //config files //FIXME
-        std::string model_name, sift_file; // name of the current model
-        std::string pose_cal;   // filename with the pose calibration values
+        std::vector<std::string> model_names, sift_files; // name of the current model
+        std::vector<std::string> pose_cals;   // filename with the pose calibration values
 
         // Initialise image
         IplImage *image_; // iplimage that used be the in former blort tracker module
@@ -81,12 +81,12 @@ namespace blort_ros
                    const std::string& config_root);
 
         /** @brief Method to run and handle recovery state. */
-        bool recovery(const cv::Mat& image,
+        bool recovery(size_t obj_id, const cv::Mat& image,
                       blort_ros::RecoveryCall::Response &resp);
 
         /** @brief Method to run on the previously stored image.
          *  @see recovery */
-        bool recoveryWithLast(blort_ros::RecoveryCall::Response &resp);
+        bool recoveryWithLast(size_t obj_id, blort_ros::RecoveryCall::Response &resp);
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param reconfigure_gui messagetype */

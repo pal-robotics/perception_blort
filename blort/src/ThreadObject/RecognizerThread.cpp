@@ -30,11 +30,11 @@ CRecognizerThread::~CRecognizerThread()
 	
 }
 
-void CRecognizerThread::Recognize(IplImage* image, TomGine::tgPose& pose, float& conf)
+void CRecognizerThread::Recognize(IplImage* image, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs)
 {
 	m_mutex.Lock();
 		cvCopyImage(image, m_image);
-		m_pose = pose;
+		m_poses = poses;
 		cmd = RECOGNIZE;
 	m_mutex.Unlock();
 	
@@ -42,8 +42,8 @@ void CRecognizerThread::Recognize(IplImage* image, TomGine::tgPose& pose, float&
 	m_evData.Wait(); m_evData.Reset();
 	
 	m_mutex.Lock();
-		pose = m_pose;
-		conf = m_conf;
+		poses = m_poses;
+		confs = m_confs;
 	m_mutex.Unlock();
 }
 
@@ -51,8 +51,8 @@ void CRecognizerThread::LearnSifts(IplImage* image,  TomGine::tgModel &model, To
 {
 	m_mutex.Lock();
 		cvCopyImage(image, m_image);
-		m_pose = pose;
-		m_model = model;
+		m_poses.push_back(boost::shared_ptr<TomGine::tgPose>(&pose));
+		m_models.push_back(boost::shared_ptr<TomGine::tgModel>(&model));
 		cmd = LEARN;
 	m_mutex.Unlock();
 	
@@ -125,7 +125,7 @@ BOOL CRecognizerThread::OnTask()
 			
 			case RECOGNIZE:
 				m_mutex.Lock();
-					m_recognizer.recognize(m_image, m_pose, m_conf);
+					m_recognizer.recognize(m_image, m_poses, m_confs);
                                         result = m_recognizer.getImage();
 					m_evData.Set();
 					cmd = IDLE;
@@ -134,7 +134,7 @@ BOOL CRecognizerThread::OnTask()
 			
 			case LEARN:
 				m_mutex.Lock();
-					m_recognizer.learnSifts(m_image, m_model, m_pose);
+					m_recognizer.learnSifts(m_image, *m_models[0], *m_poses[0]);
 					m_evData.Set();
 					cmd = IDLE;
 				m_mutex.Unlock();

@@ -154,13 +154,12 @@ void Recognizer3D::setCameraParameter(const blortRecognizer::CameraParameter& ca
     cvInitUndistortMapExact(pIntrinsicDistort, pDistortion, pMapX,  pMapY);
 }
 
-bool Recognizer3D::recognize(IplImage* tFrame, TomGine::tgPose& pose, float &conf)
+bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs)
 {
     P::PoseCv cvPose;
     bool detected = false;
-    conf = 0.0f;
 
-    if(!m_model_loaded || m_sift_model.codebook.Empty())
+    if(!m_model_loaded || m_sift_models[0]->codebook.Empty())
     {
         ROS_DEBUG("[Recognizer3D::recognize] Warning: no sift points in codebook of object (did you load the model before?) -- Possible GPU library error.");
         return false;
@@ -201,40 +200,44 @@ bool Recognizer3D::recognize(IplImage* tFrame, TomGine::tgPose& pose, float &con
     //EXPERIMENTAL
     //cv_detect->detect(cv::Mat(grey, true), m_sift_model);
     ticksBefore = cv::getTickCount();
-    bool detectResult = m_detect.Detect(m_image_keys, m_sift_model);
-    ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
-    if ( detectResult )
+    for(size_t i = 0; i < m_sift_models.size(); ++i)
     {
-        if(m_sift_model.conf > 0.03)
+        confs[i] = 0;
+        bool detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
+        ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+        if ( detectResult )
         {
-            conf = m_sift_model.conf;
-            if(m_display)
+            if(m_sift_models[i]->conf > 0.03)
             {
-                // object contours & features drawn with green
-                P::SDraw::DrawPoly(tImg, m_sift_model.contour.v, CV_RGB(0,255,0),2);
-                m_detect.DrawInlier(tImg, CV_RGB(0,255,0));
-            }
-            CopyPoseCv(m_sift_model.pose, cvPose);
-            Convert(cvPose, pose);
-            ROS_DEBUG("[Recognizer3D::recognize] object found (conf: %f)\n", m_sift_model.conf);
-            detected = true;
-        }else{
-            if(m_display)
-                // pose estimage object contours drawn with purple
-                P::SDraw::DrawPoly(tImg, m_sift_model.contour.v, CV_RGB(128,0,128),2);
+                confs[i] = m_sift_models[i]->conf;
+                if(m_display)
+                {
+                    // object contours & features drawn with green
+                    P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(0,255,0),2);
+                    m_detect.DrawInlier(tImg, CV_RGB(0,255,0));
+                }
+                CopyPoseCv(m_sift_models[i]->pose, cvPose);
+                Convert(cvPose, *poses[i]);
+                ROS_DEBUG("[Recognizer3D::recognize] object found (conf: %f)\n", m_sift_models[i]->conf);
+                detected = true;
+            }else{
+                if(m_display)
+                    // pose estimage object contours drawn with purple
+                    P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(128,0,128),2);
 
-            ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_model.conf);
+                ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_models[i]->conf);
+                detected = false;
+            }
+	    
+        }else{
+            confs[i] = m_sift_models[i]->conf;
+
+            if(m_display)
+                P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(128,0,128),2);
+
+            ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_models[i]->conf);
             detected = false;
         }
-	
-    }else{
-        conf = m_sift_model.conf;
-
-        if(m_display)
-            P::SDraw::DrawPoly(tImg, m_sift_model.contour.v, CV_RGB(128,0,128),2);
-
-        ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_model.conf);
-        detected = false;
     }
 
     if(m_display)
@@ -356,7 +359,7 @@ bool Recognizer3D::learnSifts(IplImage* tFrame, const TomGine::tgModel& m1, cons
 
     if(m_tmp_keys.Size() > 0)
     {
-        m_sift_model_learner.AddToModel(m_tmp_keys, m_sift_model);
+        m_sift_model_learner.AddToModel(m_tmp_keys, *m_sift_models[0]);
         ROS_INFO("[Recognizer3D::learnSifts] added %d sifts to model\n", m_tmp_keys.Size());
         m_model_loaded = true;
     }
@@ -374,7 +377,8 @@ bool Recognizer3D::learnSifts(IplImage* tFrame, const TomGine::tgModel& m1, cons
 bool Recognizer3D::loadModelFromFile(const std::string sift_file)
 {
     ROS_INFO("[Recognizer3D::loadModelFromFile] loading sift model from '%s'\n", sift_file.c_str());
-    m_model_loaded = m_sift_model_learner.LoadModel(pal_blort::addRoot(sift_file, config_root), m_sift_model);
+    m_sift_models.push_back(boost::shared_ptr<P::Object3D>(new P::Object3D()));
+    m_model_loaded = m_sift_model_learner.LoadModel(pal_blort::addRoot(sift_file, config_root), *m_sift_models[m_sift_models.size()-1]);
     //EXPERIMENTAL
     //cv_detect->addCodeBook(m_sift_model);
     return true;
@@ -383,13 +387,8 @@ bool Recognizer3D::loadModelFromFile(const std::string sift_file)
 bool Recognizer3D::saveModelToFile(const char* sift_file)
 {
     ROS_INFO("[Recognizer3D::saveModelToFile] saving sift model to '%s'\n", sift_file);
-    m_sift_model_learner.SaveModel(pal_blort::addRoot(sift_file, config_root).c_str(), m_sift_model);
+    m_sift_model_learner.SaveModel(pal_blort::addRoot(sift_file, config_root).c_str(), *m_sift_models[0]);
     return true;
-}
-
-unsigned int Recognizer3D::getCodeBookSize()
-{
-    return m_sift_model.codebook.Size();
 }
 
 void Recognizer3D::setNNThreshold(double nn_threshold)

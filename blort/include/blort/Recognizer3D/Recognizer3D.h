@@ -64,7 +64,7 @@ public:
 	*   @param pose returned pose of the object (if found)
 	*   @param conf returned confidence of pose of the object
 	*   @return true if object found, false if not */
-	bool recognize(IplImage* tFrame, TomGine::tgPose& pose, float &conf);
+	bool recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs);
 	
 	/** @brief add sift features to sift model of an object
 	*   @param tFrame image/pixel map to search for new sift features
@@ -93,7 +93,6 @@ public:
 	void getLastSifts(std::vector<Siftex> &sl){ sl = m_lastsiftexlist; }
 	
         //BENCE
-        unsigned int getCodeBookSize();
         cv::Mat getImage(){ return display_image; }
         void setDoUndistort(bool enable){ do_undistort = enable; }
 
@@ -107,10 +106,14 @@ private:
 	Recognizer3D();
 	
 	P::DetectGPUSIFT sift;
+    /* Used to load model in tracking, only one needed */
 	P::ModelObject3D m_sift_model_learner;
-	P::ODetect3D m_detect;
-	P::Object3D m_sift_model;
+    /* Use to perform detection, one should do it */
+    P::ODetect3D m_detect;
+    /* Store the model, need one per object */
+	std::vector< boost::shared_ptr<P::Object3D> > m_sift_models;
 	
+    /* Store all sifts in the image, shared among the objects */
 	P::Array<P::KeypointDescriptor*> m_image_keys;
 	
 	std::vector<Siftex> m_lastsiftexlist;

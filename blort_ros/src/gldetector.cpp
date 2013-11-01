@@ -58,41 +58,48 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
 
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
     std::string tracking_ini(pal_blort::addRoot("bin/tracking.ini", config_root));
-    std::string ply_model;
-    GetPlySiftFilenames(tracking_ini.c_str(), ply_model, sift_file, model_name);
+    std::vector<std::string> ply_models;
+    GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     recognizer = boost::shared_ptr<blortRecognizer::Recognizer3D>(
             new blortRecognizer::Recognizer3D(blortRecognizer::CameraParameter(camera_info), config_root, true));
-    recognizer->loadModelFromFile(sift_file);
+    for(size_t i = 0; i < sift_files.size(); ++i)
+    {
+        recognizer->loadModelFromFile(sift_files[i]);
+    }
     image_ = cvCreateImage( cvSize(camera_info.width, camera_info.height), 8, 3 );
 }
 
-bool GLDetector::recovery(const cv::Mat& image,
+bool GLDetector::recovery(size_t obj_id, const cv::Mat& image,
                           blort_ros::RecoveryCall::Response &resp)
 {
     last_image = image;
     *image_ = last_image;
 
-    return recoveryWithLast(resp);
+    return recoveryWithLast(obj_id, resp);
 }
 
-bool GLDetector::recoveryWithLast(blort_ros::RecoveryCall::Response &resp)
+bool GLDetector::recoveryWithLast(size_t obj_id, blort_ros::RecoveryCall::Response &resp)
 {
     double ticksBefore = cv::getTickCount();
 
-    TomGine::tgPose recPose;
-    float conf;
+    std::vector< boost::shared_ptr<TomGine::tgPose> > recPoses;
+    for(size_t i = 0; i < sift_files.size(); ++i)
+    {
+        recPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose()));
+    }
+    std::vector<float> confs(sift_files.size(), 0);
     ROS_INFO("\n");
-    recognizer->recognize(image_, recPose, conf);
+    recognizer->recognize(image_, recPoses, confs);
 
-    ROS_INFO("object conf: %f", conf);
+    ROS_INFO("object (%d) conf: %f", obj_id, confs[obj_id]);
     ROS_WARN("Tried to recover for the %d. time.", rec3dcounter++);
     ROS_INFO("Recovery execution time: %f ms",
              1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
 
     // if the recovery's confidence is high enough then propose this new pose
-    if(conf > recovery_conf_threshold)
+    if(confs[obj_id] > recovery_conf_threshold)
     {
-        resp.Pose = pal_blort::tgPose2RosPose(recPose);
+        resp.Pose = pal_blort::tgPose2RosPose(*recPoses[obj_id]);
         return true;
     }
     else // else don't propose

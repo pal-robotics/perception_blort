@@ -26,11 +26,11 @@ private:
 	CMutexClass m_running;
 	
 	bool m_quit;
-	float m_conf;
+	std::vector<float> m_confs;
 	std::string m_sift_file;
 	blortRecognizer::CameraParameter m_params;
-	TomGine::tgPose m_pose;	
-	TomGine::tgModel m_model;
+	std::vector< boost::shared_ptr<TomGine::tgPose> > m_poses;	
+	std::vector< boost::shared_ptr<TomGine::tgModel> > m_models;
 	IplImage* m_image;
 	std::vector<blortRecognizer::Siftex> m_lastsiftexlist;
 	std::vector<blortRecognizer::Siftex> m_siftexlist;
@@ -43,7 +43,7 @@ public:
         CRecognizerThread(const blortRecognizer::CameraParameter& params, std::string config_root="");
 	~CRecognizerThread();
 	
-	void Recognize(IplImage* image, TomGine::tgPose& pose, float& conf);
+	void Recognize(IplImage* image, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs);
 	
 	void LearnSifts(IplImage* image,  TomGine::tgModel &model, TomGine::tgPose& pose);
 	

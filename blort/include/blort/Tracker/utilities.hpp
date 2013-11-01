@@ -301,6 +301,7 @@ void GetTrackingParameter( Tracking::Tracker::Parameter& params, const char* ini
     params.c_mv_slow = iniCDF.GetFloat("SlowMovementThreshold", "Movement");
 }
 
+/*FIXME Left temporally for backward compatiblity */
 void GetPlySiftFilenames(const char* ini_file, std::string &ply_file, std::string &sift_file, std::string &model_name)
 {
     CDataFile iniCDF;
@@ -319,6 +320,46 @@ void GetPlySiftFilenames(const char* ini_file, std::string &ply_file, std::strin
     model_name = iniCDF.GetString("Model", "Files");
     model_name = model_name.substr(0, model_name.find("."));
 
+}
+
+void GetPlySiftFilenames(const char* ini_file, std::vector<std::string> & ply_files, std::vector<std::string> & sift_files, std::vector<std::string> & model_names)
+{
+    CDataFile iniCDF;
+
+    if(!iniCDF.Load(ini_file)){
+        char errmsg[128];
+        sprintf(errmsg, "[utilities::GetTrackingParameter] Can not open tracking_ini file '%s'", ini_file);
+        throw std::runtime_error(errmsg);
+    }
+
+    ply_files.resize(0);
+    sift_files.resize(0);
+    model_names.resize(0);
+
+    {
+        std::string resource_path = iniCDF.GetString("ModelPath", "ResourcePath");
+        std::stringstream ss;
+        ss << iniCDF.GetString("Model", "Files");
+        while(ss.good())
+        {
+            std::string ply_file;
+            ss >> ply_file;
+            ply_files.push_back(resource_path + ply_file);
+            ply_file = ply_file.substr(0, ply_file.find("."));
+            model_names.push_back(ply_file);
+        }
+    }
+    {
+        std::string resource_path = iniCDF.GetString("SiftPath", "ResourcePath");
+        std::stringstream ss;
+        ss << iniCDF.GetString("SiftModel", "Files");
+        while(ss.good())
+        {
+            std::string sift_file;
+            ss >> sift_file;
+            sift_files.push_back(resource_path + sift_file);
+        }
+    }
 }
 
 bool InputControl(Tracking::Tracker* tracker, blortGLWindow::Event& event, std::string config_root =""){
