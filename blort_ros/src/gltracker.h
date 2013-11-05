@@ -128,10 +128,10 @@ namespace blort_ros
          */
         void trackerControl(int code, int param = -1);
 
-        void resetWithPose(const geometry_msgs::Pose& new_pose);
+        void resetWithPose(size_t obj_id, const geometry_msgs::Pose& new_pose);
 
         /** @brief Get some statistics of the actual tracking state. */
-        TrackerConfidences getConfidences(){ return tracker_confidences; }
+        const std::vector< boost::shared_ptr<TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
 
         /** @brief Get the results of the latest detections. */
         const std::vector<geometry_msgs::Pose>& getDetections(){ return result; }
@@ -159,7 +159,7 @@ namespace blort_ros
 
         /** @brief Assemble pose result to be published based on class variables.
           * The result is put in the corresponding variable. */
-        void updatePoseResult();
+        void updatePoseResult(size_t i);
     };
 }
 

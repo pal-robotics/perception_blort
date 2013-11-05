@@ -138,43 +138,53 @@ public:
                 return;
             }
 
-            if(tracker->getMode() == blort_ros::TRACKER_RECOVERY_MODE)
-            {              
-                blort_ros::RecoveryCall srv = mode->recovery(detectorImgMsg);
+            bool should_process = false;
+            for(size_t i = 0; i < tracker->getModes().size(); ++i)
+            {
+                if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
+                {              
+                    blort_ros::RecoveryCall srv = mode->recovery(i, detectorImgMsg);
 
-                ROS_INFO("tracker_node in TRACKER_RECOVERY_MODE: calling detector_node recovery service ...");
-                if(recovery_client.call(srv))
-                {
-                  //tracker = new blort_ros::GLTracker(_msg, root_, true);
-                  ROS_INFO("reseting tracker with pose from detector\n");
-                  tracker->resetWithPose(srv.response.Pose);
-                  ROS_INFO("AFTER reseting tracker with pose from detector\n");
+                    ROS_INFO("tracker_node in TRACKER_RECOVERY_MODE: calling detector_node recovery service ...");
+                    if(recovery_client.call(srv))
+                    {
+                      //tracker = new blort_ros::GLTracker(_msg, root_, true);
+                      ROS_INFO("reseting tracker with pose from detector\n");
+                      tracker->resetWithPose(i, srv.response.Pose);
+                      ROS_INFO("AFTER reseting tracker with pose from detector\n");
+                    }
+                    else
+                    {
+                        ROS_WARN("Detector not confident enough.\n");
+                    }
                 }
-                else
+                else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
                 {
-                    ROS_WARN("Detector not confident enough.\n");
+                  should_process = true;
                 }
             }
-            else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
+            if(should_process)
             {
-              ROS_INFO("\n----------------------------------------------\n");
-              ROS_INFO("TrackerNode::imageCb: calling tracker->process");
+                ROS_INFO("\n----------------------------------------------\n");
+                ROS_INFO("TrackerNode::imageCb: calling tracker->process");
                 tracker->process(cv_tracker_ptr->image);
-
-                confidences_pub.publish(tracker->getConfidences());
-                if(tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD ||
-                    (tracker->getConfidence() == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
+                for(size_t i = 0; i < tracker->getModes().size(); ++i)
                 {
-                    geometry_msgs::PoseStamped target_pose;
-                    target_pose.header.seq = pose_seq++;
-                    target_pose.header.stamp = ros::Time::now();
-                    target_pose.header.frame_id = camera_frame_id;
-                    target_pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
-                                                                                     tracker->getDetections()[0]);
+                      confidences_pub.publish(*(tracker->getConfidences()[i]));
+                      if(tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_GOOD ||
+                          (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
+                      {
+                          /* FIXME Publish the object name too */
+                          geometry_msgs::PoseStamped target_pose;
+                          target_pose.header.seq = pose_seq++;
+                          target_pose.header.stamp = ros::Time::now();
+                          target_pose.header.frame_id = camera_frame_id;
+                          target_pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
+                                                                                           tracker->getDetections()[i]);
 
-                    detection_result.publish(target_pose);
+                          detection_result.publish(target_pose);
+                      }
                 }
-
                 cv_bridge::CvImage out_msg;
                 out_msg.header = trackerImgMsg->header;
                 out_msg.header.stamp = ros::Time::now();
@@ -206,7 +216,7 @@ private:
     {
     public:
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level) = 0;
-        virtual blort_ros::RecoveryCall recovery(const sensor_msgs::ImageConstPtr& msg) = 0;
+        virtual blort_ros::RecoveryCall recovery(size_t i, const sensor_msgs::ImageConstPtr& msg) = 0;
     };
 
     class TrackingMode : public Mode
@@ -233,9 +243,10 @@ private:
             }
         }
 
-        virtual blort_ros::RecoveryCall recovery(const sensor_msgs::ImageConstPtr& msg)
+        virtual blort_ros::RecoveryCall recovery(size_t i, const sensor_msgs::ImageConstPtr& msg)
         {
             blort_ros::RecoveryCall srv;
+            srv.request.object_id.data = i;
             srv.request.Image = *msg;
             return srv;
         }
@@ -330,11 +341,12 @@ private:
             time_to_run_singleshot =  config.time_to_run_singleshot;
         }
 
-        virtual blort_ros::RecoveryCall recovery(const sensor_msgs::ImageConstPtr& msg)
+        virtual blort_ros::RecoveryCall recovery(size_t i, const sensor_msgs::ImageConstPtr& msg)
         {
             blort_ros::RecoveryCall srv;
             if(!inServiceCall)
             {
+                srv.request.object_id.data = i;
                 srv.request.Image = *msg;
                 // we step into the service call "state" with the first recoverycall made
                 // no new images are accepted until the end of the singleShotServiceCall
@@ -343,6 +355,8 @@ private:
             return srv;
         }
 
+        /* FIXME Implement single-shot with object selection */
+        /* For now, single-shot runs on first object for backward compatibility */
         bool singleShotService(blort_ros::EstimatePose::Request &req,
                                blort_ros::EstimatePose::Response &resp)
         {
@@ -374,12 +388,12 @@ private:
                 {
                     ROS_INFO("Remaining time %f", time_to_run_singleshot+start_secs-ros::Time::now().toSec());
                     parent_->imageCb(lastImage, lastImage);
-                    if(parent_->tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD)
+                    if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_GOOD)
                     {
                         // instead of returning right away let's store the result
                         // to see if the tracker can get better
                         results.push_back(parent_->tracker->getDetections()[0]);
-                    } else if(parent_->tracker->getConfidence() == blort_ros::TRACKER_CONF_LOST)
+                    } else if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_LOST)
                     {
                         results.clear();
                     }

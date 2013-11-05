@@ -88,20 +88,21 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     track_params.camPar = tgcam_params;
 
     tracker.init(track_params);
-    trPose.t = vec3(0.0, 0.1, 0.0);
-    trPose.Rotate(0.0f, 0.0f, 0.5f);
 
-    for(size_t i = 0; i < ply_models_[i]; ++i)
+    for(size_t i = 0; i < ply_models_.size(); ++i)
     {
-        model_ids.push_back(tracker.addModelFromFile(pal_blort::addRoot(ply_models_[i], config_root).c_str(), trPose, model_names_[i].c_str(), true));
-        trPoses.push_back(boost::shared_ptr(new TomGine::tgPose));
+        trPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose));
+        trPoses[i]->t = vec3(0.0, 0.1, 0.0);
+        trPoses[i]->Rotate(0.0f, 0.0f, 0.5f);
+        model_ids.push_back(tracker.addModelFromFile(pal_blort::addRoot(ply_models_[i], config_root).c_str(), *trPoses[i], model_names_[i].c_str(), true));
         movements.push_back(Tracking::ST_SLOW);
         qualities.push_back(Tracking::ST_LOST);
         tracking_confidences.push_back(Tracking::ST_BAD);
         current_modes.push_back(blort_ros::TRACKER_RECOVERY_MODE);
         current_confs.push_back(blort_ros::TRACKER_CONF_LOST);
-        tracker_confidences.push_back(boost::shared_ptr(new TrackerConfidences)):
+        tracker_confidences.push_back(boost::shared_ptr<TrackerConfidences>(new TrackerConfidences));
     }
+    result.resize(ply_models_.size());
     tracker.setLockFlag(true);
 
     image = cvCreateImage( cvSize(tgcam_params.width, tgcam_params.height), 8, 3 );
@@ -114,10 +115,10 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
 void GLTracker::resetParticleFilter(size_t obj_i)
 {
   tracker.removeModel(model_ids[obj_i]);
-  model_ids[obj_i] = tracker.addModelFromFile(pal_blort::addRoot(ply_models_[obj_i], config_root_).c_str(), trPose, model_names_[obj_i].c_str(), true);
+  model_ids[obj_i] = tracker.addModelFromFile(pal_blort::addRoot(ply_models_[obj_i], config_root_).c_str(), *trPoses[obj_i], model_names_[obj_i].c_str(), true);
   movements[obj_i] = Tracking::ST_SLOW;
   qualities[obj_i]  = Tracking::ST_LOST;
-  tracker_confidences[obj_i] = Tracking::ST_BAD;
+  tracking_confidences[obj_i] = Tracking::ST_BAD;
 }
 
 void GLTracker::track()
@@ -127,9 +128,7 @@ void GLTracker::track()
     // Track object
     tracker.image_processing((unsigned char*)image->imageData);
 
-    ROS_INFO_STREAM("GLTracker::track: quality before TextureTracker::track is " << quality);
     tracker.track();
-    ROS_INFO_STREAM("GLTracker::track: quality after TextureTracker::track is " << quality);
 
     tracker.drawImage(0);
     tracker.drawCoordinates();
@@ -145,7 +144,7 @@ void GLTracker::track()
     {
         for(size_t i = 0; i < trPoses.size(); ++i)
         {
-            trPoses[i].Activate();
+            trPoses[i]->Activate();
             glBegin(GL_LINES);
             glColor3f(1.0f, 0.0f, 0.0f);
             glVertex3f(0.0f, 0.0f, 0.0f);
@@ -159,7 +158,7 @@ void GLTracker::track()
             glVertex3f(0.0f, 0.0f, 0.0f);
             glVertex3f(0.0f, 0.0f, 1.0f);
             glEnd();
-            trPoses[i].Deactivate();
+            trPoses[i]->Deactivate();
         }
     }
 
@@ -217,7 +216,7 @@ void GLTracker::reconfigure(blort_ros::TrackerConfig config)
     if(last_reset != config.reset)
     {
         last_reset = config.reset;
-        switchToRecovery();
+        reset();
     }
 }
 
@@ -286,12 +285,11 @@ cv::Mat GLTracker::getImage()
     return tmp;
 }
 
-void GLTracker::updatePoseResult()
+void GLTracker::updatePoseResult(size_t i)
 {
-    result.clear();
     TomGine::tgPose pose;
-    tracker.getModelPose(model_id, pose);
-
+    tracker.getModelPose(model_ids[i], pose);
+    
     geometry_msgs::Pose detection;
     detection.position.x = pose.t.x;
     detection.position.y = pose.t.y;
@@ -302,57 +300,64 @@ void GLTracker::updatePoseResult()
     detection.orientation.y = -pose.q.y;
     detection.orientation.z = -pose.q.z;
     detection.orientation.w = pose.q.w;
-
-    result.push_back(detection);
+    
+    result[i] = detection;
 }
 
 void GLTracker::update()
 {
-    //update confidences for output
-    Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_id);
-    tracker_confidences.edgeConf = myModelEntry->c_edge;
-    tracker_confidences.confThreshold = myModelEntry->c_th;
-    tracker_confidences.lostConf = myModelEntry->c_lost;
-    tracker_confidences.distance = myModelEntry->t;
-
-    //update confidences based on the currently tracked model
-    // !!! the tracker state is now defined by the ONLY object tracked.
-    // although the implementation would allow it, at several places, lacks this at several other.
-    tracker.getModelMovementState(model_id, movement);
-    tracker.getModelQualityState(model_id, quality);
-    ROS_INFO_STREAM("GLTracker::update: the tracked model has set quality to " << quality);
-    tracker.getModelConfidenceState(model_id, tracking_confidence);
-
-    switch(tracking_confidence)
+    for(size_t i = 0; i < model_ids.size(); ++i)
     {
-    case Tracking::ST_GOOD:
-        this->current_conf = blort_ros::TRACKER_CONF_GOOD;
-        updatePoseResult();
-        break;
-    case Tracking::ST_FAIR:
-        this->current_conf = blort_ros::TRACKER_CONF_FAIR;
-        if(publish_mode == TRACKER_PUBLISH_GOOD_AND_FAIR ||
-           publish_mode == TRACKER_PUBLISH_ALL)
+        //update confidences for output
+        Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[i]);
+        tracker_confidences[i]->obj_id.data = i;
+        tracker_confidences[i]->edgeConf = myModelEntry->c_edge;
+        tracker_confidences[i]->confThreshold = myModelEntry->c_th;
+        tracker_confidences[i]->lostConf = myModelEntry->c_lost;
+        tracker_confidences[i]->distance = myModelEntry->t;
+
+        //update confidences based on the currently tracked model
+        // !!! the tracker state is now defined by the ONLY object tracked.
+        // although the implementation would allow it, at several places, lacks this at several other.
+        tracker.getModelMovementState(model_ids[i], movements[i]);
+        tracker.getModelQualityState(model_ids[i], qualities[i]);
+        ROS_INFO_STREAM("GLTracker::update: the tracked model for " << model_names_[i] << " has set quality to " << qualities[i]);
+        tracker.getModelConfidenceState(model_ids[i], tracking_confidences[i]);
+
+        switch(tracking_confidences[i])
         {
-            updatePoseResult();
-            this->current_conf = blort_ros::TRACKER_CONF_GOOD;
+        case Tracking::ST_GOOD:
+            this->current_confs[i] = blort_ros::TRACKER_CONF_GOOD;
+            updatePoseResult(i);
+            break;
+        case Tracking::ST_FAIR:
+            this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
+            if(publish_mode == TRACKER_PUBLISH_GOOD_AND_FAIR ||
+               publish_mode == TRACKER_PUBLISH_ALL)
+            {
+                updatePoseResult(i);
+                this->current_confs[i] = blort_ros::TRACKER_CONF_GOOD;
+            }
+            break;
+        case Tracking::ST_BAD:
+            this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
+            if(publish_mode == TRACKER_PUBLISH_ALL)
+                updatePoseResult(i);
+            break;
+        default:
+            ROS_ERROR("Unknown confidence value: %d", tracking_confidences[i]);
+            break;
         }
-        break;
-    case Tracking::ST_BAD:
-        this->current_conf = blort_ros::TRACKER_CONF_FAIR;
-        if(publish_mode == TRACKER_PUBLISH_ALL)
-            updatePoseResult();
-        break;
-    default:
-        ROS_ERROR("Unknown confidence value: %d", tracking_confidence);
-        break;
     }
 }
 
 void GLTracker::reset()
 {
-  ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE\n");
-  switchToRecovery();
+    ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE\n");
+    for(size_t i = 0; i < model_ids.size(); ++i)
+    {
+        switchToRecovery(i);
+    }
 }
 
 GLTracker::~GLTracker()

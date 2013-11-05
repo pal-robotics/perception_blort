@@ -77,7 +77,17 @@ namespace blort_ros
         virtual void recovery() = 0;
         void process(cv::Mat img)
         {
-            last_image       = img;            
+            last_image = img;
+            tracker_mode current_mode = TRACKER_RECOVERY_MODE;
+            for(size_t i = 0; current_modes.size(); ++i)
+            {
+                if(current_modes[i] > current_mode)
+                {
+                    //FIXME tracking and locked mode are equivalent for now
+                    current_mode = current_modes[i];
+                    break;
+                }
+            }
             switch(current_mode)
             {
             case TRACKER_RECOVERY_MODE:
@@ -94,8 +104,8 @@ namespace blort_ros
         virtual void switchToTracking(size_t id){ current_confs[id] = TRACKER_CONF_FAIR; current_modes[id] = TRACKER_TRACKING_MODE; }
         virtual void switchToRecovery(size_t id){ current_confs[id] = TRACKER_CONF_LOST; current_modes[id] = TRACKER_RECOVERY_MODE; }
         virtual void reset(size_t id){ switchToRecovery(id); }
-        tracker_mode getMode(size_t id){ return current_modes[id]; }
-        tracker_confidence getConfidence(size_t id){ return current_confs[id]; }
+        const std::vector<tracker_mode> & getModes(){ return current_modes; }
+        const std::vector<tracker_confidence> & getConfidence(){ return current_confs; }
     };
 }
 
