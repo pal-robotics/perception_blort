@@ -82,22 +82,23 @@ namespace blort_ros
         Tracking::TextureTracker tracker;   // tracking module
 
         //config files //FIXME
-        std::string config_root_, ply_model_;
-        std::string model_name, sift_file; // name of the current model
+        std::string config_root_;
+        std::vector<std::string> ply_models_;
+        std::vector<std::string> model_names_, sift_files_; // name of the current model
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
-        TomGine::tgPose trPose; // current pose of the object used by the tracker module
-        int model_id;
-        Tracking::movement_state movement;
-        Tracking::quality_state quality;
-        Tracking::confidence_state tracker_confidence;
+        std::vector< boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
+        std::vector<int> model_ids;
+        std::vector<Tracking::movement_state> movements;
+        std::vector<Tracking::quality_state> qualities;
+        std::vector<Tracking::confidence_state> tracking_confidences;
 
         // Initialise image
         IplImage *image; // iplimage object used be the former blort tracker module
 
         // result variables
-        TrackerConfidences tracker_confidences;
+        std::vector< boost::shared_ptr<TrackerConfidences> > tracker_confidences;
         geometry_msgs::Pose fixed_cam_pose;
         std::vector<geometry_msgs::Pose> result;
         
@@ -141,16 +142,13 @@ namespace blort_ros
         /** @brief Get the rendered image for visualization. */
         cv::Mat getImage();
 
-        /** @brief Get a status string describing the current state of the tracker. */
-        std::string getStatusString();
-
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
         void setPublishMode(TrackerPublishMode mode){ publish_mode = mode; }
 
         TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-        void resetParticleFilter();
+        void resetParticleFilter(size_t id);
 
         ~GLTracker();
 
