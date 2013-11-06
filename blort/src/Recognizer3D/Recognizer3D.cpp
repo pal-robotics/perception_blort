@@ -47,7 +47,7 @@ void Recognizer3D::Convert(P::PoseCv& p1, TomGine::tgPose& p2){
 }
 
 Recognizer3D::Recognizer3D(const blortRecognizer::CameraParameter& camParam,
-                           std::string config_root, bool display)
+                           std::string config_root, bool display, bool training)
 {
     do_undistort = true;
     this->config_root = config_root;
@@ -95,6 +95,10 @@ Recognizer3D::Recognizer3D(const blortRecognizer::CameraParameter& camParam,
     m_display = display;
 
     m_model_loaded = false;
+    if(training)
+    {
+        initTrainingModel();
+    }
 
     //    // create and initialize opencv-based 3D detector core
     //    cv_detect = cv::Ptr<pal_blort::CvDetect3D>(new pal_blort::CvDetect3D("FAST","SIFT","FlannBased"));
@@ -382,6 +386,12 @@ bool Recognizer3D::loadModelFromFile(const std::string sift_file)
     //EXPERIMENTAL
     //cv_detect->addCodeBook(m_sift_model);
     return true;
+}
+
+void Recognizer3D::initTrainingModel()
+{
+    ROS_INFO("[Recognizer3D::initTrainingModel() creating an empty model for training");
+    m_sift_models.push_back(boost::shared_ptr<P::Object3D>(new P::Object3D()));
 }
 
 bool Recognizer3D::saveModelToFile(const char* sift_file)

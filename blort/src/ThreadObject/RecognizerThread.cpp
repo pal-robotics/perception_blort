@@ -51,8 +51,10 @@ void CRecognizerThread::LearnSifts(IplImage* image,  TomGine::tgModel &model, To
 {
 	m_mutex.Lock();
 		cvCopyImage(image, m_image);
-		m_poses.push_back(boost::shared_ptr<TomGine::tgPose>(&pose));
-		m_models.push_back(boost::shared_ptr<TomGine::tgModel>(&model));
+        m_poses.clear();
+        m_models.clear();
+		m_poses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose(pose)));
+		m_models.push_back(boost::shared_ptr<TomGine::tgModel>(new TomGine::tgModel(model)));
 		cmd = LEARN;
 	m_mutex.Unlock();
 	
@@ -115,7 +117,7 @@ BOOL CRecognizerThread::OnTask()
 	m_running.Lock();
 	
 	
-        blortRecognizer::Recognizer3D m_recognizer(m_params, config_root, true);
+        blortRecognizer::Recognizer3D m_recognizer(m_params, config_root, true, true);
         //m_recognizer.setDoUndistort(false);
 	
 	while(!m_quit)

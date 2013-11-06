@@ -52,7 +52,7 @@ public:
         *   @param prefix to be added to every file path
         *   @param display display sifts and found object in a window */
         Recognizer3D(const CameraParameter& camParam, std::string config_root = "",
-                     bool display = false);
+                     bool display = false, bool training = false);
 	~Recognizer3D();
 	
 	void setCameraParameter(const blortRecognizer::CameraParameter& camParam);
@@ -65,17 +65,21 @@ public:
 	*   @param conf returned confidence of pose of the object
 	*   @return true if object found, false if not */
 	bool recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs);
+
+    /** @brief Creates a model for the training phase */
+    void initTrainingModel();
+
 	
 	/** @brief add sift features to sift model of an object
 	*   @param tFrame image/pixel map to search for new sift features
 	*   @param model shape description of model using faces and vertices (see TomGine::tgModel)
 	*   @param pose pose of the model as seen in the image */
-        bool learnSifts(IplImage* tFrame, const TomGine::tgModel& model, const TomGine::tgPose& pose);
+    bool learnSifts(IplImage* tFrame, const TomGine::tgModel& model, const TomGine::tgPose& pose);
 	
 	/** @brief load a sift model
 	*   @param sift_file relative path and name to sift file (i.e.: "../Resources/sift/TeaBox.sift")
 	*   @return success of loading the file */
-        bool loadModelFromFile(const std::string sift_file);
+    bool loadModelFromFile(const std::string sift_file);
 	
 	/** @brief save a sift model
 	*   @param sift_file relative path and name to sift file (i.e.: "../Resources/sift/TeaBox.sift")
