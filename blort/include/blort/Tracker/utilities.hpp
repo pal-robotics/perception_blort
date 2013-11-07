@@ -301,27 +301,6 @@ void GetTrackingParameter( Tracking::Tracker::Parameter& params, const char* ini
     params.c_mv_slow = iniCDF.GetFloat("SlowMovementThreshold", "Movement");
 }
 
-/*FIXME Left temporally for backward compatiblity */
-void GetPlySiftFilenames(const char* ini_file, std::string &ply_file, std::string &sift_file, std::string &model_name)
-{
-    CDataFile iniCDF;
-
-    if(!iniCDF.Load(ini_file)){
-        char errmsg[128];
-        sprintf(errmsg, "[utilities::GetTrackingParameter] Can not open tracking_ini file '%s'", ini_file);
-        throw std::runtime_error(errmsg);
-    }
-
-    ply_file = iniCDF.GetString("ModelPath", "ResourcePath");
-    ply_file.append(iniCDF.GetString("Model", "Files"));
-    sift_file = iniCDF.GetString("SiftPath", "ResourcePath");
-    sift_file.append(iniCDF.GetString("SiftModel", "Files"));
-
-    model_name = iniCDF.GetString("Model", "Files");
-    model_name = model_name.substr(0, model_name.find("."));
-
-}
-
 void GetPlySiftFilenames(const char* ini_file, std::vector<std::string> & ply_files, std::vector<std::string> & sift_files, std::vector<std::string> & model_names)
 {
     CDataFile iniCDF;
