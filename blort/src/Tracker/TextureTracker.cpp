@@ -649,7 +649,10 @@ void TextureTracker::drawResult(float linewidth){
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
 	for(unsigned i=0; i<m_modellist.size(); i++){
-		drawModelEntry(m_modellist[i], linewidth);
+        if(m_modellist[i]->st_quality != Tracking::ST_LOST)
+        {
+            drawModelEntry(m_modellist[i], linewidth);
+        }
 	}
 	
 // 	for(int i=0; i<m_hypotheses.size(); i++){

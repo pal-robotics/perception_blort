@@ -170,6 +170,10 @@ public:
                 tracker->process(cv_tracker_ptr->image);
                 for(size_t i = 0; i < tracker->getModes().size(); ++i)
                 {
+                      if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
+                      {
+                          continue;
+                      }
                       confidences_pub.publish(*(tracker->getConfidences()[i]));
                       if(tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_GOOD ||
                           (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )

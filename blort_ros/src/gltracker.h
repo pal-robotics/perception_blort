@@ -142,6 +142,9 @@ namespace blort_ros
         /** @brief Get the rendered image for visualization. */
         cv::Mat getImage();
 
+        /** @brief Return model names */
+        const std::vector<std::string> & getModelNames() { return model_names_; }
+
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
         void setPublishMode(TrackerPublishMode mode){ publish_mode = mode; }
@@ -149,6 +152,10 @@ namespace blort_ros
         TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
         void resetParticleFilter(size_t id);
+
+        virtual void switchToTracking(size_t id);
+
+        virtual void switchToRecovery(size_t id);
 
         ~GLTracker();
 

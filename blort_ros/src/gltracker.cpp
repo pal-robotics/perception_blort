@@ -144,6 +144,10 @@ void GLTracker::track()
     {
         for(size_t i = 0; i < trPoses.size(); ++i)
         {
+            if(current_modes[i] == TRACKER_RECOVERY_MODE)
+            {
+                continue;
+            }
             trPoses[i]->Activate();
             glBegin(GL_LINES);
             glColor3f(1.0f, 0.0f, 0.0f);
@@ -358,6 +362,18 @@ void GLTracker::reset()
     {
         switchToRecovery(i);
     }
+}
+
+void GLTracker::switchToTracking(size_t id)
+{
+    TrackerInterface::switchToTracking(id);
+    tracker.getModelEntry(model_ids[id])->st_quality = Tracking::ST_OK;
+}
+
+void GLTracker::switchToRecovery(size_t id)
+{
+    TrackerInterface::switchToRecovery(id);
+    tracker.getModelEntry(model_ids[id])->st_quality = Tracking::ST_LOST;
 }
 
 GLTracker::~GLTracker()
