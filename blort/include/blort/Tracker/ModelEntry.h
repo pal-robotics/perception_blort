@@ -116,4 +116,9 @@ public:
 
 } // namespace Tracking
 
+/* ostream operators for states enum */
+std::ostream & operator<<(std::ostream & out, const Tracking::quality_state & st);
+std::ostream & operator<<(std::ostream & out, const Tracking::confidence_state & st);
+std::ostream & operator<<(std::ostream & out, const Tracking::movement_state & st);
+
 #endif
