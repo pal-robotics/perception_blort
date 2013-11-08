@@ -314,7 +314,7 @@ void GLTracker::update()
     {
         //update confidences for output
         Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[i]);
-        tracker_confidences[i]->obj_id.data = i;
+        tracker_confidences[i]->obj_name.data = model_names_[i];
         tracker_confidences[i]->edgeConf = myModelEntry->c_edge;
         tracker_confidences[i]->confThreshold = myModelEntry->c_th;
         tracker_confidences[i]->lostConf = myModelEntry->c_lost;

@@ -51,6 +51,7 @@
 #include <geometry_msgs/Pose.h>
 #include <dynamic_reconfigure/server.h>
 
+#include <blort_ros/TrackerResults.h>
 #include <blort_ros/TrackerConfig.h>
 #include <blort_ros/TrackerCommand.h>
 #include <blort_ros/RecoveryCall.h>
@@ -95,7 +96,7 @@ public:
         : nh_("blort_tracker"), it_(nh_), pose_seq(0), camera_frame_id("0"), root_(root), tracker(0)
     {
         nh_.param<std::string>("launch_mode", launch_mode, "tracking");
-        detection_result = nh_.advertise<geometry_msgs::PoseStamped>("detection_result", 100);
+        detection_result = nh_.advertise<blort_ros::TrackerResults>("detection_result", 100);
         confidences_pub = nh_.advertise<blort_ros::TrackerConfidences>("confidences", 100);
         image_pub = it_.advertise("image_result", 1);
 
@@ -178,15 +179,15 @@ public:
                       if(tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_GOOD ||
                           (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
                       {
-                          /* FIXME Publish the object name too */
-                          geometry_msgs::PoseStamped target_pose;
-                          target_pose.header.seq = pose_seq++;
-                          target_pose.header.stamp = ros::Time::now();
-                          target_pose.header.frame_id = camera_frame_id;
-                          target_pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
+                          blort_ros::TrackerResults msg;
+                          msg.obj_name.data = tracker->getModelNames()[i];
+                          msg.pose.header.seq = pose_seq++;
+                          msg.pose.header.stamp = ros::Time::now();
+                          msg.pose.header.frame_id = camera_frame_id;
+                          msg.pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
                                                                                            tracker->getDetections()[i]);
 
-                          detection_result.publish(target_pose);
+                          detection_result.publish(msg);
                       }
                 }
                 cv_bridge::CvImage out_msg;
