@@ -3,56 +3,6 @@
 
 using namespace Tracking;
 
-std::ostream & operator<<(std::ostream & out, const quality_state & st)
-{
-    switch(st)
-    {
-        case ST_OK:
-            out << "OK"; break;
-        case ST_OCCLUDED:
-            out << "OCCLUDED"; break;
-        case ST_LOST:
-            out << "LOST"; break;
-        case ST_LOCKED:
-            out << "LOCKED"; break;
-        default:
-            out << "UNIMPLEMENTED"; break;
-    }
-    return out;
-}
-
-std::ostream & operator<<(std::ostream & out, const confidence_state & st)
-{
-    switch(st)
-    {
-        case ST_GOOD:
-            out << "GOOD"; break;
-        case ST_FAIR:
-            out << "FAIR"; break;
-        case ST_BAD:
-            out << "BAD"; break;
-        default:
-            out << "UNIMPLEMENTED"; break;
-    }
-    return out;
-}
-
-std::ostream & operator<<(std::ostream & out, const movement_state & st)
-{
-    switch(st)
-    {
-        case ST_FAST:
-            out << "FAST"; break;
-        case ST_SLOW:
-            out << "SLOW"; break;
-        case ST_STILL:
-            out << "STILL"; break;
-        default:
-            out << "UNIMPLEMENTED"; break;
-    }
-    return out;
-}
-
 /** @brief class ModelEntry */
 ModelEntry::ModelEntry()
 : m_lpf_a(0.7f), m_lpf_t(0.7f), m_lpf_cs(0.2f), m_lpf_cl(0.99f)
