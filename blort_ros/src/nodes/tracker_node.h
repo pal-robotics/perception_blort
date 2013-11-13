@@ -114,7 +114,7 @@ public:
 
 private:
 
-    void recovery(size_t i, blort_ros::RecoveryCall srv);
+    void recovery(blort_ros::RecoveryCall srv);
 
     // STATE DESIGN PATTERN
     // to implement the different tracker modes
@@ -123,7 +123,7 @@ private:
     {
     public:
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level) = 0;
-        virtual blort_ros::RecoveryCall getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg) = 0;
+        virtual blort_ros::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg) = 0;
     };
 
     class TrackingMode : public Mode
@@ -138,7 +138,7 @@ private:
 
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level);
 
-        virtual blort_ros::RecoveryCall getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg);
+        virtual blort_ros::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg);
 
         // The real initialization is being done after receiving the camerainfo.
         void cam_info_callback(const sensor_msgs::CameraInfo &msg);
@@ -167,7 +167,7 @@ private:
 
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level);
 
-        virtual blort_ros::RecoveryCall getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg);
+        virtual blort_ros::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg);
 
         /* FIXME Implement single-shot with object selection */
         /* For now, single-shot runs on first object for backward compatibility */

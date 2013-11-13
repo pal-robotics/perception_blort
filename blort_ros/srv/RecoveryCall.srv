@@ -1,5 +1,6 @@
-std_msgs/UInt32 object_id
+std_msgs/UInt32[] object_ids
 sensor_msgs/Image Image
 ---
-std_msgs/UInt32 object_id
-geometry_msgs/Pose Pose
+std_msgs/UInt32[] object_ids
+bool[] object_founds
+geometry_msgs/Pose[] Poses

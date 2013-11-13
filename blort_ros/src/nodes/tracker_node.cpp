@@ -48,6 +48,7 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
         }
 
         bool should_process = false;
+        std::vector<size_t> lost_ids(0);
         for(size_t i = 0; i < tracker->getModes().size(); ++i)
         {
             if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
@@ -59,16 +60,20 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
                 }
                 else
                 {
-                    boost::mutex::scoped_lock lock(recovery_mutex, boost::try_to_lock);
-                    if(lock)
-                    {
-                        recovery_th = boost::thread(boost::bind(&TrackerNode::recovery, this, i, mode->getRecoveryCall(i, detectorImgMsg)));
-                    }
+                    lost_ids.push_back(i);
                 }
             }
             else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
             {
               should_process = true;
+            }
+        }
+        if(lost_ids.size())
+        {
+            boost::mutex::scoped_lock lock(recovery_mutex, boost::try_to_lock);
+            if(lock)
+            {
+                recovery_th = boost::thread(boost::bind(&TrackerNode::recovery, this, mode->getRecoveryCall(lost_ids, detectorImgMsg)));
             }
         }
         if(should_process)
@@ -108,16 +113,29 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
     }
 }
 
-void TrackerNode::recovery(size_t i, blort_ros::RecoveryCall srv)
+void TrackerNode::recovery(blort_ros::RecoveryCall srv)
 {
     boost::mutex::scoped_lock lock(recovery_mutex);
     ros::Time before = ros::Time::now();
-    ROS_INFO_STREAM("tracker_node calling detector_node recovery service for object " << tracker->getModelNames()[i]);
+    {
+        std::stringstream ss;
+        ss << "tracker_node calling detector_node recovery service for object(s): ";
+        for(size_t i = 0; i < srv.request.object_ids.size();)
+        {
+            ss << tracker->getModelNames()[srv.request.object_ids[i].data];
+            if(++i != srv.request.object_ids.size()) { ss << ", "; }
+        }
+        ROS_INFO(ss.str().c_str());
+    }
     if(recovery_client.call(srv))
     {
-        ROS_INFO("reseting tracker with pose from detector");
-        recovery_answers[i] = srv.response.Pose;
-        ROS_INFO("AFTER reseting tracker with pose from detector");
+        for(size_t i = 0; i < srv.response.Poses.size(); ++i)
+        {
+            if(srv.response.object_founds[i])
+            {
+                recovery_answers[srv.response.object_ids[i].data] = srv.response.Poses[i];
+            }
+        }
     }
     else
     {
@@ -157,10 +175,14 @@ void TrackerNode::TrackingMode::reconf_callback(blort_ros::TrackerConfig &config
     }
 }
 
-blort_ros::RecoveryCall TrackerNode::TrackingMode::getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg)
+blort_ros::RecoveryCall TrackerNode::TrackingMode::getRecoveryCall(std::vector<size_t> & ids, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_ros::RecoveryCall srv;
-    srv.request.object_id.data = i;
+    srv.request.object_ids.resize(ids.size());
+    for(size_t i = 0; i < ids.size(); ++i)
+    {
+        srv.request.object_ids[i].data = ids[i];
+    }
     srv.request.Image = *msg;
     return srv;
 }
@@ -239,12 +261,16 @@ void TrackerNode::SingleShotMode::reconf_callback(blort_ros::TrackerConfig &conf
     time_to_run_singleshot =  config.time_to_run_singleshot;
 }
 
-blort_ros::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg)
+blort_ros::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vector<size_t> & ids, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_ros::RecoveryCall srv;
     if(!inServiceCall)
     {
-        srv.request.object_id.data = i;
+        srv.request.object_ids.resize(ids.size());
+        for(size_t i = 0; i < ids.size(); ++i)
+        {
+            srv.request.object_ids[i].data = ids[i];
+        }
         srv.request.Image = *msg;
         // we step into the service call "state" with the first recoverycall made
         // no new images are accepted until the end of the singleShotServiceCall

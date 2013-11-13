@@ -69,16 +69,16 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
     image_ = cvCreateImage( cvSize(camera_info.width, camera_info.height), 8, 3 );
 }
 
-bool GLDetector::recovery(size_t obj_id, const cv::Mat& image,
+bool GLDetector::recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
                           blort_ros::RecoveryCall::Response &resp)
 {
     last_image = image;
     *image_ = last_image;
 
-    return recoveryWithLast(obj_id, resp);
+    return recoveryWithLast(obj_ids, resp);
 }
 
-bool GLDetector::recoveryWithLast(size_t obj_id, blort_ros::RecoveryCall::Response &resp)
+bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_ros::RecoveryCall::Response &resp)
 {
     double ticksBefore = cv::getTickCount();
 
@@ -91,22 +91,23 @@ bool GLDetector::recoveryWithLast(size_t obj_id, blort_ros::RecoveryCall::Respon
     ROS_INFO("\n");
     recognizer->recognize(image_, recPoses, confs);
 
-    ROS_INFO("object (%d) conf: %f", obj_id, confs[obj_id]);
-    ROS_WARN("Tried to recover for the %d. time.", rec3dcounter++);
-    ROS_INFO("Recovery execution time: %f ms",
-             1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
-
-    // if the recovery's confidence is high enough then propose this new pose
-    if(confs[obj_id] > recovery_conf_threshold)
+    bool found_one = false;
+    resp.object_founds.resize(obj_ids.size());
+    resp.Poses.resize(obj_ids.size());
+    for(size_t i = 0; i < obj_ids.size(); ++i)
     {
-        resp.Pose = pal_blort::tgPose2RosPose(*recPoses[obj_id]);
-        return true;
+        ROS_INFO_STREAM("object (" << model_names[obj_ids[i]] << ") conf: " << confs[obj_ids[i]]);
+        // if the recovery's confidence is high enough then propose this new pose
+        resp.object_founds[i] = ( confs[obj_ids[i]] > recovery_conf_threshold );
+        if( resp.object_founds[i] )
+        {
+            found_one = true;
+            resp.Poses[i] = pal_blort::tgPose2RosPose(*recPoses[obj_ids[i]]);
+        }
     }
-    else // else don't propose
-    {
-      ROS_INFO_STREAM("GLDetector::recoveryWithLast: returning false because confidence <= " << recovery_conf_threshold);
-      return false;
-    }
+    ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");
+    ROS_INFO_STREAM("Recovery execution time: " << 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency() << " ms");
+    return found_one;
 }
 
 void GLDetector::reconfigure(blort_ros::DetectorConfig config)
