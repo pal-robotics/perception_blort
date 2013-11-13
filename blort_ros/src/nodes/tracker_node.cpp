@@ -51,23 +51,20 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
         for(size_t i = 0; i < tracker->getModes().size(); ++i)
         {
             if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
-            {              
-                blort_ros::RecoveryCall srv = mode->recovery(i, detectorImgMsg);
-
-                ros::Time before = ros::Time::now();
-                ROS_INFO_STREAM("tracker_node in TRACKER_RECOVERY_MODE: calling detector_node recovery service for object " << tracker->getModelNames()[i]);
-                if(recovery_client.call(srv))
+            {
+                if(recovery_answers.count(i))
                 {
-                  //tracker = new blort_ros::GLTracker(_msg, root_, true);
-                  ROS_INFO("reseting tracker with pose from detector");
-                  tracker->resetWithPose(i, srv.response.Pose);
-                  ROS_INFO("AFTER reseting tracker with pose from detector");
+                    tracker->resetWithPose(i, recovery_answers[i]);
+                    recovery_answers.erase(i);
                 }
                 else
                 {
-                    ROS_WARN("Detector not confident enough.");
+                    boost::mutex::scoped_lock lock(recovery_mutex, boost::try_to_lock);
+                    if(lock)
+                    {
+                        recovery_th = boost::thread(boost::bind(&TrackerNode::recovery, this, i, mode->getRecoveryCall(i, detectorImgMsg)));
+                    }
                 }
-                ROS_INFO_STREAM("Recovery call took " << (ros::Time::now() - before));
             }
             else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
             {
@@ -111,6 +108,24 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
     }
 }
 
+void TrackerNode::recovery(size_t i, blort_ros::RecoveryCall srv)
+{
+    boost::mutex::scoped_lock lock(recovery_mutex);
+    ros::Time before = ros::Time::now();
+    ROS_INFO_STREAM("tracker_node calling detector_node recovery service for object " << tracker->getModelNames()[i]);
+    if(recovery_client.call(srv))
+    {
+        ROS_INFO("reseting tracker with pose from detector");
+        recovery_answers[i] = srv.response.Pose;
+        ROS_INFO("AFTER reseting tracker with pose from detector");
+    }
+    else
+    {
+        ROS_WARN("Detector not confident enough.");
+    }
+    ROS_INFO_STREAM("Recovery call took " << (ros::Time::now() - before));
+}
+
 bool TrackerNode::trackerControlServiceCb(blort_ros::TrackerCommand::Request &req,
                              blort_ros::TrackerCommand::Response &)
 {
@@ -142,7 +157,7 @@ void TrackerNode::TrackingMode::reconf_callback(blort_ros::TrackerConfig &config
     }
 }
 
-blort_ros::RecoveryCall TrackerNode::TrackingMode::recovery(size_t i, const sensor_msgs::ImageConstPtr& msg)
+blort_ros::RecoveryCall TrackerNode::TrackingMode::getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_ros::RecoveryCall srv;
     srv.request.object_id.data = i;
@@ -224,7 +239,7 @@ void TrackerNode::SingleShotMode::reconf_callback(blort_ros::TrackerConfig &conf
     time_to_run_singleshot =  config.time_to_run_singleshot;
 }
 
-blort_ros::RecoveryCall TrackerNode::SingleShotMode::recovery(size_t i, const sensor_msgs::ImageConstPtr& msg)
+blort_ros::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(size_t i, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_ros::RecoveryCall srv;
     if(!inServiceCall)

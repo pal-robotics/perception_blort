@@ -94,6 +94,9 @@ namespace blort_ros
         std::vector<Tracking::quality_state> qualities;
         std::vector<Tracking::confidence_state> tracking_confidences;
 
+        // Protection mutex for multi-threaded access to the model/poses
+        boost::mutex models_mutex;
+
         // Initialise image
         IplImage *image; // iplimage object used be the former blort tracker module
 
@@ -151,8 +154,6 @@ namespace blort_ros
 
         TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-        void resetParticleFilter(size_t id);
-
         virtual void switchToTracking(size_t id);
 
         virtual void switchToRecovery(size_t id);
@@ -167,6 +168,8 @@ namespace blort_ros
         /** @brief Assemble pose result to be published based on class variables.
           * The result is put in the corresponding variable. */
         void updatePoseResult(size_t i);
+
+        void resetParticleFilter(size_t id);
     };
 }
 

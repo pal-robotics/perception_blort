@@ -123,6 +123,7 @@ void GLTracker::resetParticleFilter(size_t obj_i)
 
 void GLTracker::track()
 {
+    boost::mutex::scoped_lock lock(models_mutex);
     *image = last_image;
 
     // Track object
@@ -190,6 +191,7 @@ void GLTracker::track()
 
 void GLTracker::resetWithPose(size_t id, const geometry_msgs::Pose& new_pose)
 {
+    boost::mutex::scoped_lock lock(models_mutex);
     ConvertCam2World(pal_blort::rosPose2TgPose(new_pose), cam_pose, *trPoses[id]);
     tracker.setModelInitialPose(model_ids[id], *trPoses[id]);
     //2012-11-28: commented by Jordi because the resetParticleFilter will reset the ModelEntry
