@@ -160,6 +160,13 @@ void Recognizer3D::setCameraParameter(const blortRecognizer::CameraParameter& ca
 
 bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs)
 {
+    std::map<size_t, bool> select;
+    for(size_t i = 0; i < poses.size(); ++i) { select[i] = true; }
+    return recognize(tFrame, poses, confs, select);
+}
+
+bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs, const std::map<size_t, bool> & select)
+{
     P::PoseCv cvPose;
     bool detected = false;
 
@@ -206,9 +213,14 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
     ticksBefore = cv::getTickCount();
     for(size_t i = 0; i < m_sift_models.size(); ++i)
     {
-        confs[i] = 0;
-        bool detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
-        ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+        bool detectResult = false;
+        if(select.count(i) && select.at(i))
+        {
+            detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
+#ifdef VERBOSE_INFO
+            ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
+#endif
+        }
         if ( detectResult )
         {
             if(m_sift_models[i]->conf > 0.03)
@@ -230,7 +242,6 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
                     P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(128,0,128),2);
 
                 ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_models[i]->conf);
-                detected = false;
             }
 	    
         }else{
@@ -240,7 +251,6 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
                 P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(128,0,128),2);
 
             ROS_DEBUG("[Recognizer3D::recognize] No object (conf: %f)\n", m_sift_models[i]->conf);
-            detected = false;
         }
     }
 
