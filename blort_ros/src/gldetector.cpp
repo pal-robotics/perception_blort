@@ -88,8 +88,12 @@ bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_ros::Reco
         recPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose()));
     }
     std::vector<float> confs(sift_files.size(), 0);
-    ROS_INFO("\n");
-    recognizer->recognize(image_, recPoses, confs);
+    std::map<size_t, bool> select;
+    for(size_t i = 0; i < obj_ids.size(); ++i)
+    {
+        select[obj_ids[i]] = true;
+    }
+    recognizer->recognize(image_, recPoses, confs, select);
 
     bool found_one = false;
     resp.object_founds.resize(obj_ids.size());
