@@ -82,27 +82,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     std::vector<std::string> ply_models(0), sift_files(0), model_names(0);
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     // Build ModelEntry with these entries
-    for(size_t i = 0; i < model_names.size(); ++i)
-    {
-        ObjectEntry entry;
-        entry.name = model_names[i];
-        for(size_t j = 0; j < ply_models.size(); ++j)
-        {
-            if(ply_models[j].find(entry.name) != std::string::npos)
-            {
-                entry.ply_model = ply_models[j];
-                break;
-            }
-        }
-        for(size_t j = 0; j < sift_files.size(); ++j)
-        {
-            if(sift_files[j].find(entry.name) != std::string::npos)
-            {
-                entry.sift_files.push_back(sift_files[j]);
-            }
-        }
-        objects_.push_back(entry);
-    }
+    buildFromFiles(ply_models, sift_files, model_names, objects_);
 
     GetTrackingParameter(track_params, tracking_ini.c_str(), config_root);
 
