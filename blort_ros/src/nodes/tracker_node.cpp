@@ -124,7 +124,7 @@ void TrackerNode::recovery(blort_ros_msgs::RecoveryCall srv)
         ss << "tracker_node calling detector_node recovery service for object(s): ";
         for(size_t i = 0; i < srv.request.object_ids.size();)
         {
-            ss << tracker->getModelNames()[srv.request.object_ids[i].data];
+            ss << tracker->getModelName(srv.request.object_ids[i].data);
             if(++i != srv.request.object_ids.size()) { ss << ", "; }
         }
         ROS_INFO_STREAM(ss.str());
