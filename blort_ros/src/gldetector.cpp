@@ -110,13 +110,19 @@ bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_ros_msgs:
     resp.Poses.resize(obj_ids.size());
     for(size_t i = 0; i < obj_ids.size(); ++i)
     {
-        ROS_INFO_STREAM("object (" << objects[obj_ids[i]].name << ") conf: " << confs[obj_ids[i]]);
+        float best_conf = 0;
+        size_t best_j = 0;
+        for(size_t j = sift_index[obj_ids[i]]; j < sift_index[obj_ids[i] + 1]; ++j)
+        {
+            if(confs[j] > best_conf) { best_conf = confs[j]; best_j = j; }
+        }
+        ROS_INFO_STREAM("object (" << objects[obj_ids[i]].name << ") conf: " << confs[best_j]);
         // if the recovery's confidence is high enough then propose this new pose
-        resp.object_founds[i] = ( confs[obj_ids[i]] > recovery_conf_threshold );
+        resp.object_founds[i] = ( confs[best_j] > recovery_conf_threshold );
         if( resp.object_founds[i] )
         {
             found_one = true;
-            resp.Poses[i] = pal_blort::tgPose2RosPose(*recPoses[obj_ids[i]]);
+            resp.Poses[i] = pal_blort::tgPose2RosPose(*recPoses[best_j]);
         }
     }
     ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");
