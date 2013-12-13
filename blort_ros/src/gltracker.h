@@ -119,7 +119,7 @@ namespace blort_ros
         /** @brief Method to run and handle tracking. */
         virtual void track();
 
-        void reset();
+        void reset(const std::vector<uint8_t> & params = std::vector<uint8_t>(0));
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param Reconfigure_gui messagetype */

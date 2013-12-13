@@ -362,12 +362,25 @@ void GLTracker::update()
     }
 }
 
-void GLTracker::reset()
+void GLTracker::reset(const std::vector<uint8_t> & params)
 {
-    ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE\n");
-    for(size_t i = 0; i < model_ids.size(); ++i)
+    ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE");
+    if(!params.size())
     {
-        switchToRecovery(i);
+        for(size_t i = 0; i < model_ids.size(); ++i)
+        {
+            switchToRecovery(i);
+        }
+    }
+    else
+    {
+        for(size_t i = 0; i < params.size(); ++i)
+        {
+            if(params[i] < model_ids.size())
+            {
+                switchToRecovery(params[i]);
+            }
+        }
     }
 }
 
