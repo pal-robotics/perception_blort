@@ -101,6 +101,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         current_modes.push_back(blort_ros::TRACKER_RECOVERY_MODE);
         current_confs.push_back(blort_ros::TRACKER_CONF_LOST);
         tracker_confidences.push_back(boost::shared_ptr<TrackerConfidences>(new TrackerConfidences));
+        tracking_objects.push_back(true);
     }
     result.resize(ply_models_.size());
     tracker.setLockFlag(true);
@@ -119,6 +120,7 @@ void GLTracker::resetParticleFilter(size_t obj_i)
   movements[obj_i] = Tracking::ST_SLOW;
   qualities[obj_i]  = Tracking::ST_LOST;
   tracking_confidences[obj_i] = Tracking::ST_BAD;
+  tracking_objects[obj_i] = true;
 }
 
 void GLTracker::track()
@@ -129,7 +131,7 @@ void GLTracker::track()
     // Track object
     tracker.image_processing((unsigned char*)image->imageData);
 
-    tracker.track();
+    tracker.track(tracking_objects);
 
     tracker.drawImage(0);
     tracker.drawCoordinates();
@@ -145,7 +147,7 @@ void GLTracker::track()
     {
         for(size_t i = 0; i < trPoses.size(); ++i)
         {
-            if(current_modes[i] == TRACKER_RECOVERY_MODE)
+            if(current_modes[i] == TRACKER_RECOVERY_MODE || !tracking_objects[i])
             {
                 continue;
             }
@@ -263,6 +265,30 @@ void GLTracker::trackerControl(uint8_t code, const std::vector<uint8_t> & params
     case 7: //i
         tracker.printStatistics();
         break;
+    case 8:
+        switchTracking(params);
+        break;
+    }
+}
+
+void GLTracker::switchTracking(const std::vector<uint8_t> & params)
+{
+    if(params.size() == 0)
+    {
+        for(size_t i = 0; i < tracking_objects.size(); ++i)
+        {
+            tracking_objects[i] = !tracking_objects[i];
+        }
+    }
+    else
+    {
+        for(size_t i = 0; i < params.size(); ++i)
+        {
+            if(params[i] < tracking_objects.size())
+            {
+                tracking_objects[params[i]] = !tracking_objects[params[i]];
+            }
+        }
     }
 }
 
@@ -319,45 +345,48 @@ void GLTracker::update()
 {
     for(size_t i = 0; i < model_ids.size(); ++i)
     {
-        //update confidences for output
-        Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[i]);
-        tracker_confidences[i]->obj_name.data = model_names_[i];
-        tracker_confidences[i]->edgeConf = myModelEntry->c_edge;
-        tracker_confidences[i]->confThreshold = myModelEntry->c_th;
-        tracker_confidences[i]->lostConf = myModelEntry->c_lost;
-        tracker_confidences[i]->distance = myModelEntry->t;
-
-        //update confidences based on the currently tracked model
-        // !!! the tracker state is now defined by the ONLY object tracked.
-        // although the implementation would allow it, at several places, lacks this at several other.
-        tracker.getModelMovementState(model_ids[i], movements[i]);
-        tracker.getModelQualityState(model_ids[i], qualities[i]);
-        ROS_INFO_STREAM("GLTracker::update: the tracked model for " << model_names_[i] << " has set quality to " << qualities[i]);
-        tracker.getModelConfidenceState(model_ids[i], tracking_confidences[i]);
-
-        switch(tracking_confidences[i])
+        if(tracking_objects[i])
         {
-        case Tracking::ST_GOOD:
-            this->current_confs[i] = blort_ros::TRACKER_CONF_GOOD;
-            updatePoseResult(i);
-            break;
-        case Tracking::ST_FAIR:
-            this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
-            if(publish_mode == TRACKER_PUBLISH_GOOD_AND_FAIR ||
-               publish_mode == TRACKER_PUBLISH_ALL)
+            //update confidences for output
+            Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[i]);
+            tracker_confidences[i]->obj_name.data = objects_[i].name;
+            tracker_confidences[i]->edgeConf = myModelEntry->c_edge;
+            tracker_confidences[i]->confThreshold = myModelEntry->c_th;
+            tracker_confidences[i]->lostConf = myModelEntry->c_lost;
+            tracker_confidences[i]->distance = myModelEntry->t;
+
+            //update confidences based on the currently tracked model
+            // !!! the tracker state is now defined by the ONLY object tracked.
+            // although the implementation would allow it, at several places, lacks this at several other.
+            tracker.getModelMovementState(model_ids[i], movements[i]);
+            tracker.getModelQualityState(model_ids[i], qualities[i]);
+            ROS_INFO_STREAM("GLTracker::update: the tracked model for " << objects_[i].name << " has set quality to " << qualities[i]);
+            tracker.getModelConfidenceState(model_ids[i], tracking_confidences[i]);
+
+            switch(tracking_confidences[i])
             {
-                updatePoseResult(i);
+            case Tracking::ST_GOOD:
                 this->current_confs[i] = blort_ros::TRACKER_CONF_GOOD;
-            }
-            break;
-        case Tracking::ST_BAD:
-            this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
-            if(publish_mode == TRACKER_PUBLISH_ALL)
                 updatePoseResult(i);
-            break;
-        default:
-            ROS_ERROR("Unknown confidence value: %d", tracking_confidences[i]);
-            break;
+                break;
+            case Tracking::ST_FAIR:
+                this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
+                if(publish_mode == TRACKER_PUBLISH_GOOD_AND_FAIR ||
+                   publish_mode == TRACKER_PUBLISH_ALL)
+                {
+                    updatePoseResult(i);
+                    this->current_confs[i] = blort_ros::TRACKER_CONF_GOOD;
+                }
+                break;
+            case Tracking::ST_BAD:
+                this->current_confs[i] = blort_ros::TRACKER_CONF_FAIR;
+                if(publish_mode == TRACKER_PUBLISH_ALL)
+                    updatePoseResult(i);
+                break;
+            default:
+                ROS_ERROR("Unknown confidence value: %d", tracking_confidences[i]);
+                break;
+            }
         }
     }
 }

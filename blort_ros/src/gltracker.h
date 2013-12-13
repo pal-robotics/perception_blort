@@ -93,6 +93,7 @@ namespace blort_ros
         std::vector<Tracking::movement_state> movements;
         std::vector<Tracking::quality_state> qualities;
         std::vector<Tracking::confidence_state> tracking_confidences;
+        std::vector<bool> tracking_objects;
 
         // Protection mutex for multi-threaded access to the model/poses
         boost::mutex models_mutex;
@@ -157,6 +158,8 @@ namespace blort_ros
         virtual void switchToTracking(size_t id);
 
         virtual void switchToRecovery(size_t id);
+
+        virtual void switchTracking(const std::vector<uint8_t> & params);
 
         ~GLTracker();
 

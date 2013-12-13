@@ -11,6 +11,7 @@
 # 5 --> show color image
 # 6 --> toggle edges image flag
 # 7 --> print statistics
+# 8 --> switch tracking on/off
 #
 uint8 code
 uint8[] param
