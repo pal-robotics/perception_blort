@@ -13,5 +13,5 @@
 # 7 --> print statistics
 #
 uint8 code
-uint8 param
+uint8[] param
 ---

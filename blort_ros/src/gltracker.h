@@ -129,7 +129,7 @@ namespace blort_ros
          *  @param code integer code associated with command, can be used with enums.
          *  @param param parameter of the command
          */
-        void trackerControl(int code, int param = -1);
+        void trackerControl(uint8_t code, const std::vector<uint8_t> & params);
 
         void resetWithPose(size_t obj_id, const geometry_msgs::Pose& new_pose);
 

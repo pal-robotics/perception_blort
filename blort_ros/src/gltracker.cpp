@@ -226,8 +226,13 @@ void GLTracker::reconfigure(blort_ros::TrackerConfig config)
     }
 }
 
-void GLTracker::trackerControl(int code, int param)
+void GLTracker::trackerControl(uint8_t code, const std::vector<uint8_t> & params)
 {
+    int param = -1;
+    if(params.size())
+    {
+        param = params[0];
+    }
     switch(code)
     {
     case 0: //l
