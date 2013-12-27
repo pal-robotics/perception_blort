@@ -38,8 +38,7 @@ bool DetectorNode::recovery(blort_ros::RecoveryCall::Request &req,
             cv_bridge::CvImagePtr cv_ptr;
             try
             {
-                //cv_ptr = cv_bridge::toCvCopy(req.Image, sensor_msgs::image_encodings::BGR8);
-              cv_ptr = cv_bridge::toCvCopy(req.Image, req.Image.encoding);
+              cv_ptr = cv_bridge::toCvCopy(req.Image, sensor_msgs::image_encodings::BGR8);
               ROS_INFO_STREAM("\n\nENCODING = " << req.Image.encoding << "\n\n\n");
             }
             catch (cv_bridge::Exception& e)
