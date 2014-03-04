@@ -340,12 +340,12 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_ros::EstimatePose::Req
                 {
                     ROS_INFO("Remaining time %f", time_to_run_singleshot+start_secs-ros::Time::now().toSec());
                     parent_->imageCb(lastImage, lastImage);
-                    if(parent_->tracker->getConfidence() == blort_ros::TRACKER_CONF_GOOD)
+                    if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_GOOD)
                     {
                         // instead of returning right away let's store the result
                         // to see if the tracker can get better
                         results.push_back(parent_->tracker->getDetections()[0]);
-                    } else if(parent_->tracker->getConfidence() == blort_ros::TRACKER_CONF_LOST)
+                    } else if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_LOST)
                     {
                         results.clear();
                     }

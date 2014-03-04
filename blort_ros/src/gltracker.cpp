@@ -349,7 +349,7 @@ void GLTracker::update()
         {
             //update confidences for output
             Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[i]);
-            tracker_confidences[i]->obj_name.data = objects_[i].name;
+            tracker_confidences[i]->obj_name.data = model_names_[i];
             tracker_confidences[i]->edgeConf = myModelEntry->c_edge;
             tracker_confidences[i]->confThreshold = myModelEntry->c_th;
             tracker_confidences[i]->lostConf = myModelEntry->c_lost;
@@ -360,7 +360,7 @@ void GLTracker::update()
             // although the implementation would allow it, at several places, lacks this at several other.
             tracker.getModelMovementState(model_ids[i], movements[i]);
             tracker.getModelQualityState(model_ids[i], qualities[i]);
-            ROS_INFO_STREAM("GLTracker::update: the tracked model for " << objects_[i].name << " has set quality to " << qualities[i]);
+            ROS_INFO_STREAM("GLTracker::update: the tracked model for " << model_names_[i] << " has set quality to " << qualities[i]);
             tracker.getModelConfidenceState(model_ids[i], tracking_confidences[i]);
 
             switch(tracking_confidences[i])
