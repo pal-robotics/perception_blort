@@ -1,7 +1,6 @@
 #include <blort/Tracker/ModelEntry.h>
 #include <ros/console.h>
 
-
 using namespace Tracking;
 
 /** @brief class ModelEntry */
@@ -15,7 +14,7 @@ ModelEntry::ModelEntry()
 	num_convergence = 0;
   st_quality = ST_OK; //2012-11-28: added by Jordi
 	mask = 0;
-  ROS_WARN_STREAM("ModelEntry(): st_quality = " << st_quality );
+  ROS_WARN_STREAM("(" << label << ") ModelEntry(): st_quality = " << st_quality );
 }
 
 ModelEntry::ModelEntry(const TomGine::tgModel& m)
@@ -131,7 +130,7 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 	else
 		st_movement = ST_FAST;
 
-  ROS_INFO_STREAM("ModeEntry: evaluate_states: c_edge = " << c_edge << "  c_lost = " << c_lost << "  c_th_lost = " << c_th_lost);
+  ROS_INFO_STREAM("(" << label << ") ModeEntry: evaluate_states: c_edge = " << c_edge << "  c_th = " << c_th << " c_lost = " << c_lost << "  c_th_lost = " << c_th_lost);
   ROS_INFO_STREAM("                            st_movement = " << st_movement << "  st_quality = " << st_quality);
 	
 	//// Lost detection
@@ -169,6 +168,6 @@ void ModelEntry::evaluate_states(const Particle &variation, unsigned rec,
 		st_quality = ST_OK;
 	}
 
-  ROS_INFO_STREAM("ModelEntry::evaluate_states has set st_confidence = " << st_confidence << "  st_quality = " << st_quality);
+  ROS_INFO_STREAM("(" << label << ") ModelEntry::evaluate_states has set st_confidence = " << st_confidence << "  st_quality = " << st_quality);
 	
 }

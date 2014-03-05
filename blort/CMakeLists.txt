@@ -7,7 +7,8 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  Release        : w/o debug symbols, w/ optimization
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-set(ROS_BUILD_TYPE Release)
+# set(ROS_BUILD_TYPE Release)
+set(ROS_BUILD_TYPE RelWithDebInfo)
 
 rosbuild_init()
 
@@ -37,6 +38,7 @@ rosbuild_add_compile_flags(module_glwindow -DLINUX)
 target_link_libraries(module_glwindow GLU GL glut X11 rt)
 
 rosbuild_add_library(module_tomgine
+    src/TomGine/tgMathlib.cpp
     src/TomGine/tgVector3.cpp 
     src/TomGine/tgTimer.cpp 
     src/TomGine/tgTexture.cpp 

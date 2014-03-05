@@ -10,31 +10,13 @@
 #define _MODEL_ENTRY_H_
 
 #include <blort/TomGine/tgMathlib.h>
+#include <blort/Tracker/TrackingStates.h>
 #include <blort/Tracker/TrackerModel.h>
 #include <blort/Tracker/Distribution.h>
 #include <blort/Tracker/Predictor.h>
 #include <blort/Tracker/Filter.h>
 
 namespace Tracking{
-
-enum quality_state{
-	ST_OK,
-	ST_OCCLUDED,
-	ST_LOST,
-	ST_LOCKED,
-};
-
-enum confidence_state{
-	ST_GOOD,
-	ST_FAIR,
-	ST_BAD,
-};
-
-enum movement_state{
-	ST_FAST,
-	ST_SLOW,
-	ST_STILL,
-};
 
 /** @brief class ModelEntry */
 class ModelEntry

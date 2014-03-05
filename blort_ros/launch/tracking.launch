@@ -1,27 +1,18 @@
 <launch>
+    <arg name="image" default="/stereo/left/image" />
+    <arg name="info"  default="/stereo/left/camera_info" />
 
     <!-- Tracker node -->
     <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)" output="screen">
         <param name="launch_mode" value="tracking" />
-        <!-- WEBCAM -->
-<!--        
-        <remap from="/blort_camera_info" to="/gscam/camera_info" />
-        <remap from="/blort_image" to="/gscam/image_raw" />
--->
-        <!-- STEREO CAMERA FROM TUTORIALS -->        
-        <remap from="/detector_camera_info" to="/stereo/left/camera_info" />
-        <remap from="/detector_image" to="/stereo/left/image" />
-        <remap from="/tracker_image" to="/stereo/left/image" />           
+        <remap from="/detector_camera_info" to="$(arg info)" />
+        <remap from="/detector_image" to="$(arg image)" />
+        <remap from="/tracker_image" to="$(arg image)" />           
     </node>
     
     <!-- Detector node -->
     <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)" output="screen">
-        <!-- WEBCAM -->
-<!--
-        <remap from="/blort_camera_info" to="/gscam/camera_info" />
--->
-        <!-- STEREO CAMERA FROM TUTORIALS -->
-        <remap from="/blort_camera_info" to="/stereo/left/camera_info" />
+        <remap from="/blort_camera_info" to="$(arg info)" />
     </node>
 
 </launch>

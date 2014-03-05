@@ -8,6 +8,7 @@
 #include <blort/Recognizer3D/DetectSIFT.hh>
 #include <blort/Recognizer3D/SDraw.hh>
 #include <string>
+#include <unistd.h>
 
 namespace P 
 {

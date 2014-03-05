@@ -78,16 +78,16 @@ public:
 		float zFar;
 		
 		void print(){
-			printf("%u %u\n", width, height);
-			printf("%f %f\n", fx, fy);
-			printf("%f %f\n", cx, cy);
-			printf("%f %f %f\n", k1, k2, k3);
-			printf("%f %f\n", p1, p2);
-			printf("\n %f %f %f\n", rot.mat[0], rot.mat[1], rot.mat[2]);
+			printf("width = %u height = %u\n", width, height);
+			printf("fx = %f fy = %f\n", fx, fy);
+			printf("cx = %f cy = %f\n", cx, cy);
+			printf("k1 = %f k2 = %f k3 = %f\n", k1, k2, k3);
+			printf("p1 = %f p2 = %f\n", p1, p2);
+			printf("rot\n %f %f %f\n", rot.mat[0], rot.mat[1], rot.mat[2]);
 			printf(" %f %f %f\n", rot.mat[3], rot.mat[4], rot.mat[5]);
 			printf(" %f %f %f\n", rot.mat[6], rot.mat[7], rot.mat[8]);
-			printf("\n %f %f %f\n", pos.x, pos.y, pos.z);
-			printf("%f %f\n", zNear, zFar);
+			printf("pos\n %f %f %f\n", pos.x, pos.y, pos.z);
+			printf("zNear = %f zFar = %f\n", zNear, zFar);
 		}
 	};
 	
