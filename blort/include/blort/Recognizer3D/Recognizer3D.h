@@ -82,7 +82,7 @@ public:
 	*   @param tFrame image/pixel map to search for new sift features
 	*   @param model shape description of model using faces and vertices (see TomGine::tgModel)
 	*   @param pose pose of the model as seen in the image */
-    bool learnSifts(IplImage* tFrame, const TomGine::tgModel& model, const TomGine::tgPose& pose);
+	bool learnSifts(IplImage* tFrame, const TomGine::tgModel& model, const TomGine::tgPose& pose);
 	
 	/** @brief load a sift model
 	*   @param sift_file relative path and name to sift file (i.e.: "../Resources/sift/TeaBox.sift")
