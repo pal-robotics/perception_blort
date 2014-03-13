@@ -45,7 +45,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <dynamic_reconfigure/server.h>
 #include <blort_ros/DetectorConfig.h>
-#include <blort_ros/SetCameraInfo.h>
+#include <blort_ros_msgs/SetCameraInfo.h>
 #include <blort_ros/gldetector.h>
 
 class DetectorNode
@@ -74,11 +74,11 @@ public:
 
     ~DetectorNode();
 
-    bool recovery(blort_ros::RecoveryCall::Request &req,
-                  blort_ros::RecoveryCall::Response &resp);
+    bool recovery(blort_ros_msgs::RecoveryCall::Request &req,
+                  blort_ros_msgs::RecoveryCall::Response &resp);
 
-    bool setCameraInfoCb(blort_ros::SetCameraInfo::Request &req,
-                         blort_ros::SetCameraInfo::Response &resp);
+    bool setCameraInfoCb(blort_ros_msgs::SetCameraInfo::Request &req,
+                         blort_ros_msgs::SetCameraInfo::Response &resp);
 
     void reconf_callback(blort_ros::DetectorConfig &config, uint32_t level);
     

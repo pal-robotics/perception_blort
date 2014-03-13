@@ -15,27 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(OpenCV REQUIRED)
 
-add_message_files(
-  FILES
-  NameTypeValue.msg
-  ObjectPoseList.msg
-  ObjectPose.msg
-  TrackerConfidences.msg
-  TrackerResults.msg
-)
-
-add_service_files(
-  FILES
-  EstimatePose.srv
-  RecoveryCall.srv
-  SetCameraInfo.srv
-  TrackerCommand.srv
-)
-
-generate_messages(
- DEPENDENCIES geometry_msgs sensor_msgs
-)
-
 generate_dynamic_reconfigure_options(
  cfg/Tracker.cfg
  cfg/Detector.cfg
