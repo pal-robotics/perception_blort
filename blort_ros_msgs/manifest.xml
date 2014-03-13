@@ -1,0 +1,18 @@
+<package>
+  <description brief="blort_ros_msgs">
+
+     blort_ros_msgs
+
+  </description>
+  <author>Pierre Gergondet</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/blort_ros_msgs</url>
+
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+
+</package>
+
+

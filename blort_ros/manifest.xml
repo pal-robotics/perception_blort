@@ -1,0 +1,26 @@
+<package>
+  <description brief="blort_ros">
+
+    BLORT - The Blocks World Robotic Vision Toolbox <br/>
+    ROS interface classes and nodes for the BLORT library.
+
+  </description>
+  <author>Bence Magyar</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/blort_ros</url>
+  <depend package="roscpp"/>
+  <depend package="rospy"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="image_transport"/>
+  <depend package="geometry_msgs"/>
+  <depend package="std_msgs"/>
+  <depend package="tf"/>
+  <depend package="dynamic_reconfigure"/>
+  <depend package="blort"/>
+  <depend package="blort_ros_msgs"/>
+
+</package>
+
+

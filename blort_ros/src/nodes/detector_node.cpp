@@ -20,8 +20,8 @@ DetectorNode::~DetectorNode()
         delete(detector);
 }
 
-bool DetectorNode::recovery(blort_ros::RecoveryCall::Request &req,
-              blort_ros::RecoveryCall::Response &resp)
+bool DetectorNode::recovery(blort_ros_msgs::RecoveryCall::Request &req,
+              blort_ros_msgs::RecoveryCall::Response &resp)
 {
     if(detector != 0)
     {
@@ -67,8 +67,8 @@ bool DetectorNode::recovery(blort_ros::RecoveryCall::Request &req,
     }
 }
 
-bool DetectorNode::setCameraInfoCb(blort_ros::SetCameraInfo::Request &req,
-                     blort_ros::SetCameraInfo::Response &resp)
+bool DetectorNode::setCameraInfoCb(blort_ros_msgs::SetCameraInfo::Request &req,
+                     blort_ros_msgs::SetCameraInfo::Response &resp)
 {
     if(detector == 0)
         cam_info_callback(req.CameraInfo);
