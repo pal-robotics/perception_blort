@@ -58,48 +58,60 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
 
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
     std::string tracking_ini(pal_blort::addRoot("bin/tracking.ini", config_root));
-    std::string ply_model;
-    GetPlySiftFilenames(tracking_ini.c_str(), ply_model, sift_file, model_name);
+    std::vector<std::string> ply_models;
+    GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     recognizer = boost::shared_ptr<blortRecognizer::Recognizer3D>(
             new blortRecognizer::Recognizer3D(blortRecognizer::CameraParameter(camera_info), config_root, true));
-    recognizer->loadModelFromFile(sift_file);
+    for(size_t i = 0; i < sift_files.size(); ++i)
+    {
+        recognizer->loadModelFromFile(sift_files[i]);
+    }
     image_ = cvCreateImage( cvSize(camera_info.width, camera_info.height), 8, 3 );
 }
 
-bool GLDetector::recovery(const cv::Mat& image,
+bool GLDetector::recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
                           blort_ros::RecoveryCall::Response &resp)
 {
     last_image = image;
     *image_ = last_image;
 
-    return recoveryWithLast(resp);
+    return recoveryWithLast(obj_ids, resp);
 }
 
-bool GLDetector::recoveryWithLast(blort_ros::RecoveryCall::Response &resp)
+bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_ros::RecoveryCall::Response &resp)
 {
     double ticksBefore = cv::getTickCount();
 
-    TomGine::tgPose recPose;
-    float conf;
-    ROS_INFO("\n");
-    recognizer->recognize(image_, recPose, conf);
-
-    ROS_INFO("object conf: %f", conf);
-    ROS_WARN("Tried to recover for the %d. time.", rec3dcounter++);
-    ROS_INFO("Recovery execution time: %f ms",
-             1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
-
-    // if the recovery's confidence is high enough then propose this new pose
-    if(conf > recovery_conf_threshold)
+    std::vector< boost::shared_ptr<TomGine::tgPose> > recPoses;
+    for(size_t i = 0; i < sift_files.size(); ++i)
     {
-        resp.Pose = pal_blort::tgPose2RosPose(recPose);
-        return true;
+        recPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose()));
     }
-    else // else don't propose
+    std::vector<float> confs(sift_files.size(), 0);
+    std::map<size_t, bool> select;
+    for(size_t i = 0; i < obj_ids.size(); ++i)
     {
-      ROS_INFO_STREAM("GLDetector::recoveryWithLast: returning false because confidence <= " << recovery_conf_threshold);
-      return false;
+        select[obj_ids[i]] = true;
     }
+    recognizer->recognize(image_, recPoses, confs, select);
+
+    bool found_one = false;
+    resp.object_founds.resize(obj_ids.size());
+    resp.Poses.resize(obj_ids.size());
+    for(size_t i = 0; i < obj_ids.size(); ++i)
+    {
+        ROS_INFO_STREAM("object (" << model_names[obj_ids[i]] << ") conf: " << confs[obj_ids[i]]);
+        // if the recovery's confidence is high enough then propose this new pose
+        resp.object_founds[i] = ( confs[obj_ids[i]] > recovery_conf_threshold );
+        if( resp.object_founds[i] )
+        {
+            found_one = true;
+            resp.Poses[i] = pal_blort::tgPose2RosPose(*recPoses[obj_ids[i]]);
+        }
+    }
+    ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");
+    ROS_INFO_STREAM("Recovery execution time: " << 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency() << " ms");
+    return found_one;
 }
 
 void GLDetector::reconfigure(blort_ros::DetectorConfig config)

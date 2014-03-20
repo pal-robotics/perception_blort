@@ -65,21 +65,29 @@ namespace blort_ros
     class TrackerInterface
     {
     protected:
-        tracker_mode current_mode;
-        tracker_confidence current_conf;
+        std::vector<tracker_mode> current_modes;
+        std::vector<tracker_confidence> current_confs;
         cv::Mat last_image;
 
     public:
         TrackerInterface()
         {
-            current_mode = TRACKER_RECOVERY_MODE;
-            current_conf = TRACKER_CONF_LOST;
         }
         virtual void track() = 0;
         virtual void recovery() = 0;
         void process(cv::Mat img)
         {
-            last_image       = img;            
+            last_image = img;
+            tracker_mode current_mode = TRACKER_RECOVERY_MODE;
+            for(size_t i = 0; current_modes.size(); ++i)
+            {
+                if(current_modes[i] > current_mode)
+                {
+                    //FIXME tracking and locked mode are equivalent for now
+                    current_mode = current_modes[i];
+                    break;
+                }
+            }
             switch(current_mode)
             {
             case TRACKER_RECOVERY_MODE:
@@ -93,11 +101,11 @@ namespace blort_ros
                 break;
             }
         }
-        virtual void switchToTracking(){ current_conf = TRACKER_CONF_FAIR; current_mode = TRACKER_TRACKING_MODE; }
-        virtual void switchToRecovery(){ current_conf = TRACKER_CONF_LOST; current_mode = TRACKER_RECOVERY_MODE; }
-        virtual void reset(){ switchToRecovery(); }
-        tracker_mode getMode(){ return current_mode; }
-        tracker_confidence getConfidence(){ return current_conf; }
+        virtual void switchToTracking(size_t id){ current_confs[id] = TRACKER_CONF_FAIR; current_modes[id] = TRACKER_TRACKING_MODE; }
+        virtual void switchToRecovery(size_t id){ current_confs[id] = TRACKER_CONF_LOST; current_modes[id] = TRACKER_RECOVERY_MODE; }
+        virtual void reset(size_t id){ switchToRecovery(id); }
+        const std::vector<tracker_mode> & getModes(){ return current_modes; }
+        const std::vector<tracker_confidence> & getConfidence(){ return current_confs; }
     };
 }
 

@@ -330,7 +330,7 @@ int Tracker::addModel(TomGine::tgModel& m, tgPose& p, std::string label, bool bf
     modelEntry->num_particles = params.num_particles;
     modelEntry->num_recursions = params.num_recursions;
     m_modellist.push_back(modelEntry);
-    
+
     return modelEntry->id;
 }
 
@@ -363,7 +363,7 @@ int Tracker::addModelFromFile(const char* filename, tgPose& p, std::string label
     modelEntry->num_particles = params.num_particles;
     modelEntry->num_recursions = params.num_recursions;
     m_modellist.push_back(modelEntry);
-    
+
     return modelEntry->id;
 }
 

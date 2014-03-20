@@ -63,6 +63,7 @@ namespace Tracking{
 	virtual void image_processing(unsigned char* image, int model_id, const TomGine::tgPose &p, GLenum format=GL_BGR);
 	
 	virtual bool track();
+    bool track(const std::vector<bool> & tracking_objects);
 	bool track(ModelEntry *modelEntry);
 	virtual bool track(int id);
 	

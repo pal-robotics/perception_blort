@@ -82,22 +82,27 @@ namespace blort_ros
         Tracking::TextureTracker tracker;   // tracking module
 
         //config files //FIXME
-        std::string config_root_, ply_model_;
-        std::string model_name, sift_file; // name of the current model
+        std::string config_root_;
+        std::vector<std::string> ply_models_;
+        std::vector<std::string> model_names_, sift_files_; // name of the current model
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
-        TomGine::tgPose trPose; // current pose of the object used by the tracker module
-        int model_id;
-        Tracking::movement_state movement;
-        Tracking::quality_state quality;
-        Tracking::confidence_state tracker_confidence;
+        std::vector< boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
+        std::vector<int> model_ids;
+        std::vector<Tracking::movement_state> movements;
+        std::vector<Tracking::quality_state> qualities;
+        std::vector<Tracking::confidence_state> tracking_confidences;
+        std::vector<bool> tracking_objects;
+
+        // Protection mutex for multi-threaded access to the model/poses
+        boost::mutex models_mutex;
 
         // Initialise image
         IplImage *image; // iplimage object used be the former blort tracker module
 
         // result variables
-        TrackerConfidences tracker_confidences;
+        std::vector< boost::shared_ptr<TrackerConfidences> > tracker_confidences;
         geometry_msgs::Pose fixed_cam_pose;
         std::vector<geometry_msgs::Pose> result;
         
@@ -115,7 +120,7 @@ namespace blort_ros
         /** @brief Method to run and handle tracking. */
         virtual void track();
 
-        void reset();
+        void reset(const std::vector<uint8_t> & params = std::vector<uint8_t>(0));
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param Reconfigure_gui messagetype */
@@ -125,12 +130,12 @@ namespace blort_ros
          *  @param code integer code associated with command, can be used with enums.
          *  @param param parameter of the command
          */
-        void trackerControl(int code, int param = -1);
+        void trackerControl(uint8_t code, const std::vector<uint8_t> & params);
 
-        void resetWithPose(const geometry_msgs::Pose& new_pose);
+        void resetWithPose(size_t obj_id, const geometry_msgs::Pose& new_pose);
 
         /** @brief Get some statistics of the actual tracking state. */
-        TrackerConfidences getConfidences(){ return tracker_confidences; }
+        const std::vector< boost::shared_ptr<TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
 
         /** @brief Get the results of the latest detections. */
         const std::vector<geometry_msgs::Pose>& getDetections(){ return result; }
@@ -141,8 +146,8 @@ namespace blort_ros
         /** @brief Get the rendered image for visualization. */
         cv::Mat getImage();
 
-        /** @brief Get a status string describing the current state of the tracker. */
-        std::string getStatusString();
+        /** @brief Return model names */
+        const std::vector<std::string> & getModelNames() { return model_names_; }
 
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
@@ -150,7 +155,11 @@ namespace blort_ros
 
         TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-        void resetParticleFilter();
+        virtual void switchToTracking(size_t id);
+
+        virtual void switchToRecovery(size_t id);
+
+        virtual void switchTracking(const std::vector<uint8_t> & params);
 
         ~GLTracker();
 
@@ -161,7 +170,9 @@ namespace blort_ros
 
         /** @brief Assemble pose result to be published based on class variables.
           * The result is put in the corresponding variable. */
-        void updatePoseResult();
+        void updatePoseResult(size_t i);
+
+        void resetParticleFilter(size_t id);
     };
 }
 

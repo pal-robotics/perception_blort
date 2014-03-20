@@ -132,9 +132,11 @@ int main(int argc, char *argv[] )
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
     std::string pose_cal = pal_blort::addRoot("bin/pose.cal", config_root);
     std::string tracking_ini(pal_blort::addRoot("bin/tracking.ini", config_root));
+    std::vector<std::string> ply_models, sift_files, model_names;
     std::string ply_model, sift_file, model_name;
 
-    GetPlySiftFilenames(tracking_ini.c_str(), ply_model, sift_file, model_name);
+    GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
+    ply_model = ply_models[0]; sift_file = sift_files[0]; model_name = model_names[0];
     printf("Object name: %s\n", model_name.c_str());
     sift_file = pal_blort::addRoot(sift_file, config_root);
 
