@@ -162,7 +162,14 @@ public:
         if(xDisplay) return;
         if(display) std::cout << "Using display ["<<display<<"]\n";
 
-        xDisplay = XOpenDisplay(display && display[0] ? display : NULL);
+        //xDisplay = XOpenDisplay(display && display[0] ? display : NULL);
+        if ( display == NULL )
+          xDisplay = XOpenDisplay(NULL);
+        else if ( display[0] != '\0' )
+          xDisplay = XOpenDisplay(display);
+        else
+          xDisplay = XOpenDisplay(NULL);
+        
         if(xDisplay == NULL) return;
         int attrib[] =  {GLX_RGBA, GLX_RED_SIZE, 1, 
                          GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1,  0 }; 

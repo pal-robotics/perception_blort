@@ -19,7 +19,4 @@
   <depend package="tf"/>
   <depend package="dynamic_reconfigure"/>
   <depend package="blort"/>
-
 </package>
-
-

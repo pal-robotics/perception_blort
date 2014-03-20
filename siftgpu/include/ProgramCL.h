@@ -42,7 +42,7 @@ public:
     void PrintBuildLog(cl_device_id device, int all);
 	virtual ~ProgramCL();
     virtual int UseProgram(){return 1;}
-    virtual void * GetProgramID() {return _kernel;}
+   // virtual void * GetProgramID() {return _kernel;}
     friend class ProgramBagCL;
     friend class ProgramBagCLN;
 };

@@ -1,5 +1,4 @@
 /**
- * $Id: Vector3.hh 34111 2012-07-03 14:29:54Z student5 $
  */
 
 #ifndef VECTOR3_HH

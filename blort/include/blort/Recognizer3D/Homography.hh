@@ -1,5 +1,4 @@
 /**
- * $Id: Homography.hh 37862 2012-12-11 10:54:23Z dani $
  * Johann Prankl, 2010-03-30
  * prankl@acin.tuwien.ac.at
  */

@@ -1,5 +1,4 @@
 /**
- * $Id: ModelObject3D.hh 34111 2012-07-03 14:29:54Z student5 $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */

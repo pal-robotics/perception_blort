@@ -65,7 +65,7 @@ public:
 	void CheckLinkLog();
 	int LinkProgram();
 	operator GLuint (){return _programID;}
-    virtual void * GetProgramID() { return (void*) _programID; }
+//    virtual void * GetProgramID() { return (void*) _programID; }
 public:
 	ProgramGLSL();
 	~ProgramGLSL();
