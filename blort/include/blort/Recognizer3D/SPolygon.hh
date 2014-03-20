@@ -1,5 +1,4 @@
 /**
- * $Id: SPolygon.hh 43083 2013-07-04 14:58:30Z dani $
  * Johann Prankl, 2010-01-27 
  * prankl@acin.tuwien.ac.at
  */

@@ -1,5 +1,4 @@
 /**
- * $Id: ODetect3D.hh 37862 2012-12-11 10:54:23Z dani $
  * Simple RANSAC based 3d object detector
  *
  * Johann Prankl, 2010-01-27 

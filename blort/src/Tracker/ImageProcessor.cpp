@@ -197,6 +197,8 @@ bool ImageProcessor::transform(float i, float j, float *ix, float *iy){
     r = sqrt(x*x+y*y);
     theta = atan2(y,x);
     
+    xnew = x;
+    ynew = y;
     switch (m_lensMode) {
     case NONE:
         xnew = x;

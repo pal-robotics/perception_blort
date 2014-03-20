@@ -1,5 +1,4 @@
 /**
- * $Id: ConfigFile.hh 34111 2012-07-03 14:29:54Z student5 $
  */
 
 #ifndef P_CONFIG_FILE_HH
