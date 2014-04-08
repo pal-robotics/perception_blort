@@ -3,6 +3,7 @@
 #include <blort/TomGine/tgGUI.h>
 #include <blort/TomGine/tgPlot2D.h>
 #include <stdio.h>
+#include <GL/gl.h>
 
 using namespace blortGLWindow;
 using namespace TomGine;
