@@ -1,42 +1,37 @@
-cmake_minimum_required(VERSION 2.4.6)
-include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
+cmake_minimum_required(VERSION 2.8.3)
+project(blort)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-set(ROS_BUILD_TYPE Release)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  geometry_msgs
+  tf
+  sensor_msgs
+  siftgpu
+)
 
-rosbuild_init()
-
-#set the default path for built executables to the "bin" directory
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
-
-#uncomment if you have defined messages
-#rosbuild_genmsg()
-#uncomment if you have defined services
-#rosbuild_gensrv()
+find_package(OpenCV REQUIRED)
 
 set(SIFTGPU_INC /usr/local/include/SiftGPU CACHE PATH "Path to SiftGPU header files")
 set(SIFTGPU_LIB /usr/local/lib CACHE PATH "Path to SiftGPU library")
-include_directories(${SIFTGPU_INC})
-include_directories("${PROJECT_SOURCE_DIR}/src")
+
+include_directories(${catkin_INCLUDE_DIRS} ${SIFTGPU_INC} 
+                    "${PROJECT_SOURCE_DIR}/src" "include/blort" include)
+
+catkin_package(
+  INCLUDE_DIRS include "${PROJECT_SOURCE_DIR}/src" "include/blort" ${catkin_INCLUDE_DIRS}
+)
 
 
-rosbuild_add_library(module_glwindow
+add_definitions(-DLINUX)
+
+add_library(module_glwindow
     src/GLWindow/GLXWindowGetEvent.cpp 
     src/GLWindow/GLXWindow.cpp 
     src/GLWindow/glxhidingwindow.cpp
 )
-rosbuild_add_compile_flags(module_glwindow -DLINUX)
-
 target_link_libraries(module_glwindow GLU GL glut X11 rt)
 
-rosbuild_add_library(module_tomgine
+add_library(module_tomgine
     src/TomGine/tgVector3.cpp 
     src/TomGine/tgTimer.cpp 
     src/TomGine/tgTexture.cpp 
@@ -63,11 +58,11 @@ rosbuild_add_library(module_tomgine
     src/TomGine/tgCamera.cpp 
     src/TomGine/ply.c 
 )
-rosbuild_add_compile_flags(module_tomgine -DLINUX)
-rosbuild_add_compile_flags(module_tomgine -DGL_GLEXT_PROTOTYPES)
-target_link_libraries(module_tomgine GLU GL)
+set_target_properties(module_tomgine PROPERTIES COMPILE_FLAGS -DLINUX)
+set_target_properties(module_tomgine PROPERTIES COMPILE_FLAGS -DGL_GLEXT_PROTOTYPES)
+target_link_libraries(module_tomgine GLU GL ${OpenCV_LIBS})
 
-rosbuild_add_library(module_threadobject
+add_library(module_threadobject
     src/ThreadObject/TomGineThread.cpp 
     src/ThreadObject/Thread.cpp 
     src/ThreadObject/RecognizerThread.cpp 
@@ -77,7 +72,7 @@ rosbuild_add_library(module_threadobject
 )
 target_link_libraries(module_threadobject module_tomgine module_recognizer3d)
 
-rosbuild_add_library(module_tracker 
+add_library(module_tracker 
     src/Tracker/TrackerThread.cpp 
     src/Tracker/TrackerModel.cpp 
     src/Tracker/Tracker.cpp 
@@ -101,10 +96,10 @@ rosbuild_add_library(module_tracker
     src/Tracker/CameraThread.cpp 
     src/blort/pal_util.cpp
 )
-rosbuild_add_compile_flags(module_tracker -DGL_GLEXT_PROTOTYPES)
+set_target_properties(module_tracker PROPERTIES COMPILE_FLAGS -DGL_GLEXT_PROTOTYPES)
 target_link_libraries(module_tracker module_tomgine module_threadobject module_glwindow)
 
-rosbuild_add_library(module_recognizer3d
+add_library(module_recognizer3d
     src/Recognizer3D/Vector2.cc 
     src/Recognizer3D/SPolygon.cc 
     src/Recognizer3D/SDraw.cc 
@@ -125,4 +120,5 @@ rosbuild_add_library(module_recognizer3d
     src/Recognizer3D/Config.cc 
     src/Recognizer3D/CodebookEntry.cc 
 )
+target_link_libraries(module_recognizer3d ${catkin_LIBRARIES})
 

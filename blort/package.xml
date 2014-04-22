@@ -1,0 +1,39 @@
+<package>
+  <name>blort</name>
+  <version>0.0.1</version>
+  <description>
+    BLORT - The Blocks World Robotic Vision Toolbox. Ported and refactored version of the library.
+	Mörwald, T.; Prankl, J.; Richtsfeld, A.; Zillich, M.; Vincze, M. BLORT - The Blocks World Robotic Vision Toolbox Best Practice in 3D Perception and Modeling for Mobile Manipulation (in conjunction with ICRA 2010), 2010.
+  </description>
+  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <license>BSD</license>
+  <url type="website">http://ros.org/wiki/perception_blort</url>
+  <url type="website">http://www.acin.tuwien.ac.at/?id=290</url>
+  <author email="moerwald@acin.tuwien.ac.at">Thomas Mörwald</author> 
+  <author email="zillich@acin.tuwien.ac.at">Michael Zillich</author> 
+  <author email="arichtsfeld@acin.tuwien.ac.at">Andreas Richtsfeld</author> 
+  <author email="prankl@acin.tuwien.ac.at">Johann Prankl</author> 
+  <author email="vincze@acin.tuwien.ac.at"> Markus Vincze</author> 
+  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>siftgpu</build_depend>
+  <build_depend>libglew</build_depend>
+  <build_depend>libglew-dev</build_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>opencv2</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>siftgpu</run_depend>
+  <run_depend>libglew</run_depend>
+  <run_depend>libglew-dev</run_depend>
+<!--
+  opengl
+  libglu1 
+-->
+</package>

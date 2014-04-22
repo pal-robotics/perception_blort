@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>perception_blort</name>
+  <version>0.0.1</version>
+  <description>The perception_blort package</description>
+  <maintainer email="bence.magyar@pal-robotics.com">Bence Magyar</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>blort</run_depend>
+  <run_depend>blort_ros</run_depend>
+  <run_depend>siftgpu</run_depend>
+  <export>
+    <metapackage/>
+  </export>
+</package>

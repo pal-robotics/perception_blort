@@ -1,7 +1,0 @@
-<stack>
-  <description brief="perception_blort">perception_blort</description>
-  <author>Created by Bence Magyar, Maintained by Jordi Pages</author>
-  <license>BSD, Modified BSD, non-profit license from University of North Carolina</license>  
-  <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/perception_blort</url>
-</stack>

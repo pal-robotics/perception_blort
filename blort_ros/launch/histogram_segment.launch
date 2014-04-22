@@ -1,0 +1,9 @@
+<launch>
+    <group ns="/histogram_segmentation">
+        <rosparam command="load" file="$(find pal_vision_segmentation)/config/default_tabletop_histogram.yaml" />
+    </group>
+
+    <node pkg="pal_vision_segmentation" type="histogram_segmentation" name="histogram_segmentation" args="$(find blort_ros)/Resources/img/pringles_template.png">
+        <remap from="image" to="/stereo/left/image" />
+    </node>
+</launch>

@@ -1,0 +1,20 @@
+<package>
+  <name>siftgpu</name>
+  <version>0.0.1</version>
+  <description>
+    The SiftGPU library is an implementation of SIFT for GPU.
+  </description>
+  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <license>non-profit license from University of North Carolina</license>
+  <author email="ccwu@cs.unc.edu">Changchang Wu</author>
+  <url type="website">http://cs.unc.edu/~ccwu/siftgpu/</url>
+  <url type="website">http://ros.org/wiki/siftgpu</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>libglew</build_depend>
+  <build_depend>libglew-dev</build_depend>
+  <build_depend>libdevil-dev</build_depend>
+  <run_depend>libglew</run_depend>
+  <run_depend>libglew-dev</run_depend>
+  <run_depend>libdevil-dev</run_depend>
+</package>
