@@ -34,7 +34,7 @@
 #  POSSIBILITY OF SUCH DAMAGE.
 #
 
-import roslib; roslib.load_manifest('pal_blort')
+import rospy
 import re
 import subprocess
 from multiprocessing import Process

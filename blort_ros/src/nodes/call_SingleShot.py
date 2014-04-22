@@ -33,12 +33,11 @@
 #  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 #
-import roslib; roslib.load_manifest('pal_blort')
 
 import sys
 
 import rospy
-from pal_blort.srv import *
+from blort_ros.srv import *
 from geometry_msgs.msg import Pose
 
 service='blort_tracker/singleshot_service'
