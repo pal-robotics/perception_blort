@@ -1,6 +1,6 @@
 <package>
   <name>blort</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>
     BLORT - The Blocks World Robotic Vision Toolbox. Ported and refactored version of the library.
 	Mörwald, T.; Prankl, J.; Richtsfeld, A.; Zillich, M.; Vincze, M. BLORT - The Blocks World Robotic Vision Toolbox Best Practice in 3D Perception and Modeling for Mobile Manipulation (in conjunction with ICRA 2010), 2010.
