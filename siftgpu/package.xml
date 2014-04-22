@@ -1,6 +1,6 @@
 <package>
   <name>siftgpu</name>
-  <version>0.0.1</version>
+  <version>0.1</version>
   <description>
     The SiftGPU library is an implementation of SIFT for GPU.
   </description>
