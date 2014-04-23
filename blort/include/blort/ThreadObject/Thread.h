@@ -125,16 +125,16 @@ public:
 	 **/
 	BOOL Wait(int timeoutSeconds)
 	{
-        timeoutSeconds = timeoutSeconds * 1000;
-		if( Status() != TaskStatusCompleted &&
-			timeoutSeconds > 0 )
-		{
-			Sleep(100);
-			timeoutSeconds = timeoutSeconds - 100;
-		}
-		if( Status() == TaskStatusCompleted ) return TRUE;
-		return FALSE;
-	}
+    timeoutSeconds = timeoutSeconds * 1000;
+    while( Status() != TaskStatusCompleted &&
+           timeoutSeconds > 0 )
+    {
+      Sleep(100);
+      timeoutSeconds = timeoutSeconds - 100;
+    }
+    if( Status() == TaskStatusCompleted ) return TRUE;
+    return FALSE;
+  }
 
 	/**
 	 *

@@ -95,7 +95,7 @@ public:
 	void			copy(ParticleList &list){ list = m_particlelist; }
 	
 	/** @brief Copy a particle from the distribution */
-	void			copyParticle(Particle& p, unsigned int id){ if(id<=m_particlelist.size()) p = m_particlelist[id]; }
+  void			copyParticle(Particle& p, unsigned int id){ if(id<m_particlelist.size()) p = m_particlelist[id]; }
 	
 	/** @brief Drops all particles of the ParticleList */
 	void			clear(){ m_particlelist.clear(); }
