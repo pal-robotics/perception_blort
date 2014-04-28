@@ -189,6 +189,13 @@ tgShapeCreator::tgShapeCreator(){
 	midpoint = 0; 
 }
 
+tgShapeCreator::~tgShapeCreator(){
+    if(vertices != 0)
+        delete[] vertices;
+    if(faces != 0)
+        delete[] faces;
+}
+
 void tgShapeCreator::CreateSphere(tgModel& model, float radius, int subdevisions, int method){
 	int i;
 	int vidx = model.getVertexSize();

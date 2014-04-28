@@ -41,7 +41,8 @@ private:
 
 public:
 	tgShapeCreator();
- 	
+ 	~tgShapeCreator();
+
  	void CreateSphere(tgModel& model, float radius, int subdevisions, int method=0);
  	void CreateBox(tgModel& model, float x, float y, float z);
  	void CreateCylinder(tgModel &model, float radius, float height, int slices, int stacks, bool closed);
