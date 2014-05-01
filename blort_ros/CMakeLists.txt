@@ -70,6 +70,7 @@ target_link_libraries(gldetector_node ${OpenCV_INCLUDE_DIRS}
                                    module_recognizer3d)
 
 add_library(${PROJECT_NAME} src/pose_util.cpp)
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS}})
 
 add_executable(pose2Tf src/nodes/pose2Tf.cpp) 
 target_link_libraries(pose2Tf ${PROJECT_NAME}
