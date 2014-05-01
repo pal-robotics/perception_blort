@@ -1156,7 +1156,7 @@ void Tracker::printStatistics(){
     printf("\n\nStatistics: \n");
     
     for(unsigned i=0; i<m_modellist.size(); i++){
-        tgPose pMean =  m_modellist[i]->distribution.getMean();
+        //tgPose pMean =  m_modellist[i]->distribution.getMean();
         printf("	Object %u '%s'\n", i, m_modellist[i]->label.c_str());
         printf("		FPS: %.1f\n", 1.0f/m_ftime);
         printf("		Textured: %d\n", m_modellist[i]->model.m_textured);

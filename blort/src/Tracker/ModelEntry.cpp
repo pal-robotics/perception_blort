@@ -41,7 +41,7 @@ void ModelEntry::poseDiff(float &t, float &a)
 	pose.q.getAxisAngle(axis0, angle0);
 	pose_prev.q.getAxisAngle(axis1, angle1);
 	
-	vec3 axis01 = axis0 - axis1;
+	//vec3 axis01 = axis0 - axis1;
 	vec3 t01 = pose.t - pose_prev.t;
 	
 	a = (angle0-angle1);

@@ -87,11 +87,11 @@ void CTomGineThread::AddSifts(const std::vector<blortRecognizer::Siftex>& sl)
 	}
 	
 	vec3 vPos = vec3(float(pos[0]/sc), float(pos[1]/sc), float(pos[2]/sc)); 
-	vec3 vNormal = vec3(float(normal[0]/sc), float(normal[1]/sc), float(normal[2]/sc)); 
+	//vec3 vNormal = vec3(float(normal[0]/sc), float(normal[1]/sc), float(normal[2]/sc)); 
 	vec3 vView = vec3(float(view[0]/sc), float(view[1]/sc), float(view[2]/sc));
 	
 	vec3 p = vPos - vView;
-// 	vec3 p = sl[0].pos - sl[0].viewray;
+    //vec3 p = sl[0].pos - sl[0].viewray;
 	
 	vec3 f = vView;	f.normalize();
 	vec3 u = vec3(0,0,1);

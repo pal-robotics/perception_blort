@@ -12,6 +12,7 @@ namespace Tracking{
 #include <blort/TomGine/tgMathlib.h>
 #include <blort/TomGine/tgPose.h>
 #include <blort/TomGine/tgCamera.h>
+#include <boost/utility.hpp>
 
 #ifndef FN_LEN
 #define FN_LEN 256
@@ -37,7 +38,7 @@ public:
 	
 	void releasePassList();
 	
-	struct Pass {												// Renderpass
+	struct Pass : public boost::noncopyable {												// Renderpass
 		std::vector<unsigned> f;								// Faces to draw with this pass
 		mat4 modelviewprojection;					// Modelview and projection matrix for texCoords
 		float x,y,w,h;										// Bounding box of SubTexture
