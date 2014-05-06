@@ -43,7 +43,7 @@
 #ifndef GPUGLTRACKER_H
 #define GPUGLTRACKER_H
 
-#include "trackerinterface.hpp"
+#include <blort_ros/trackerinterface.hpp>
 #include <blort_ros/TrackerConfidences.h>
 #include <blort_ros/TrackerCommand.h>
 #include <blort_ros/TrackerConfig.h>

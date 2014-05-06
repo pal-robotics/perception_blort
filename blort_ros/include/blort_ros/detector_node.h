@@ -46,7 +46,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <blort_ros/DetectorConfig.h>
 #include <blort_ros/SetCameraInfo.h>
-#include "../gldetector.h"
+#include <blort_ros/gldetector.h>
 
 class DetectorNode
 {

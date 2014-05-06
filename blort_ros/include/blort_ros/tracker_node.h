@@ -62,7 +62,7 @@
 #include <blort_ros/SetCameraInfo.h>
 #include <blort/GLWindow/glxhidingwindow.h>
 #include <blort/blort/pal_util.h>
-#include "../gltracker.h"
+#include <blort_ros/gltracker.h>
 #include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
 

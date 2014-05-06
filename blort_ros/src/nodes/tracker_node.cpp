@@ -1,4 +1,4 @@
-#include "tracker_node.h"
+#include <blort_ros/tracker_node.h>
 
 TrackerNode::TrackerNode(std::string root)
     : nh_("blort_tracker"), it_(nh_), pose_seq(0), camera_frame_id("0"), root_(root), tracker(0)

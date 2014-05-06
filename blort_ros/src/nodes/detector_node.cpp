@@ -1,4 +1,4 @@
-#include "detector_node.h"
+#include <blort_ros/detector_node.h>
 
 DetectorNode::DetectorNode(std::string root)
     : nh_("blort_detector"), it_(nh_), root_(root), detector(0)

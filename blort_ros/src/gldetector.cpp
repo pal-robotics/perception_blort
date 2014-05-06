@@ -38,7 +38,7 @@
  * @brief Class of GLDetector which wraps the detector core of BLORT.
 */
 
-#include "gldetector.h"
+#include <blort_ros/gldetector.h>
 #include <blort/Tracker/utilities.hpp>
 #include <blort/TomGine/tgModelLoader.h>
 #include <ros/console.h>

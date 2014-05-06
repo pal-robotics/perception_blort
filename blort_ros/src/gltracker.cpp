@@ -38,7 +38,7 @@
  * @brief Class of GLTracker which wraps the tracker core of BLORT.
  */
 
-#include "gltracker.h"
+#include <blort_ros/gltracker.h>
 #include <blort/Tracker/utilities.hpp>
 #include <blort/TomGine/tgModelLoader.h>
 #include <sstream>
