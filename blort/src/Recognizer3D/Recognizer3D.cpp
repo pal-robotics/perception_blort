@@ -23,11 +23,22 @@ CameraParameter::CameraParameter(const sensor_msgs::CameraInfo &cam_info)
     cx = cam_info.K.at(2);
     fy = cam_info.K.at(4);
     cy = cam_info.K.at(5);
-    k1 = cam_info.D.at(0);
-    k2 = cam_info.D.at(1);
-    k3 = cam_info.D.at(4);
-    p1 = cam_info.D.at(2);
-    p2 = cam_info.D.at(3);
+    if (!cam_info.D.empty())
+    {
+      k1 = cam_info.D.at(0);
+      k2 = cam_info.D.at(1);
+      k3 = cam_info.D.at(4);
+      p1 = cam_info.D.at(2);
+      p2 = cam_info.D.at(3);
+    }
+    else
+    {
+      k1 = 0.0;
+      k2 = 0.0;
+      k3 = 0.0;
+      p1 = 0.0;
+      p2 = 0.0;
+    }
 }
 
 void Recognizer3D::Convert(P::PoseCv& p1, TomGine::tgPose& p2){
