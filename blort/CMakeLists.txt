@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 
 set(SIFTGPU_INC /usr/local/include/SiftGPU CACHE PATH "Path to SiftGPU header files")
-set(SIFTGPU_LIB /usr/local/lib CACHE PATH "Path to SiftGPU library")
 
 include_directories(${catkin_INCLUDE_DIRS} ${SIFTGPU_INC} 
                     "${PROJECT_SOURCE_DIR}/src" "include/blort" include)
@@ -20,7 +19,6 @@ include_directories(${catkin_INCLUDE_DIRS} ${SIFTGPU_INC}
 catkin_package(
   INCLUDE_DIRS include "${PROJECT_SOURCE_DIR}/src" "include/blort" ${catkin_INCLUDE_DIRS}
 )
-
 
 add_definitions(-DLINUX)
 
@@ -122,3 +120,22 @@ add_library(module_recognizer3d
 )
 target_link_libraries(module_recognizer3d ${catkin_LIBRARIES})
 
+#############
+## Install ##
+#############
+
+install(TARGETS 
+		module_glwindow
+		module_tomgine
+		module_threadobject
+		module_tracker 
+		module_recognizer3d
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)

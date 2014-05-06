@@ -79,3 +79,36 @@ target_link_libraries(pose2Tf ${PROJECT_NAME}
 add_executable(pose2Tf_repeat src/nodes/pose2Tf_repeat.cpp)
 target_link_libraries(pose2Tf_repeat ${PROJECT_NAME}
                                      ${catkin_LIBRARIES})
+
+#############
+## Install ##
+#############
+
+#install(PROGRAMS
+#  scripts/my_python_script
+#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
+
+install(TARGETS
+		learnsifts
+		gltracker_node
+		gldetector_node
+		${PROJECT_NAME}
+		pose2Tf
+		pose2Tf_repeat
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+#install(DIRECTORY include/${PROJECT_NAME}/
+#  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#  FILES_MATCHING PATTERN "*.h"
+#  PATTERN ".svn" EXCLUDE
+#)
+
+#install(FILES
+#  # myfile1
+#  # myfile2
+#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+#)
