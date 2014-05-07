@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   dynamic_reconfigure
   image_transport
-  cv_bridge 
+  cv_bridge
   message_generation
 )
 
@@ -51,10 +51,9 @@ target_link_libraries(learnsifts siftgpu ${catkin_LIBRARIES})
 target_link_libraries(learnsifts module_tomgine module_glwindow module_tracker module_threadobject module_recognizer3d)
 
 add_executable(gltracker_node src/nodes/tracker_node.cpp
-                              src/trackerinterface.hpp
                               src/gltracker.cpp)
 target_link_libraries(gltracker_node ${OpenCV_INCLUDE_DIRS}
-                                   module_tomgine 
+                                   module_tomgine
                                    module_tracker
                                    module_glwindow
                                    ${catkin_LIBRARIES}
@@ -65,14 +64,14 @@ add_executable(gldetector_node src/nodes/detector_node.cpp
 target_link_libraries(gldetector_node ${OpenCV_INCLUDE_DIRS}
                                    ${catkin_LIBRARIES}
                                    module_tracker
-                                   module_tomgine 
-                                   siftgpu 
+                                   module_tomgine
+                                   siftgpu
                                    module_recognizer3d)
 
 add_library(${PROJECT_NAME} src/pose_util.cpp)
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS}})
 
-add_executable(pose2Tf src/nodes/pose2Tf.cpp) 
+add_executable(pose2Tf src/nodes/pose2Tf.cpp)
 target_link_libraries(pose2Tf ${PROJECT_NAME}
                               ${catkin_LIBRARIES})
 
@@ -90,12 +89,12 @@ target_link_libraries(pose2Tf_repeat ${PROJECT_NAME}
 #)
 
 install(TARGETS
-		learnsifts
-		gltracker_node
-		gldetector_node
-		${PROJECT_NAME}
-		pose2Tf
-		pose2Tf_repeat
+        learnsifts
+        gltracker_node
+        gldetector_node
+        ${PROJECT_NAME}
+        pose2Tf
+        pose2Tf_repeat
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
