@@ -75,9 +75,9 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     printf(" \n\n ");
 
     // File names
-    pose_cal = pal_blort::addRoot("bin/pose.cal", config_root);
+    pose_cal = pal_blort::addRoot("config/pose.cal", config_root);
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
-    std::string tracking_ini(pal_blort::addRoot("bin/tracking.ini", config_root));
+    std::string tracking_ini(pal_blort::addRoot("config/tracking.ini", config_root));
 
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models_, sift_files_, model_names_);
     GetTrackingParameter(track_params, tracking_ini.c_str(), config_root);
