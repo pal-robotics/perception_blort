@@ -51,7 +51,6 @@ target_link_libraries(learnsifts siftgpu ${catkin_LIBRARIES})
 target_link_libraries(learnsifts module_tomgine module_glwindow module_tracker module_threadobject module_recognizer3d)
 
 add_executable(gltracker_node src/nodes/tracker_node.cpp
-                              src/trackerinterface.hpp
                               src/gltracker.cpp)
 target_link_libraries(gltracker_node ${OpenCV_INCLUDE_DIRS}
                                    module_tomgine 
