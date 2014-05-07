@@ -1,0 +1,3 @@
+threshold: 254
+dilate_iterations: 9
+dilate_size: 8

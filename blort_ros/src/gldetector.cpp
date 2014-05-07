@@ -57,7 +57,7 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
     recovery_conf_threshold = 0.05;
 
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
-    std::string tracking_ini(pal_blort::addRoot("bin/tracking.ini", config_root));
+    std::string tracking_ini(pal_blort::addRoot("config/tracking.ini", config_root));
     std::vector<std::string> ply_models;
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     recognizer = boost::shared_ptr<blortRecognizer::Recognizer3D>(
