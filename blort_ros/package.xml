@@ -1,6 +1,6 @@
 <package>
   <name>blort_ros</name>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <description>
     BLORT - The Blocks World Robotic Vision Toolbox <br/>
     ROS interface classes and nodes for the BLORT library.

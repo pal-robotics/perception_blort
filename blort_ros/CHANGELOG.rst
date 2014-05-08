@@ -2,8 +2,8 @@
 Changelog for package blort_ros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2014-05-08)
+------------------
 * Removed makefiles
 * Move config files from bin to config
   updated code to use the new path of the files

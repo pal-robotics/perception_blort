@@ -2,8 +2,8 @@
 Changelog for package siftgpu
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2014-05-08)
+------------------
 * Add install rules to packages
 * Contributors: Bence Magyar
 

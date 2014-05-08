@@ -2,8 +2,8 @@
 Changelog for package blort
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2014-05-08)
+------------------
 * Add install rules to packages
 * Fix for crash when part of camera info is missing
 * Fixed unused-but-set-variable gcc and cppcheck-noCopyConstructor warnings.
