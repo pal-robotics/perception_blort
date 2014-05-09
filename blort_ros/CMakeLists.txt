@@ -52,17 +52,15 @@ target_link_libraries(learnsifts module_tomgine module_glwindow module_tracker m
 
 add_executable(gltracker_node src/nodes/tracker_node.cpp
                               src/gltracker.cpp)
-target_link_libraries(gltracker_node ${OpenCV_INCLUDE_DIRS}
-                                   module_tomgine
+target_link_libraries(gltracker_node module_tomgine
                                    module_tracker
                                    module_glwindow
                                    ${catkin_LIBRARIES}
-                                  GLU GL glut X11 rt)
+                                   GLU GL glut X11 rt)
 
 add_executable(gldetector_node src/nodes/detector_node.cpp
                                src/gldetector.cpp)
-target_link_libraries(gldetector_node ${OpenCV_INCLUDE_DIRS}
-                                   ${catkin_LIBRARIES}
+target_link_libraries(gldetector_node ${catkin_LIBRARIES}
                                    module_tracker
                                    module_tomgine
                                    siftgpu
