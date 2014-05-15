@@ -1,0 +1,21 @@
+<package>
+  <description brief="siftgpu">
+
+    The SiftGPU library is an implementation of SIFT for GPU.
+     
+  </description>
+  <author>Changchang Wu (library), Bence Magyar (ROS wrapper)</author>
+  <license>non-profit license from University of North Carolina</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/siftgpu</url>
+  <depend package="mk"/>
+  <export>
+    <rosdoc external="http://www.cs.unc.edu/~ccwu/siftgpu"/>
+    <cpp cflags="-I${prefix}/include" 
+         lflags="-L${prefix}/lib -lsiftgpu"
+     />
+  </export>
+  <rosdep name="libglew-dev"/>
+  <rosdep name="libdevil-dev"/>
+
+</package>

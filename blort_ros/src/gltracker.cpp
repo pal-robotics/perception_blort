@@ -100,7 +100,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         tracking_confidences.push_back(Tracking::ST_BAD);
         current_modes.push_back(blort_ros::TRACKER_RECOVERY_MODE);
         current_confs.push_back(blort_ros::TRACKER_CONF_LOST);
-        tracker_confidences.push_back(boost::shared_ptr<TrackerConfidences>(new TrackerConfidences));
+        tracker_confidences.push_back(boost::shared_ptr<blort_ros_msgs::TrackerConfidences>(new blort_ros_msgs::TrackerConfidences));
         tracking_objects.push_back(true);
     }
     result.resize(ply_models_.size());

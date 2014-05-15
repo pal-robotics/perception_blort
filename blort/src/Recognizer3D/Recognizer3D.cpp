@@ -228,9 +228,7 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
         if(select.count(i) && select.at(i))
         {
             detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
-#ifdef VERBOSE_INFO
             ROS_INFO("Recognizer3D::recognize: ODetect3D::Detect time: %.01f ms\n", 1000*(cv::getTickCount() - ticksBefore)/cv::getTickFrequency());
-#endif
         }
         if ( detectResult )
         {
