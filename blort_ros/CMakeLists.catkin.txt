@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   image_transport
   cv_bridge
-  message_generation
+  blort_ros_msgs
 )
 
 find_package(OpenCV REQUIRED)
