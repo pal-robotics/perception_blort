@@ -7,7 +7,7 @@
   </description>
   <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
   <license>BSD</license>
-  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>0
+  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>
   <url>http://ros.org/wiki/blort_ros</url>
 
   <buildtool_depend>catkin</buildtool_depend>

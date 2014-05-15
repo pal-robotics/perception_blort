@@ -92,7 +92,7 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
                       (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
                   {
                       blort_ros_msgs::TrackerResults msg;
-                      msg.obj_name.data = tracker->getModelName(i);
+                      msg.obj_name.data = tracker->getModelNames()[i];
                       msg.pose.header.seq = pose_seq++;
                       msg.pose.header.stamp = ros::Time::now();
                       msg.pose.header.frame_id = camera_frame_id;

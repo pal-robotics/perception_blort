@@ -1,3 +1,4 @@
+CMakeLists.txt
 *.swp
 build
 *.ply
