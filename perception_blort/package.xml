@@ -8,6 +8,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>blort</run_depend>
   <run_depend>blort_ros</run_depend>
+  <run_depend>blort_ros_msgs</run_depend>
   <run_depend>siftgpu</run_depend>
   <export>
     <metapackage/>
