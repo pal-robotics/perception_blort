@@ -10,31 +10,10 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   image_transport
   cv_bridge
-  message_generation
+  blort_ros_msgs
 )
 
 find_package(OpenCV REQUIRED)
-
-add_message_files(
-  FILES
-  NameTypeValue.msg
-  ObjectPoseList.msg
-  ObjectPose.msg
-  TrackerConfidences.msg
-  TrackerResults.msg
-)
-
-add_service_files(
-  FILES
-  EstimatePose.srv
-  RecoveryCall.srv
-  SetCameraInfo.srv
-  TrackerCommand.srv
-)
-
-generate_messages(
- DEPENDENCIES geometry_msgs sensor_msgs
-)
 
 generate_dynamic_reconfigure_options(
  cfg/Tracker.cfg
@@ -43,8 +22,7 @@ generate_dynamic_reconfigure_options(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-catkin_package(
-)
+catkin_package()
 
 add_executable(learnsifts src/nodes/learnsifts.cpp)
 target_link_libraries(learnsifts siftgpu ${catkin_LIBRARIES})
