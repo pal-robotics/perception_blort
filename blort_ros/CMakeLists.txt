@@ -44,16 +44,11 @@ target_link_libraries(gldetector_node ${catkin_LIBRARIES}
                                    siftgpu
                                    module_recognizer3d)
 
-add_library(${PROJECT_NAME} src/pose_util.cpp)
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS}})
-
 add_executable(pose2Tf src/nodes/pose2Tf.cpp)
-target_link_libraries(pose2Tf ${PROJECT_NAME}
-                              ${catkin_LIBRARIES})
+target_link_libraries(pose2Tf ${catkin_LIBRARIES})
 
 add_executable(pose2Tf_repeat src/nodes/pose2Tf_repeat.cpp)
-target_link_libraries(pose2Tf_repeat ${PROJECT_NAME}
-                                     ${catkin_LIBRARIES})
+target_link_libraries(pose2Tf_repeat ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -68,7 +63,6 @@ install(TARGETS
         learnsifts
         gltracker_node
         gldetector_node
-        ${PROJECT_NAME}
         pose2Tf
         pose2Tf_repeat
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -80,14 +74,3 @@ foreach(dir launch config Resources Tracker)
     install(DIRECTORY ${dir}/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
 endforeach(dir)
-#install(DIRECTORY include/${PROJECT_NAME}/
-#  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#  FILES_MATCHING PATTERN "*.h"
-#  PATTERN ".svn" EXCLUDE
-#)
-
-#install(FILES
-#  # myfile1
-#  # myfile2
-#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-#)

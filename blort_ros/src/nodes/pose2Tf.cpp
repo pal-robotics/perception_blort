@@ -45,7 +45,6 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Pose.h>
-#include <blort_ros/pose_util.h>
 #include <string>
 
 std::string parent_name;
@@ -54,7 +53,8 @@ std::string child_name;
 void poseCallback(const geometry_msgs::Pose &msg)
 {
     static tf::TransformBroadcaster br;
-    tf::Transform target_transform = pal_vision_util::rosPose2TfTransform(msg);
+    tf::Transform target_transform;
+    tf::poseMsgToTF(msg, target_transform);
     br.sendTransform( tf::StampedTransform(target_transform, ros::Time::now(), parent_name, child_name));
 }
 

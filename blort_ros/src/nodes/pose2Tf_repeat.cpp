@@ -44,7 +44,6 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Pose.h>
-#include <blort_ros/pose_util.h>
 #include <string>
 
 std::string parent_name;
@@ -79,7 +78,8 @@ int main(int argc, char** argv){
         ros::spinOnce();
         if(pose_received)
         {
-            tf::Transform target_transform = pal_vision_util::rosPose2TfTransform(last_pose);
+            tf::Transform target_transform;
+            tf::poseMsgToTF(last_pose, target_transform);
             br.sendTransform( tf::StampedTransform(target_transform, ros::Time::now(), parent_name, child_name));
         }
     }
