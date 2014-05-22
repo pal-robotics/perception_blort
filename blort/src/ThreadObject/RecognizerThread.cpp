@@ -62,7 +62,7 @@ void CRecognizerThread::LearnSifts(IplImage* image,  TomGine::tgModel &model, To
 	m_evData.Wait(); m_evData.Reset();
 }
 
-void CRecognizerThread::LoadSiftModel(const std::string sift_file)
+void CRecognizerThread::LoadSiftModel(const std::string& sift_file)
 {
 	m_mutex.Lock();
 		m_sift_file = string(sift_file);
@@ -73,7 +73,7 @@ void CRecognizerThread::LoadSiftModel(const std::string sift_file)
 	m_evData.Wait(); m_evData.Reset();
 }
 
-void CRecognizerThread::SaveSiftModel(const std::string sift_file)
+void CRecognizerThread::SaveSiftModel(const std::string& sift_file)
 {
 	m_mutex.Lock();
 		m_sift_file = string(sift_file);
