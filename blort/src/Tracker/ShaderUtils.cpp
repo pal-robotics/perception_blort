@@ -28,7 +28,7 @@ char* Tracking::read_text_file(const char* file)
     int sz = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    char *retv = (char*)malloc(sz+1);
+    char *retv = (char*)calloc(sz+1,sizeof(char));
     size_t size = fread(retv, sz, 1, f);
     retv[sz] = size;
     retv[sz] = 0;

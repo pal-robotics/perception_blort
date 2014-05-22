@@ -23,7 +23,6 @@ catkin_package(
 add_definitions(-DLINUX)
 
 add_library(module_glwindow
-    src/GLWindow/GLXWindowGetEvent.cpp 
     src/GLWindow/GLXWindow.cpp 
     src/GLWindow/glxhidingwindow.cpp
 )

@@ -12,28 +12,14 @@
 
 #include <blort/GLWindow/GLEvent.h>
 
-#ifdef WIN32
-#include <windows.h>
-#include <gl/glew.h>
-#include <gl/gl.h>
-#endif
-
-#ifdef LINUX
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
-#endif
-
 /** @brief BLORT namespace for GLWindow */
 namespace blortGLWindow{
 
 #ifdef WIN32
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #endif
+
+struct GLWindowImpl;
 
 /** @brief Class GLWindow */
 class GLWindow{
@@ -65,26 +51,7 @@ public:
 #endif
 
 protected:
-#ifdef WIN32
-	WNDCLASS		wc;
-	HWND 			hWnd;
-	HDC 			hDC;
-	HGLRC 			hRC;
-	MSG 			msg;
-#endif
-
-#ifdef LINUX
-  Display                 *dpy;
-  Window                  root;
-  XVisualInfo				*vi;
-  Colormap					cmap;
-  XSetWindowAttributes		swa;
-  Window					glWin;
-  Window					btWin;
-  Atom						wmDelete;
-  GLXContext				glc;
-  XWindowAttributes     	gwa;
-#endif
+  GLWindowImpl * impl;
 
   void init(unsigned int width, unsigned int height, const char* name, bool visible = true);
   void quit();
