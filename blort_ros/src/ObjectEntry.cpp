@@ -1,4 +1,4 @@
-#include "ObjectEntry.h"
+#include <blort_ros/ObjectEntry.h>
 
 void blort_ros::buildFromFiles(const std::vector<std::string> & ply_models, const std::vector<std::string> & sift_files, const std::vector<std::string> & model_names, std::vector<blort_ros::ObjectEntry> & out)
 {
