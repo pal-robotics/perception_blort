@@ -90,6 +90,11 @@ void cam_info_callback(const sensor_msgs::CameraInfo &msg)
 
 struct TranslateStart
 {
+  TranslateStart()
+    : x(0), y(0)
+  {
+  }
+
     int x;
     int y;
 };
