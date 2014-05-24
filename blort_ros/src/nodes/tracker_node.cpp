@@ -223,7 +223,7 @@ TrackerNode::SingleShotMode::SingleShotMode(TrackerNode* parent) : parent_(paren
     ROS_INFO("Blort tracker launched in singleshot mode.");
     detector_set_caminfo_service = parent_->nh_.serviceClient<blort_ros_msgs::SetCameraInfo>("/blort_detector/set_camera_info");
     singleshot_service = parent_->nh_.advertiseService("singleshot_service", &TrackerNode::SingleShotMode::singleShotService, this);
-    image_sub = parent_->it_.subscribe("/blort_image_rect_masked", 10, &TrackerNode::SingleShotMode::imageCallback, this);
+    image_sub = parent_->it_.subscribe("/detector_image", 10, &TrackerNode::SingleShotMode::imageCallback, this);
     cam_info_sub = parent_->nh_.subscribe("/detector_camera_info", 10, &TrackerNode::SingleShotMode::cameraCallback, this);
 
     parent_->control_service = parent_->nh_.advertiseService("tracker_control", &TrackerNode::trackerControlServiceCb, parent_);
@@ -296,7 +296,7 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_ros_msgs::EstimatePose
         if(parent_->tracker == 0)
         {
             parent_->tracker = new blort_ros::GLTracker(*lastCameraInfo, parent_->root_, true);
-            parent_->recovery_client = parent_->nh_.serviceClient<blort_ros_msgs::RecoveryCall>("/blort_detector/poseService");
+            parent_->recovery_client = parent_->nh_.serviceClient<blort_ros_msgs::RecoveryCall>("/blort_detector/pose_service");
         } else {
             parent_->tracker->reset();
         }
@@ -312,7 +312,7 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_ros_msgs::EstimatePose
         {
             ROS_INFO("Remaining time %f", time_to_run_singleshot+start_secs-ros::Time::now().toSec());
             parent_->imageCb(lastImage, lastImage);
-            if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_GOOD)
+            if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_FAIR)
             {
                 // instead of returning right away let's store the result
                 // to see if the tracker can get better
