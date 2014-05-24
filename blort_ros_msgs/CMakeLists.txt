@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(blort_ros_msgs)
 
-find_package(catkin REQUIRED COMPONENTS geometry_msgs message_generation std_msgs sensor_msgs)
+find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
+  message_generation
+  std_msgs
+  sensor_msgs
+  actionlib_msgs
+  object_recognition_msgs)
 
 add_message_files(
   DIRECTORY msg
@@ -22,13 +28,21 @@ add_service_files(
   TrackerCommand.srv
 )
 
+add_action_files(
+  DIRECTORY action
+  FILES
+  Recognize.action
+)
+
 generate_messages(
- DEPENDENCIES geometry_msgs sensor_msgs
+ DEPENDENCIES geometry_msgs sensor_msgs object_recognition_msgs
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS actionlib_msgs geometry_msgs sensor_msgs
+)
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}

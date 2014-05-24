@@ -1,0 +1,10 @@
+# Goal
+# Names of objects to search for
+object_recognition_msgs/ObjectType[] objects
+# Time allowed to spend on the procedure
+int16 refine_pose_time
+---
+# Result
+object_recognition_msgs/RecognizedObjectArray recognized_objects
+---
+# no feedback
