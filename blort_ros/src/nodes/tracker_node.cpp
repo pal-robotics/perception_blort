@@ -380,7 +380,6 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     // initialize tracker if it wasn't, otherwise reset it
     if(parent_->tracker == 0)
     {
-        ROS_ERROR_STREAM(lastCameraInfo->height);
         parent_->tracker = new blort_ros::GLTracker(*lastCameraInfo, parent_->root_, true);
         parent_->recovery_client = parent_->nh_.serviceClient<blort_ros_msgs::RecoveryCall>("/blort_detector/pose_service");
     } else {
@@ -419,6 +418,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
             }
         }
     }
+    inServiceCall = false;
 
     // time is up, pose refinement is done
     for(int i=0; i<goal->objects.size(); ++i)
