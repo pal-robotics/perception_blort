@@ -53,6 +53,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <geometry_msgs/Pose.h>
 #include <dynamic_reconfigure/server.h>
+#include <actionlib/server/action_server.h>
 
 #include <blort_ros/TrackerConfig.h>
 #include <blort_ros_msgs/TrackerResults.h>
@@ -60,6 +61,7 @@
 #include <blort_ros_msgs/RecoveryCall.h>
 #include <blort_ros_msgs/EstimatePose.h>
 #include <blort_ros_msgs/SetCameraInfo.h>
+#include <blort_ros_msgs/RecognizeAction.h>
 #include <blort/GLWindow/glxhidingwindow.h>
 #include <blort/blort/pal_util.h>
 #include <blort_ros/gltracker.h>
@@ -146,18 +148,24 @@ private:
 
     class SingleShotMode : public Mode
     {
+        typedef actionlib::ActionServer<blort_ros_msgs::RecognizeAction> AcServer;
     private:
         ros::ServiceServer singleshot_service;
+        AcServer as_;
         double time_to_run_singleshot;
         ros::ServiceClient detector_set_caminfo_service;
         bool inServiceCall;
         TrackerNode* parent_;
-        std::list<geometry_msgs::Pose> results;
+        std::list<geometry_msgs::Pose> results_list;
 
         ros::Subscriber cam_info_sub;
         image_transport::Subscriber image_sub;
         sensor_msgs::ImageConstPtr lastImage;
         sensor_msgs::CameraInfoConstPtr lastCameraInfo;
+
+        blort_ros_msgs::RecognizeFeedback feedback_;
+        blort_ros_msgs::RecognizeResult result_;
+
     public:
         SingleShotMode(TrackerNode* parent);
 
@@ -173,6 +181,8 @@ private:
         /* For now, single-shot runs on first object for backward compatibility */
         bool singleShotService(blort_ros_msgs::EstimatePose::Request &req,
                                blort_ros_msgs::EstimatePose::Response &resp);
+
+        void goalCb(AcServer::GoalHandle gh);
     };
 };
 
