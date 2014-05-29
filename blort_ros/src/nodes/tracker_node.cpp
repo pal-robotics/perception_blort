@@ -91,7 +91,7 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
                 }
                 confidences_pub.publish(*(tracker->getConfidences()[i]));
                 if(tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_GOOD ||
-                        (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_ALL) )
+                        (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR) )
                 {
                     blort_ros_msgs::TrackerResults msg;
                     msg.obj_name.data = tracker->getModelName(i);

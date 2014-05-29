@@ -57,7 +57,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     config_root_ = config_root;
     conf_threshold = 0.4;
     recovery_conf_threshold = 0.05;
-    publish_mode = 1;
+    publish_mode = blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR;
     this->visualize_obj_pose = visualize_obj_pose;
 
     printf("\n Blort detection node\n\n");
