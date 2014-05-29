@@ -54,6 +54,8 @@
 #include <blort/TomGine/tgModel.h>
 #include <blort/TomGine/tgTimer.h>
 
+#include "ObjectEntry.h"
+
 namespace blort_ros
 {
     enum TrackerPublishMode
@@ -81,10 +83,9 @@ namespace blort_ros
 
         Tracking::TextureTracker tracker;   // tracking module
 
-        //config files //FIXME
+        //config files
         std::string config_root_;
-        std::vector<std::string> ply_models_;
-        std::vector<std::string> model_names_, sift_files_; // name of the current model
+        std::vector<blort_ros::ObjectEntry> objects_;
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
@@ -147,7 +148,7 @@ namespace blort_ros
         cv::Mat getImage();
 
         /** @brief Return model names */
-        const std::vector<std::string> & getModelNames() { return model_names_; }
+        const std::string & getModelName(size_t i) { return objects_[i].name; }
 
         void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 

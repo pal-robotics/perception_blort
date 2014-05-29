@@ -50,6 +50,8 @@
 #include <blort/Recognizer3D/Recognizer3D.h>
 #include <blort_ros/DetectorConfig.h>
 
+#include "ObjectEntry.h"
+
 namespace blort_ros
 {
     class GLDetector
@@ -65,9 +67,10 @@ namespace blort_ros
         // Create OpenGL Window and Tracker
         boost::shared_ptr<blortRecognizer::Recognizer3D> recognizer; // recovery component
 
-        //config files //FIXME
-        std::vector<std::string> model_names, sift_files; // name of the current model
-        std::vector<std::string> pose_cals;   // filename with the pose calibration values
+        //config files 
+        std::vector<blort_ros::ObjectEntry> objects;
+        std::vector<size_t> sift_index;
+        size_t sift_files_count;
 
         // Initialise image
         IplImage *image_; // iplimage that used be the in former blort tracker module
