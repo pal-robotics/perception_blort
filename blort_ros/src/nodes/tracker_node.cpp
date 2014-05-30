@@ -353,6 +353,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
 {
     AcServer::GoalConstPtr goal = gh.getGoal();
     gh.setAccepted();
+    result_.recognized_objects.objects.clear();
     if(lastImage.use_count() < 1 && lastCameraInfo.use_count() < 1)
     {
         ROS_ERROR("Action called but there was no data on the input topics!");
