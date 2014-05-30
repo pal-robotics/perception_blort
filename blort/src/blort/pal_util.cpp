@@ -45,7 +45,7 @@
 #include <iostream>
 #include <algorithm>
 
-namespace pal_blort
+namespace blort_ros
 {
     //FIXME: check 'root' and put ./ instead of / to the beginning of the paths if it's empty
     std::string addRoot(const std::string& obj, const std::string& root)
@@ -115,11 +115,11 @@ namespace pal_blort
                                             geometry_msgs::Pose target)
     {
         const tf::Transform blort_reference_frame =
-                pal_blort::rosPose2TfTransform(reference);
+                blort_ros::rosPose2TfTransform(reference);
         const tf::Transform blort_target_pose =
-                pal_blort::rosPose2TfTransform(target);
+                blort_ros::rosPose2TfTransform(target);
 
-        return pal_blort::tfTransform2RosPose(blort_reference_frame.inverse()*blort_target_pose);
+        return blort_ros::tfTransform2RosPose(blort_reference_frame.inverse()*blort_target_pose);
     }
 
     geometry_msgs::Pose poseAbsDiff(geometry_msgs::Pose pose1, geometry_msgs::Pose pose2)

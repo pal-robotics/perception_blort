@@ -403,7 +403,7 @@ bool Recognizer3D::loadModelFromFile(const std::string sift_file)
 {
     ROS_INFO("[Recognizer3D::loadModelFromFile] loading sift model from '%s'\n", sift_file.c_str());
     m_sift_models.push_back(boost::shared_ptr<P::Object3D>(new P::Object3D()));
-    m_model_loaded = m_sift_model_learner.LoadModel(pal_blort::addRoot(sift_file, config_root), *m_sift_models[m_sift_models.size()-1]);
+    m_model_loaded = m_sift_model_learner.LoadModel(blort_ros::addRoot(sift_file, config_root), *m_sift_models[m_sift_models.size()-1]);
     //EXPERIMENTAL
     //cv_detect->addCodeBook(m_sift_model);
     return true;
@@ -418,7 +418,7 @@ void Recognizer3D::initTrainingModel()
 bool Recognizer3D::saveModelToFile(const char* sift_file)
 {
     ROS_INFO("[Recognizer3D::saveModelToFile] saving sift model to '%s'\n", sift_file);
-    m_sift_model_learner.SaveModel(pal_blort::addRoot(sift_file, config_root).c_str(), *m_sift_models[0]);
+    m_sift_model_learner.SaveModel(blort_ros::addRoot(sift_file, config_root).c_str(), *m_sift_models[0]);
     return true;
 }
 

@@ -50,7 +50,7 @@
 #include <blort/TomGine/tgPose.h>
 #include <tf/transform_datatypes.h>
 
-namespace pal_blort
+namespace blort_ros
 {
     std::string addRoot(const std::string& obj, const std::string& root);
 

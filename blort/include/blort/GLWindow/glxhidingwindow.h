@@ -3,7 +3,7 @@
 
 #include <blort/GLWindow/GLWindow.h>
 
-namespace pal_blort
+namespace blort_ros
 {
     class GLXHidingWindow : public ::blortGLWindow::GLWindow
     {

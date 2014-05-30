@@ -141,15 +141,15 @@ int main(int argc, char *argv[] )
 
     // File names
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
-    std::string pose_cal = pal_blort::addRoot("config/pose.cal", config_root);
-    std::string tracking_ini(pal_blort::addRoot("config/tracking.ini", config_root));
+    std::string pose_cal = blort_ros::addRoot("config/pose.cal", config_root);
+    std::string tracking_ini(blort_ros::addRoot("config/tracking.ini", config_root));
     std::vector<std::string> ply_models, sift_files, model_names;
     std::string ply_model, sift_file, model_name;
 
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     ply_model = ply_models[0]; sift_file = sift_files[0]; model_name = model_names[0];
     printf("Object name: %s\n", model_name.c_str());
-    sift_file = pal_blort::addRoot(sift_file, config_root);
+    sift_file = blort_ros::addRoot(sift_file, config_root);
 
     // Get Parameter from file
     TomGine::tgPose camPose, camPoseT;
@@ -188,7 +188,7 @@ int main(int argc, char *argv[] )
     TomGine::tgPose trPose;
     trPose.t = vec3(0.0, 0.1, 0.0);
     trPose.Rotate(0.0f, 0.0f, 0.5f);
-    std::string modelFullPath = pal_blort::addRoot(ply_model, config_root);
+    std::string modelFullPath = blort_ros::addRoot(ply_model, config_root);
     printf("=> Trying to get the object model from file: %s\n", modelFullPath.c_str());
     int modelID = tracker.addModelFromFile(modelFullPath.c_str(), trPose, model_name.c_str(), true);
     printf(" OK\n");
@@ -200,7 +200,7 @@ int main(int argc, char *argv[] )
     TomGine::tgModel model;
     TomGine::tgPose tg_pose;
     TomGine::tgModelLoader modelloader;
-    modelloader.LoadPly(model, pal_blort::addRoot(ply_model, config_root).c_str());
+    modelloader.LoadPly(model, blort_ros::addRoot(ply_model, config_root).c_str());
 
     Tracking::movement_state movement = Tracking::ST_FAST;
     Tracking::quality_state quality = Tracking::ST_OK;
@@ -321,7 +321,7 @@ int main(int argc, char *argv[] )
                     //ConvertCam2World(recPose, camPose, trPose);
                     //tracker.setModelInitialPose(modelID, trPose);
                     //tracker.reset(modelID);
-                    tracker.saveModels(pal_blort::addRoot("Resources/ply/", config_root).c_str());
+                    tracker.saveModels(blort_ros::addRoot("Resources/ply/", config_root).c_str());
                 }
             }
             if(event.type == blortGLWindow::TMGL_Press)

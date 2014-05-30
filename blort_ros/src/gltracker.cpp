@@ -75,9 +75,9 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     printf(" \n\n ");
 
     // File names
-    pose_cal = pal_blort::addRoot("config/pose.cal", config_root);
+    pose_cal = blort_ros::addRoot("config/pose.cal", config_root);
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
-    std::string tracking_ini(pal_blort::addRoot("config/tracking.ini", config_root));
+    std::string tracking_ini(blort_ros::addRoot("config/tracking.ini", config_root));
 
     std::vector<std::string> ply_models(0), sift_files(0), model_names(0);
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
@@ -98,7 +98,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         trPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose));
         trPoses[i]->t = vec3(0.0, 0.1, 0.0);
         trPoses[i]->Rotate(0.0f, 0.0f, 0.5f);
-        model_ids.push_back(tracker.addModelFromFile(pal_blort::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[i], objects_[i].name.c_str(), true));
+        model_ids.push_back(tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[i], objects_[i].name.c_str(), true));
         movements.push_back(Tracking::ST_SLOW);
         qualities.push_back(Tracking::ST_LOST);
         tracking_confidences.push_back(Tracking::ST_BAD);
@@ -113,14 +113,14 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     image = cvCreateImage( cvSize(tgcam_params.width, tgcam_params.height), 8, 3 );
 
     // define the constant cam_pose to be published
-    fixed_cam_pose = pal_blort::tgPose2RosPose(cam_pose);
+    fixed_cam_pose = blort_ros::tgPose2RosPose(cam_pose);
 }
 
 //2012-11-27: added by Jordi
 void GLTracker::resetParticleFilter(size_t obj_i)
 {
   tracker.removeModel(model_ids[obj_i]);
-  model_ids[obj_i] = tracker.addModelFromFile(pal_blort::addRoot(objects_[obj_i].ply_model, config_root_).c_str(), *trPoses[obj_i], objects_[obj_i].name.c_str(), true);
+  model_ids[obj_i] = tracker.addModelFromFile(blort_ros::addRoot(objects_[obj_i].ply_model, config_root_).c_str(), *trPoses[obj_i], objects_[obj_i].name.c_str(), true);
   movements[obj_i] = Tracking::ST_SLOW;
   qualities[obj_i]  = Tracking::ST_LOST;
   tracking_confidences[obj_i] = Tracking::ST_BAD;
@@ -198,7 +198,7 @@ void GLTracker::track()
 void GLTracker::resetWithPose(size_t id, const geometry_msgs::Pose& new_pose)
 {
     boost::mutex::scoped_lock lock(models_mutex);
-    ConvertCam2World(pal_blort::rosPose2TgPose(new_pose), cam_pose, *trPoses[id]);
+    ConvertCam2World(blort_ros::rosPose2TgPose(new_pose), cam_pose, *trPoses[id]);
     tracker.setModelInitialPose(model_ids[id], *trPoses[id]);
     //2012-11-28: commented by Jordi because the resetParticleFilter will reset the ModelEntry
     //tracker.resetUnlockLock(); // this does one run of the tracker to update the probabilities

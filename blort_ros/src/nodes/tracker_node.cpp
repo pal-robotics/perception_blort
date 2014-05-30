@@ -98,7 +98,7 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
                     msg.pose.header.seq = pose_seq++;
                     msg.pose.header.stamp = ros::Time::now();
                     msg.pose.header.frame_id = camera_frame_id;
-                    msg.pose.pose = pal_blort::blortPosesToRosPose(tracker->getCameraReferencePose(),
+                    msg.pose.pose = blort_ros::blortPosesToRosPose(tracker->getCameraReferencePose(),
                                                                    tracker->getDetections()[i]);
 
                     detection_result.publish(msg);
@@ -335,12 +335,12 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_msgs::EstimatePose::Re
         {
             //convert results to a tf style transform and multiply them
             //to get the camera-to-target transformation
-            resp.Pose = pal_blort::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
+            resp.Pose = blort_ros::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
                                                        results_list.back());
             //NOTE: check the pose in vec3 location + mat3x3 rotation could be added here
             // if we have any previous knowledge of the given scene
             ROS_INFO_STREAM("PUBLISHED POSE:" << std::endl << resp.Pose.position << std::endl <<
-                            pal_blort::quaternionTo3x3cvMat(resp.Pose.orientation) << std::endl);
+                            blort_ros::quaternionTo3x3cvMat(resp.Pose.orientation) << std::endl);
             return true;
         } else {
             //if the time was not enough to get a good detection, make the whole thing fail
@@ -432,7 +432,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
 
             //convert results to a tf style transform and multiply them
             //to get the camera-to-target transformation
-            obj.pose.pose.pose = pal_blort::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
+            obj.pose.pose.pose = blort_ros::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
                                                                 results[goal->objects[i].key].back());
 
             result_.recognized_objects.objects.push_back(obj);
@@ -456,7 +456,7 @@ int main(int argc, char *argv[] )
     ros::init(argc, argv, "blort_tracker");
     //FIXME: hardcoded size, 1x1 is not good, renders the tracker unfunctional in runtime
     // size should be not smaller the image size, too big size is also wrong
-    pal_blort::GLXHidingWindow window(656, 492, "Tracker"); // a window which should hide itself after start
+    blort_ros::GLXHidingWindow window(656, 492, "Tracker"); // a window which should hide itself after start
     //blortGLWindow::GLWindow window(640  , 480, "Window"); // a normal opengl window
     TrackerNode node(argv[1]);
     ros::spin();

@@ -57,7 +57,7 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
     recovery_conf_threshold = 0.05;
 
     //FIXME: make these ROS parameters or eliminate them and use the content as parameters
-    std::string tracking_ini(pal_blort::addRoot("config/tracking.ini", config_root));
+    std::string tracking_ini(blort_ros::addRoot("config/tracking.ini", config_root));
     std::vector<std::string> ply_models(0), sift_files(0), model_names(0);
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     buildFromFiles(ply_models, sift_files, model_names, objects, sift_index);
@@ -122,7 +122,7 @@ bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::Rec
         if( resp.object_founds[i] )
         {
             found_one = true;
-            resp.Poses[i] = pal_blort::tgPose2RosPose(*recPoses[best_j]);
+            resp.Poses[i] = blort_ros::tgPose2RosPose(*recPoses[best_j]);
         }
     }
     ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");

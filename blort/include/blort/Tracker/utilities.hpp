@@ -278,9 +278,9 @@ void GetTrackingParameter( Tracking::Tracker::Parameter& params, const char* ini
     params.convergence = iniCDF.GetInt("convergence", "Performance");
 
     // Resource Path
-    params.modelPath = pal_blort::addRoot(iniCDF.GetString("ModelPath", "ResourcePath"), config_root);
-    params.texturePath = pal_blort::addRoot(iniCDF.GetString("TexturePath", "ResourcePath"), config_root);
-    params.shaderPath = pal_blort::addRoot(iniCDF.GetString("ShaderPath", "ResourcePath"), config_root);
+    params.modelPath = blort_ros::addRoot(iniCDF.GetString("ModelPath", "ResourcePath"), config_root);
+    params.texturePath = blort_ros::addRoot(iniCDF.GetString("TexturePath", "ResourcePath"), config_root);
+    params.shaderPath = blort_ros::addRoot(iniCDF.GetString("ShaderPath", "ResourcePath"), config_root);
 
     // Other
     params.edge_tolerance = iniCDF.GetFloat("EdgeMatchingTolerance", "Other") * Tracking::pi/180.0f;
@@ -389,7 +389,7 @@ bool InputControl(Tracking::Tracker* tracker, blortGLWindow::Event& event, std::
             tracker->reset();
             break;
         case blortGLWindow::TMGL_s: //s
-            tracker->saveModels(pal_blort::addRoot("Resources/ply/", config_root).c_str());
+            tracker->saveModels(blort_ros::addRoot("Resources/ply/", config_root).c_str());
             break;
         case blortGLWindow::TMGL_t: //t
             tracker->textureFromImage(true);
