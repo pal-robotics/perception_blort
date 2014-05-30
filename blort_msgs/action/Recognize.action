@@ -7,5 +7,6 @@ float64 refine_pose_time
 # Result
 object_recognition_msgs/RecognizedObjectArray recognized_objects
 ---
-# no feedback
+# Feedback
+#The time left to finish the detection run
 float64 time_left

@@ -44,8 +44,8 @@
 #define GPUGLTRACKER_H
 
 #include <blort_ros/trackerinterface.hpp>
-#include <blort_ros_msgs/TrackerConfidences.h>
-#include <blort_ros_msgs/TrackerCommand.h>
+#include <blort_msgs/TrackerConfidences.h>
+#include <blort_msgs/TrackerCommand.h>
 #include <blort_ros/TrackerConfig.h>
 #include <geometry_msgs/Pose.h>
 #include <string>
@@ -103,7 +103,7 @@ namespace blort_ros
         IplImage *image; // iplimage object used be the former blort tracker module
 
         // result variables
-        std::vector< boost::shared_ptr<blort_ros_msgs::TrackerConfidences> > tracker_confidences;
+        std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > tracker_confidences;
         geometry_msgs::Pose fixed_cam_pose;
         std::vector<geometry_msgs::Pose> result;
         
@@ -136,7 +136,7 @@ namespace blort_ros
         void resetWithPose(size_t obj_id, const geometry_msgs::Pose& new_pose);
 
         /** @brief Get some statistics of the actual tracking state. */
-        const std::vector< boost::shared_ptr<blort_ros_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
+        const std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
 
         /** @brief Get the results of the latest detections. */
         const std::vector<geometry_msgs::Pose>& getDetections(){ return result; }

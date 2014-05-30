@@ -2,7 +2,7 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b blort_ros_msgs 
+\b blort_msgs 
 
 <!-- 
 Provide an overview of your package.

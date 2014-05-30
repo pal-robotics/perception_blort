@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   image_transport
   cv_bridge
-  blort_ros_msgs
+  blort_msgs
 )
 
 find_package(OpenCV REQUIRED)
@@ -37,7 +37,7 @@ target_link_libraries(gltracker_node module_tomgine
                                    module_glwindow
                                    ${catkin_LIBRARIES}
                                    GLU GL glut X11 rt)
-add_dependencies(gltracker_node blort_ros_msgs_generate_messages_cpp)
+add_dependencies(gltracker_node blort_msgs_generate_messages_cpp)
 
 
 add_executable(gldetector_node

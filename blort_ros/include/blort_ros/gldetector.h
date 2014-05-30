@@ -44,7 +44,7 @@
 
 #include <geometry_msgs/Pose.h>
 #include <string>
-#include <blort_ros_msgs/RecoveryCall.h>
+#include <blort_msgs/RecoveryCall.h>
 
 #include <blort/ThreadObject/RecognizerThread.h>
 #include <blort/Recognizer3D/Recognizer3D.h>
@@ -85,11 +85,11 @@ namespace blort_ros
 
         /** @brief Method to run and handle recovery state. */
         bool recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
-                      blort_ros_msgs::RecoveryCall::Response &resp);
+                      blort_msgs::RecoveryCall::Response &resp);
 
         /** @brief Method to run on the previously stored image.
          *  @see recovery */
-        bool recoveryWithLast(std::vector<size_t> & obj_ids, blort_ros_msgs::RecoveryCall::Response &resp);
+        bool recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::RecoveryCall::Response &resp);
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param reconfigure_gui messagetype */

@@ -49,7 +49,7 @@
 #include <opencv2/core/core.hpp>
 #include <blort/blort/pal_util.h>
 
-#include <blort_ros_msgs/TrackerConfidences.h>
+#include <blort_msgs/TrackerConfidences.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -111,7 +111,7 @@ int main(int argc, char *argv[] )
     image_transport::ImageTransport it(nh);
     image_transport::Subscriber image_sub = it.subscribe("/blort_image", 1, &imageCb);
     cam_info_sub = nh.subscribe("/blort_camera", 1, &cam_info_callback);
-    ros::Publisher confidences_pub = nh.advertise<blort_ros_msgs::TrackerConfidences>("confidences", 100);
+    ros::Publisher confidences_pub = nh.advertise<blort_msgs::TrackerConfidences>("confidences", 100);
 
     printf("\n Learnsifts \n\n");
 
@@ -437,7 +437,7 @@ int main(int argc, char *argv[] )
 
         //publish tracker inner confidences just for fun
         Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(modelID);
-        blort_ros_msgs::TrackerConfidences tr_conf;
+        blort_msgs::TrackerConfidences tr_conf;
         tr_conf.edgeConf = myModelEntry->c_edge;
         tr_conf.confThreshold = myModelEntry->c_th;
         tr_conf.lostConf = myModelEntry->c_lost;
