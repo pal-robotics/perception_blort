@@ -4,7 +4,7 @@
   <description>
     The SiftGPU library is an implementation of SIFT for GPU.
   </description>
-  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <maintainer email="bence.magyar@pal-robotics.com">Bence Magyar</maintainer>
   <license>non-profit license from University of North Carolina</license>
   <author email="ccwu@cs.unc.edu">Changchang Wu</author>
   <url type="website">http://cs.unc.edu/~ccwu/siftgpu/</url>

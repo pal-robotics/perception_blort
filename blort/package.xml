@@ -5,7 +5,7 @@
     BLORT - The Blocks World Robotic Vision Toolbox. Ported and refactored version of the library.
 	Mörwald, T.; Prankl, J.; Richtsfeld, A.; Zillich, M.; Vincze, M. BLORT - The Blocks World Robotic Vision Toolbox Best Practice in 3D Perception and Modeling for Mobile Manipulation (in conjunction with ICRA 2010), 2010.
   </description>
-  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <maintainer email="bence.magyar@pal-robotics.com">Bence Magyar</maintainer>
   <license>BSD</license>
   <url type="website">http://ros.org/wiki/perception_blort</url>
   <url type="website">http://www.acin.tuwien.ac.at/?id=290</url>
@@ -14,7 +14,7 @@
   <author email="arichtsfeld@acin.tuwien.ac.at">Andreas Richtsfeld</author> 
   <author email="prankl@acin.tuwien.ac.at">Johann Prankl</author> 
   <author email="vincze@acin.tuwien.ac.at"> Markus Vincze</author> 
-  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>
+  <author email="bence.magyar@pal-robotics.com">Bence Magyar</author>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>opencv2</build_depend>

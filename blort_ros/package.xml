@@ -5,9 +5,9 @@
     BLORT - The Blocks World Robotic Vision Toolbox <br/>
     ROS interface classes and nodes for the BLORT library.
   </description>
-  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <maintainer email="bence.magyar@pal-robotics.com">Bence Magyar</maintainer>
   <license>BSD</license>
-  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>0
+  <author email="bence.magyar@pal-robotics.com">Bence Magyar</author>0
   <url>http://ros.org/wiki/blort_ros</url>
 
   <buildtool_depend>catkin</buildtool_depend>

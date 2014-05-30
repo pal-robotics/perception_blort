@@ -4,9 +4,9 @@
   <description>
     This package defines messages used by BLORT ROS interface
   </description>
-  <maintainer email="bencemagyar@pal-robotics.com">Bence Magyar</maintainer>
+  <maintainer email="bence.magyar@pal-robotics.com">Bence Magyar</maintainer>
   <license>BSD</license>
-  <author email="bencemagyar@pal-robotics.com">Bence Magyar</author>
+  <author email="bence.magyar@pal-robotics.com">Bence Magyar</author>
   <url>http://ros.org/wiki/blort_ros</url>
 
   <buildtool_depend>catkin</buildtool_depend>
