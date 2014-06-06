@@ -429,12 +429,11 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
             object_recognition_msgs::RecognizedObject obj;
             //pose.header.frame_id = camera frame name
             obj.pose.header.stamp = ros::Time::now(); // or take the stamp of the last image
-
+            obj.type.key = goal->objects[i].key;
             //convert results to a tf style transform and multiply them
             //to get the camera-to-target transformation
             obj.pose.pose.pose = blort_ros::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
                                                                 results[goal->objects[i].key].back());
-
             result_.recognized_objects.objects.push_back(obj);
             //NOTE: check the pose in vec3 location + mat3x3 rotation could be added here
             // if we have any previous knowledge of the given scene
