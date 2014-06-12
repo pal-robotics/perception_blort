@@ -44,7 +44,6 @@
 #define BLORTTRACKER_H
 
 #include <opencv2/core/core.hpp>
-#include <ros/console.h> //TODO: remove
 
 namespace blort_ros
 {
@@ -101,8 +100,19 @@ namespace blort_ros
                 break;
             }
         }
-        virtual void switchToTracking(size_t id){ current_confs[id] = TRACKER_CONF_FAIR; current_modes[id] = TRACKER_TRACKING_MODE; }
-        virtual void switchToRecovery(size_t id){ current_confs[id] = TRACKER_CONF_LOST; current_modes[id] = TRACKER_RECOVERY_MODE; }
+
+        virtual void switchToTracking(size_t id)
+        {
+          current_confs[id] = TRACKER_CONF_FAIR; 
+          current_modes[id] = TRACKER_TRACKING_MODE; 
+        }
+
+        virtual void switchToRecovery(size_t id)
+        {
+          current_confs[id] = TRACKER_CONF_LOST;
+          current_modes[id] = TRACKER_RECOVERY_MODE;
+        }
+
         virtual void reset(size_t id){ switchToRecovery(id); }
         const std::vector<tracker_mode> & getModes(){ return current_modes; }
         const std::vector<tracker_confidence> & getConfidence(){ return current_confs; }

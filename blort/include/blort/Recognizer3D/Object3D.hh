@@ -6,7 +6,6 @@
 #ifndef P_OBJECT_3D_HH
 #define P_OBJECT_3D_HH
 
-//#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
 #include <map>
 #include <blort/Recognizer3D/PNamespace.hh>

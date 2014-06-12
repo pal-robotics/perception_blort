@@ -54,7 +54,6 @@ bool DetectorNode::recovery(blort_msgs::RecoveryCall::Request &req,
         cv_bridge::CvImage out_msg;
         out_msg.header = req.Image.header;
         out_msg.header.stamp = ros::Time::now();
-        //out_msg.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
         out_msg.encoding = sensor_msgs::image_encodings::BGR8;
         out_msg.image = detector->getImage();
         image_pub.publish(out_msg.toImageMsg());

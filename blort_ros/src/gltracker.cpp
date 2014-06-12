@@ -314,10 +314,12 @@ cv::Mat GLTracker::getImage()
     switch(current_mode)
     {
     case TRACKER_RECOVERY_MODE:
-        return tmp.empty()?last_image.clone():tmp; // do we need a copy?
+        // here there is nothing new to publish, copy the last valid one
+        return last_image.clone(); //TODO: do we need a copy?
         break;
     case TRACKER_TRACKING_MODE:
     case TRACKER_LOCKED_MODE:
+        // get the last rendered image from the tracker
         return tracker.getImage().clone();
         break;
     default:
