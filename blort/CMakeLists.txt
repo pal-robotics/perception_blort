@@ -92,6 +92,7 @@ add_library(module_tracker
     src/Tracker/CDataFile.cpp 
     src/Tracker/CameraThread.cpp 
     src/blort/pal_util.cpp
+    src/blort/ObjectEntry.cpp
 )
 set_target_properties(module_tracker PROPERTIES COMPILE_FLAGS -DGL_GLEXT_PROTOTYPES)
 target_link_libraries(module_tracker module_tomgine module_threadobject module_glwindow)

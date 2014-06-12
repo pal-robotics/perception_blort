@@ -29,7 +29,6 @@ target_link_libraries(learnsifts siftgpu ${catkin_LIBRARIES})
 target_link_libraries(learnsifts module_tomgine module_glwindow module_tracker module_threadobject module_recognizer3d)
 
 add_executable(gltracker_node
-  src/ObjectEntry.cpp
   src/nodes/tracker_node.cpp
   src/gltracker.cpp)
 target_link_libraries(gltracker_node module_tomgine
@@ -41,7 +40,6 @@ add_dependencies(gltracker_node blort_msgs_generate_messages_cpp)
 
 
 add_executable(gldetector_node
-  src/ObjectEntry.cpp
   src/nodes/detector_node.cpp
   src/gldetector.cpp)
 target_link_libraries(gldetector_node ${catkin_LIBRARIES}

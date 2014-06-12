@@ -50,7 +50,7 @@
 #include <blort/Recognizer3D/Recognizer3D.h>
 #include <blort_ros/DetectorConfig.h>
 
-#include "ObjectEntry.h"
+#include <blort/ObjectEntry.h>
 
 namespace blort_ros
 {
@@ -68,7 +68,7 @@ namespace blort_ros
         boost::shared_ptr<blortRecognizer::Recognizer3D> recognizer; // recovery component
 
         //config files 
-        std::vector<blort_ros::ObjectEntry> objects;
+        std::vector<blort::ObjectEntry> objects;
         std::vector<size_t> sift_index;
         size_t sift_files_count;
 

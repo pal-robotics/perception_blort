@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace blort_ros
+namespace blort
 {
 
 struct ObjectEntry
@@ -20,6 +20,6 @@ void buildFromFiles(const std::vector<std::string> & ply_models, const std::vect
 /* Additionnaly build a sift-index */
 void buildFromFiles(const std::vector<std::string> & ply_models, const std::vector<std::string> & sift_files, const std::vector<std::string> & model_names, std::vector<ObjectEntry> & out, std::vector<size_t> & sift_index);
 
-} // namespace blort_ros
+} // namespace
 
 #endif

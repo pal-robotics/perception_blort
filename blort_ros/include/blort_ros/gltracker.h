@@ -54,7 +54,7 @@
 #include <blort/TomGine/tgModel.h>
 #include <blort/TomGine/tgTimer.h>
 
-#include "ObjectEntry.h"
+#include <blort/ObjectEntry.h>
 
 namespace blort_ros
 {
@@ -85,7 +85,7 @@ namespace blort_ros
 
         //config files
         std::string config_root_;
-        std::vector<blort_ros::ObjectEntry> objects_;
+        std::vector<blort::ObjectEntry> objects_;
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
