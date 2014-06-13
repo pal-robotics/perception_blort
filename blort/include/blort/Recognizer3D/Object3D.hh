@@ -8,6 +8,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <map>
+#include <string>
 #include <blort/Recognizer3D/PNamespace.hh>
 #include <blort/Recognizer3D/Array.hh>
 #include <blort/Recognizer3D/PoseCv.hh>
@@ -22,6 +23,7 @@ class Object3D
 {
 public:
   unsigned id;
+  std::string file_name;
   static unsigned idcnt;
  
   Array<CodebookEntry *> codebook;

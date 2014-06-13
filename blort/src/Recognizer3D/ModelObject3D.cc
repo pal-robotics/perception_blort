@@ -170,6 +170,7 @@ bool ModelObject3D::LoadModel(const std::string filename, Object3D &obj)
     throw std::runtime_error(errmsg);
   }
 
+  obj.file_name = filename;
   in>>obj.id;
 
   in>>cbSize;
