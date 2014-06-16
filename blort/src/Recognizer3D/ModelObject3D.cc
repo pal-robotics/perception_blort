@@ -170,7 +170,8 @@ bool ModelObject3D::LoadModel(const std::string filename, Object3D &obj)
     throw std::runtime_error(errmsg);
   }
 
-  obj.file_name = filename;
+  // store only the filename, strip the path
+  obj.file_name = filename.substr(filename.find_last_of("\\/")+1);
   in>>obj.id;
 
   in>>cbSize;

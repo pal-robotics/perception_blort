@@ -65,7 +65,7 @@ public:
 	*   @param pose returned pose of the object (if found)
 	*   @param conf returned confidence of pose of the object
 	*   @return true if object found, false if not */
-	bool recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs);
+  bool recognize(IplImage* tFrame, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs);
 
 	/** @brief recognizes a object by using the loaded sift model file
 	*   @param tFrame Image/Pixel map to search for the sift model
@@ -73,7 +73,7 @@ public:
 	*   @param conf returned confidence of pose of the object
     *   @param select objects in this vector will be recognized
 	*   @return true if object found, false if not */
-	bool recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs, const std::map<size_t, bool> & select);
+  bool recognize(IplImage* tFrame, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs, const std::map<std::string, bool> & select);
 
 	/** @brief Creates a model for the training phase */
 	void initTrainingModel();

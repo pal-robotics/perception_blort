@@ -82,7 +82,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     std::vector<std::string> ply_models(0), sift_files(0), model_names(0);
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
     // Build ModelEntry with these entries
-    buildFromFiles(ply_models, sift_files, model_names, objects_);
+    blort::buildFromFiles(ply_models, sift_files, model_names, objects_);
 
     GetTrackingParameter(track_params, tracking_ini.c_str(), config_root);
 
@@ -400,7 +400,7 @@ void GLTracker::update()
 void GLTracker::reset(const std::vector<uint8_t> & params)
 {
     ROS_INFO("GLTracker::reset: switching tracker to RECOVERY_MODE");
-    if(!params.size())
+    if(params.empty())
     {
         for(size_t i = 0; i < model_ids.size(); ++i)
         {

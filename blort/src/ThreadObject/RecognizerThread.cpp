@@ -30,7 +30,7 @@ CRecognizerThread::~CRecognizerThread()
 	
 }
 
-void CRecognizerThread::Recognize(IplImage* image, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs)
+void CRecognizerThread::Recognize(IplImage* image, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs)
 {
 	m_mutex.Lock();
 		cvCopyImage(image, m_image);
@@ -53,7 +53,7 @@ void CRecognizerThread::LearnSifts(IplImage* image,  TomGine::tgModel &model, To
 		cvCopyImage(image, m_image);
         m_poses.clear();
         m_models.clear();
-		m_poses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose(pose)));
+		m_poses["object"] = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose(pose));
 		m_models.push_back(boost::shared_ptr<TomGine::tgModel>(new TomGine::tgModel(model)));
 		cmd = LEARN;
 	m_mutex.Unlock();

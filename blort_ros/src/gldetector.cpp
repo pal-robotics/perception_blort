@@ -60,16 +60,16 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
     std::string tracking_ini(blort_ros::addRoot("config/tracking.ini", config_root));
     std::vector<std::string> ply_models(0), sift_files(0), model_names(0);
     GetPlySiftFilenames(tracking_ini.c_str(), ply_models, sift_files, model_names);
-    buildFromFiles(ply_models, sift_files, model_names, objects, sift_index);
+    blort::buildFromFiles(ply_models, sift_files, model_names, objects, sift_index);
 
     recognizer = boost::shared_ptr<blortRecognizer::Recognizer3D>(
             new blortRecognizer::Recognizer3D(blortRecognizer::CameraParameter(camera_info), config_root, true));
     sift_files_count = 0;
     for(size_t i = 0; i < objects.size(); ++i)
     {
-        for(size_t j = 0; j < objects[i].sift_files.size(); ++j)
+        for(size_t j = 0; j < objects[i].recog_data.size(); ++j)
         {
-            recognizer->loadModelFromFile(objects[i].sift_files[j]);
+            recognizer->loadModelFromFile("Resources/sift/" + objects[i].recog_data[j].sift_file);
             sift_files_count++;
         }
     }
@@ -89,18 +89,15 @@ bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::Rec
 {
     double ticksBefore = cv::getTickCount();
 
-    std::vector< boost::shared_ptr<TomGine::tgPose> > recPoses;
-    for(size_t i = 0; i < sift_files_count; ++i)
+    std::map< std::string, boost::shared_ptr<TomGine::tgPose> > recPoses;
+    std::map<std::string, double> confs;
+    std::map<std::string, bool> select;
+    for(size_t i = 0; i < objects.size(); ++i)
     {
-        recPoses.push_back(boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose()));
-    }
-    std::vector<float> confs(sift_files_count, 0);
-    std::map<size_t, bool> select;
-    for(size_t i = 0; i < obj_ids.size(); ++i)
-    {
-        for(size_t j = sift_index[obj_ids[i]]; j < sift_index[obj_ids[i] + 1]; ++j)
+        for(size_t j = 0; j < objects[i].recog_data.size(); ++j)
         {
-            select[j] = true;
+          recPoses[objects[i].recog_data[j].sift_file] = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose());
+          select[objects[i].recog_data[j].sift_file] = true;
         }
     }
     recognizer->recognize(image_, recPoses, confs, select);
@@ -108,21 +105,16 @@ bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::Rec
     bool found_one = false;
     resp.object_founds.resize(obj_ids.size());
     resp.Poses.resize(obj_ids.size());
-    for(size_t i = 0; i < obj_ids.size(); ++i)
+    for(size_t i = 0; i < objects.size(); ++i)
     {
-        float best_conf = 0;
-        size_t best_j = 0;
-        for(size_t j = sift_index[obj_ids[i]]; j < sift_index[obj_ids[i] + 1]; ++j)
-        {
-            if(confs[j] > best_conf) { best_conf = confs[j]; best_j = j; }
-        }
-        ROS_INFO_STREAM("object (" << objects[obj_ids[i]].name << ") conf: " << confs[best_j]);
+        blort::RecogData recog = blort::getBest(objects[i]);
+        ROS_INFO_STREAM("object (" << objects[i].name << ") conf: " << confs[recog.sift_file]);
         // if the recovery's confidence is high enough then propose this new pose
-        resp.object_founds[i] = ( confs[best_j] > recovery_conf_threshold );
-        if( resp.object_founds[i] )
+        resp.object_founds[i] = ( confs[recog.sift_file] > recovery_conf_threshold );
+        if(resp.object_founds[i])
         {
             found_one = true;
-            resp.Poses[i] = blort_ros::tgPose2RosPose(*recPoses[best_j]);
+            resp.Poses[i] = blort_ros::tgPose2RosPose(*(recPoses[recog.sift_file]));
         }
     }
     ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");

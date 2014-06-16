@@ -165,14 +165,13 @@ void Recognizer3D::setCameraParameter(const blortRecognizer::CameraParameter& ca
     cvInitUndistortMapExact(pIntrinsicDistort, pDistortion, pMapX,  pMapY);
 }
 
-bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs)
+bool Recognizer3D::recognize(IplImage* tFrame, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs)
 {
-    std::map<size_t, bool> select;
-    for(size_t i = 0; i < poses.size(); ++i) { select[i] = true; }
+    std::map<std::string, bool> select;
     return recognize(tFrame, poses, confs, select);
 }
 
-bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<TomGine::tgPose> > & poses, std::vector<float> & confs, const std::map<size_t, bool> & select)
+bool Recognizer3D::recognize(IplImage* tFrame, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs, const std::map<std::string, bool> & select)
 {
     P::PoseCv cvPose;
     bool detected = false;
@@ -221,7 +220,8 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
     for(size_t i = 0; i < m_sift_models.size(); ++i)
     {
         bool detectResult = false;
-        if(select.count(i) && select.at(i))
+        // if there are objects selected, handle only those, if not, look for all
+        if(select.count(m_sift_models[i]->file_name) && select.at(m_sift_models[i]->file_name) || select.empty()) // ABSOLUTE FILENAME FULLPATH
         {
             detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
 #ifdef VERBOSE_INFO
@@ -232,7 +232,7 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
         {
             if(m_sift_models[i]->conf > 0.03)
             {
-                confs[i] = m_sift_models[i]->conf;
+                confs[m_sift_models[i]->file_name] = m_sift_models[i]->conf;
                 if(m_display)
                 {
                     // object contours & features drawn with green
@@ -240,7 +240,7 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
                     m_detect.DrawInlier(tImg, CV_RGB(0,255,0));
                 }
                 CopyPoseCv(m_sift_models[i]->pose, cvPose);
-                Convert(cvPose, *poses[i]);
+                Convert(cvPose, *poses[m_sift_models[i]->file_name]);
                 ROS_DEBUG("[Recognizer3D::recognize] object found (conf: %f)\n", m_sift_models[i]->conf);
                 detected = true;
             }else{
@@ -252,7 +252,7 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::vector< boost::shared_ptr<To
             }
 	    
         }else{
-            confs[i] = m_sift_models[i]->conf;
+            confs[m_sift_models[i]->file_name] = m_sift_models[i]->conf;
 
             if(m_display)
                 P::SDraw::DrawPoly(tImg, m_sift_models[i]->contour.v, CV_RGB(128,0,128),2);
