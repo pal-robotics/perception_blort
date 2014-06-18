@@ -100,7 +100,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         trPoses[objects_[i].name]->Rotate(0.0f, 0.0f, 0.5f);
         model_ids[objects_[i].name] = tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[objects_[i].name], objects_[i].name.c_str(), true);
         objects_[i].movement = Tracking::ST_SLOW;
-        qualities[objects_[i].name] = Tracking::ST_LOST;
+        objects_[i].quality = Tracking::ST_LOST;
         tracking_confidences[objects_[i].name] = Tracking::ST_BAD;
         current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
         current_confs[objects_[i].name] = blort_ros::TRACKER_CONF_LOST;
@@ -129,7 +129,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
             blort_ros::addRoot(obj.ply_model, config_root_).c_str(),
             *trPoses[obj_i], obj.name.c_str(), true);
       obj.movement = Tracking::ST_SLOW;
-      qualities[obj_i]  = Tracking::ST_LOST;
+      obj.quality  = Tracking::ST_LOST;
       tracking_confidences[obj_i] = Tracking::ST_BAD;
       tracking_objects[obj_i] = true;
 	  break;
@@ -191,11 +191,11 @@ void GLTracker::track()
 
     for(size_t i = 0; i < trPoses.size(); ++i)
     {
-        if(qualities[objects_[i].name] == Tracking::ST_LOCKED)
+        if(objects_[i].quality == Tracking::ST_LOCKED)
         {
             this->current_modes[objects_[i].name] = blort_ros::TRACKER_LOCKED_MODE;
         }
-        else if(qualities[objects_[i].name] == Tracking::ST_LOST)
+        else if(objects_[i].quality == Tracking::ST_LOST)
         {
           ROS_INFO_STREAM("GLTracker::track: switching tracker to RECOVERY_MODE because object " << objects_[i].name << "LOST");
           switchToRecovery(objects_[i].name);
@@ -203,7 +203,7 @@ void GLTracker::track()
 
         if(tracking_confidences[objects_[i].name] == Tracking::ST_GOOD
            && objects_[i].movement == Tracking::ST_STILL
-           && qualities[objects_[i].name] != Tracking::ST_LOCKED)
+           && objects_[i].quality != Tracking::ST_LOCKED)
         {
           ROS_DEBUG_STREAM("Tracker is really confident (edge conf: "); //<< tracker_confidences[i]->edgeConf <<
                           //" lost conf: " << tracker_confidences[i]->lostConf << ". Sorry, no learning with this node.");
@@ -380,8 +380,8 @@ void GLTracker::update()
             // !!! the tracker state is now defined by the ONLY object tracked.
             // although the implementation would allow it, at several places, lacks this at several other.
             tracker.getModelMovementState(model_ids[obj.name], obj.movement);
-            tracker.getModelQualityState(model_ids[obj.name], qualities[obj.name]);
-            ROS_INFO_STREAM("GLTracker::update: the tracked model for " << obj.name << " has set quality to " << qualities[obj.name]);
+            tracker.getModelQualityState(model_ids[obj.name], obj.quality);
+            ROS_INFO_STREAM("GLTracker::update: the tracked model for " << obj.name << " has set quality to " << obj.quality);
             tracker.getModelConfidenceState(model_ids[obj.name], tracking_confidences[obj.name]);
 
             switch(tracking_confidences[obj.name])
