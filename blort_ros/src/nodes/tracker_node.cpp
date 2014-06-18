@@ -50,19 +50,20 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
         }
 
         bool should_process = false;
-        std::vector<size_t> lost_ids(0);
-        for(size_t i = 0; i < tracker->getModes().size(); ++i)
+        std::vector<std::string> lost_ids(0);
+        typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
+        BOOST_FOREACH(NameModePair_t item, tracker->getModes())
         {
-            if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
+            if(item.second == blort_ros::TRACKER_RECOVERY_MODE)
             {
-                if(recovery_answers.count(i))
+                if(recovery_answers.count(item.first))
                 {
-                    tracker->resetWithPose(i, recovery_answers[i]);
-                    recovery_answers.erase(i);
+                    tracker->resetWithPose(item.first, recovery_answers[item.first]);
+                    recovery_answers.erase(item.first);
                 }
                 else
                 {
-                    lost_ids.push_back(i);
+                    lost_ids.push_back(item.first);
                 }
             }
             else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
@@ -83,23 +84,25 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg, cons
             ROS_INFO("----------------------------------------------");
             ROS_INFO("TrackerNode::imageCb: calling tracker->process");
             tracker->process(cv_tracker_ptr->image);
-            for(size_t i = 0; i < tracker->getModes().size(); ++i)
+            typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
+            BOOST_FOREACH(NameModePair_t item, tracker->getModes())
             {
-                if(tracker->getModes()[i] == blort_ros::TRACKER_RECOVERY_MODE)
+                if(item.second == blort_ros::TRACKER_RECOVERY_MODE)
                 {
                     continue;
                 }
-                confidences_pub.publish(*(tracker->getConfidences()[i]));
-                if(tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_GOOD ||
-                        (tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR && tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR) )
+                //confidences_pub.publish(*(tracker->getConfidences()[item.first]));
+                if(tracker->getConfidence(item.first) == blort_ros::TRACKER_CONF_GOOD ||
+                        (tracker->getConfidence(item.first) == blort_ros::TRACKER_CONF_FAIR &&
+                         tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR) )
                 {
                     blort_msgs::TrackerResults msg;
-                    msg.obj_name.data = tracker->getModelName(i);
+                    msg.obj_name.data = item.first;
                     msg.pose.header.seq = pose_seq++;
                     msg.pose.header.stamp = ros::Time::now();
                     msg.pose.header.frame_id = camera_frame_id;
                     msg.pose.pose = blort_ros::blortPosesToRosPose(tracker->getCameraReferencePose(),
-                                                                   tracker->getDetections()[i]);
+                                                                   tracker->getDetections()[item.first]);
 
                     detection_result.publish(msg);
                 }
@@ -124,7 +127,7 @@ void TrackerNode::recovery(blort_msgs::RecoveryCall srv)
         ss << "tracker_node calling detector_node recovery service for object(s): ";
         for(size_t i = 0; i < srv.request.object_ids.size();)
         {
-            ss << tracker->getModelName(srv.request.object_ids[i].data);
+            ss << srv.request.object_ids[i];
             if(++i != srv.request.object_ids.size()) { ss << ", "; }
         }
         ROS_INFO_STREAM(ss.str());
@@ -135,7 +138,7 @@ void TrackerNode::recovery(blort_msgs::RecoveryCall srv)
         {
             if(srv.response.object_founds[i])
             {
-                recovery_answers[srv.response.object_ids[i].data] = srv.response.Poses[i];
+                recovery_answers[srv.response.object_ids[i]] = srv.response.Poses[i];
             }
         }
     }
@@ -177,13 +180,13 @@ void TrackerNode::TrackingMode::reconf_callback(blort_ros::TrackerConfig &config
     }
 }
 
-blort_msgs::RecoveryCall TrackerNode::TrackingMode::getRecoveryCall(std::vector<size_t> & ids, const sensor_msgs::ImageConstPtr& msg)
+blort_msgs::RecoveryCall TrackerNode::TrackingMode::getRecoveryCall(std::vector<std::string> & ids, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_msgs::RecoveryCall srv;
     srv.request.object_ids.resize(ids.size());
     for(size_t i = 0; i < ids.size(); ++i)
     {
-        srv.request.object_ids[i].data = ids[i];
+        srv.request.object_ids[i] = ids[i];
     }
     srv.request.Image = *msg;
     return srv;
@@ -268,7 +271,7 @@ void TrackerNode::SingleShotMode::reconf_callback(blort_ros::TrackerConfig &conf
     time_to_run_singleshot =  config.time_to_run_singleshot;
 }
 
-blort_msgs::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vector<size_t> & ids, const sensor_msgs::ImageConstPtr& msg)
+blort_msgs::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vector<std::string> & ids, const sensor_msgs::ImageConstPtr& msg)
 {
     blort_msgs::RecoveryCall srv;
     if(!inServiceCall)
@@ -276,7 +279,7 @@ blort_msgs::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vecto
         srv.request.object_ids.resize(ids.size());
         for(size_t i = 0; i < ids.size(); ++i)
         {
-            srv.request.object_ids[i].data = ids[i];
+            srv.request.object_ids[i] = ids[i];
         }
         srv.request.Image = *msg;
         // we step into the service call "state" with the first recoverycall made
@@ -319,12 +322,12 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_msgs::EstimatePose::Re
         {
             ROS_INFO("Remaining time %f", time_to_run_singleshot+start_secs-ros::Time::now().toSec());
             parent_->imageCb(lastImage, lastImage);
-            if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_FAIR)
+            if(parent_->tracker->getConfidence("Pringles") == blort_ros::TRACKER_CONF_FAIR) // HACK
             {
                 // instead of returning right away let's store the result
                 // to see if the tracker can get better
-                results_list.push_back(parent_->tracker->getDetections()[0]);
-            } else if(parent_->tracker->getConfidence()[0] == blort_ros::TRACKER_CONF_LOST)
+              results_list.push_back(parent_->tracker->getDetections()["Pringles"]); // HACK
+            } else if(parent_->tracker->getConfidence("Pringles") == blort_ros::TRACKER_CONF_LOST) // HACK
             {
                 results_list.clear();
             }
@@ -408,12 +411,12 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
 
         for(int i=0; i<goal->objects.size(); ++i)
         {
-            if(parent_->tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_FAIR)
+            if(parent_->tracker->getConfidence(goal->objects[i].key) == blort_ros::TRACKER_CONF_FAIR)
             {
                 // instead of returning right away let's store the result
                 // to see if the tracker can get better
-                results[goal->objects[i].key].push_back(parent_->tracker->getDetections()[i]);
-            } else if(parent_->tracker->getConfidence()[i] == blort_ros::TRACKER_CONF_LOST)
+                results[goal->objects[i].key].push_back(parent_->tracker->getDetections()[goal->objects[i].key]);
+            } else if(parent_->tracker->getConfidence(goal->objects[i].key) == blort_ros::TRACKER_CONF_LOST)
             {
                 results[goal->objects[i].key].clear();
             }

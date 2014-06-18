@@ -53,7 +53,7 @@ void CRecognizerThread::LearnSifts(IplImage* image,  TomGine::tgModel &model, To
 		cvCopyImage(image, m_image);
         m_poses.clear();
         m_models.clear();
-		m_poses["object"] = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose(pose));
+		m_poses["object"] = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose(pose)); //HACK: name hardcoded
 		m_models.push_back(boost::shared_ptr<TomGine::tgModel>(new TomGine::tgModel(model)));
 		cmd = LEARN;
 	m_mutex.Unlock();

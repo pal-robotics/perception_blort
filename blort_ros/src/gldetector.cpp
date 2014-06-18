@@ -76,7 +76,7 @@ GLDetector::GLDetector(const sensor_msgs::CameraInfo& camera_info, const std::st
     image_ = cvCreateImage( cvSize(camera_info.width, camera_info.height), 8, 3 );
 }
 
-bool GLDetector::recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
+bool GLDetector::recovery(std::vector<std::string> & obj_ids, const cv::Mat& image,
                           blort_msgs::RecoveryCall::Response &resp)
 {
     last_image = image;
@@ -85,7 +85,7 @@ bool GLDetector::recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
     return recoveryWithLast(obj_ids, resp);
 }
 
-bool GLDetector::recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::RecoveryCall::Response &resp)
+bool GLDetector::recoveryWithLast(std::vector<std::string> & obj_ids, blort_msgs::RecoveryCall::Response &resp)
 {
     double ticksBefore = cv::getTickCount();
 

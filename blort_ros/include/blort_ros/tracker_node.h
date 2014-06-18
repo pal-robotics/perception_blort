@@ -99,7 +99,7 @@ private:
 
     boost::mutex recovery_mutex;
     boost::thread recovery_th;
-    std::map<uint32_t, geometry_msgs::Pose> recovery_answers;
+    std::map<std::string, geometry_msgs::Pose> recovery_answers;
 
     Mode* mode;
 public:
@@ -126,7 +126,7 @@ private:
     {
     public:
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level) = 0;
-        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg) = 0;
+        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<std::string> & i, const sensor_msgs::ImageConstPtr& msg) = 0;
     };
 
     class TrackingMode : public Mode
@@ -141,7 +141,7 @@ private:
 
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level);
 
-        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg);
+        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<std::string> & i, const sensor_msgs::ImageConstPtr& msg);
 
         // The real initialization is being done after receiving the camerainfo.
         void cam_info_callback(const sensor_msgs::CameraInfo &msg);
@@ -157,7 +157,7 @@ private:
         ros::ServiceClient detector_set_caminfo_service;
         bool inServiceCall;
         TrackerNode* parent_;
-        std::list<geometry_msgs::Pose> results_list;
+        std::vector<geometry_msgs::Pose> results_list;
 
         ros::Subscriber cam_info_sub;
         image_transport::Subscriber image_sub;
@@ -176,7 +176,7 @@ private:
 
         virtual void reconf_callback(blort_ros::TrackerConfig &config, uint32_t level);
 
-        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<size_t> & i, const sensor_msgs::ImageConstPtr& msg);
+        virtual blort_msgs::RecoveryCall getRecoveryCall(std::vector<std::string> & i, const sensor_msgs::ImageConstPtr& msg);
 
         /* FIXME Implement single-shot with object selection */
         /* For now, single-shot runs on first object for backward compatibility */

@@ -167,6 +167,7 @@ void Recognizer3D::setCameraParameter(const blortRecognizer::CameraParameter& ca
 
 bool Recognizer3D::recognize(IplImage* tFrame, std::map<std::string, boost::shared_ptr<TomGine::tgPose> > & poses, std::map<std::string, double> & confs)
 {
+  // this select map should be a member containing the list of names, or the list of names should be a member
     std::map<std::string, bool> select;
     return recognize(tFrame, poses, confs, select);
 }

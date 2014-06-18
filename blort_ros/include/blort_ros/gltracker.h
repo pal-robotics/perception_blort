@@ -89,12 +89,12 @@ namespace blort_ros
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
-        std::vector< boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
-        std::vector<int> model_ids;
-        std::vector<Tracking::movement_state> movements;
-        std::vector<Tracking::quality_state> qualities;
-        std::vector<Tracking::confidence_state> tracking_confidences;
-        std::vector<bool> tracking_objects;
+        std::map<std::string, boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
+        std::map<std::string, int> model_ids;
+        std::map<std::string, Tracking::movement_state> movements;
+        std::map<std::string, Tracking::quality_state> qualities;
+        std::map<std::string, Tracking::confidence_state> tracking_confidences;
+        std::map<std::string, bool> tracking_objects;
 
         // Protection mutex for multi-threaded access to the model/poses
         boost::mutex models_mutex;
@@ -103,9 +103,9 @@ namespace blort_ros
         IplImage *image; // iplimage object used be the former blort tracker module
 
         // result variables
-        std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > tracker_confidences;
+        //std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > tracker_confidences;
         geometry_msgs::Pose fixed_cam_pose;
-        std::vector<geometry_msgs::Pose> result;
+        std::map<std::string, geometry_msgs::Pose> result;
         
         //reconf GUI hack
         bool last_reset;
@@ -121,7 +121,7 @@ namespace blort_ros
         /** @brief Method to run and handle tracking. */
         virtual void track();
 
-        void reset(const std::vector<uint8_t> & params = std::vector<uint8_t>(0));
+        void reset(const std::vector<std::string> & params = std::vector<std::string>());
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param Reconfigure_gui messagetype */
@@ -131,15 +131,15 @@ namespace blort_ros
          *  @param code integer code associated with command, can be used with enums.
          *  @param param parameter of the command
          */
-        void trackerControl(uint8_t code, const std::vector<uint8_t> & params);
+        void trackerControl(uint8_t code, const std::vector<std::string> & params);
 
-        void resetWithPose(size_t obj_id, const geometry_msgs::Pose& new_pose);
+        void resetWithPose(std::string obj_id, const geometry_msgs::Pose& new_pose);
 
         /** @brief Get some statistics of the actual tracking state. */
-        const std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
+        //const std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
 
         /** @brief Get the results of the latest detections. */
-        const std::vector<geometry_msgs::Pose>& getDetections(){ return result; }
+        std::map<std::string, geometry_msgs::Pose>& getDetections(){ return result; }
 
         /** @brief Get the constant camera reference of Blort. */
         const geometry_msgs::Pose getCameraReferencePose(){ return fixed_cam_pose; }
@@ -156,11 +156,11 @@ namespace blort_ros
 
         TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-        virtual void switchToTracking(size_t id);
+        virtual void switchToTracking(std::string id);
 
-        virtual void switchToRecovery(size_t id);
+        virtual void switchToRecovery(std::string id);
 
-        virtual void switchTracking(const std::vector<uint8_t> & params);
+        virtual void switchTracking(const std::vector<std::string> & params);
 
         ~GLTracker();
 
@@ -171,9 +171,9 @@ namespace blort_ros
 
         /** @brief Assemble pose result to be published based on class variables.
           * The result is put in the corresponding variable. */
-        void updatePoseResult(size_t i);
+        void updatePoseResult(std::string i);
 
-        void resetParticleFilter(size_t id);
+        void resetParticleFilter(std::string id);
     };
 }
 

@@ -44,6 +44,7 @@
 #define BLORTTRACKER_H
 
 #include <opencv2/core/core.hpp>
+#include <boost/foreach.hpp>
 
 namespace blort_ros
 {
@@ -64,8 +65,8 @@ namespace blort_ros
     class TrackerInterface
     {
     protected:
-        std::vector<tracker_mode> current_modes;
-        std::vector<tracker_confidence> current_confs;
+        std::map<std::string, tracker_mode> current_modes;
+        std::map<std::string, tracker_confidence> current_confs;
         cv::Mat last_image;
 
     public:
@@ -78,12 +79,13 @@ namespace blort_ros
         {
             last_image = img;
             tracker_mode current_mode = TRACKER_RECOVERY_MODE;
-            for(size_t i = 0; current_modes.size(); ++i)
+            typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
+            BOOST_FOREACH(NameModePair_t item, current_modes)
             {
-                if(current_modes[i] > current_mode)
+                if(item.second != current_mode)
                 {
                     //FIXME tracking and locked mode are equivalent for now
-                    current_mode = current_modes[i];
+                    current_mode = item.second;
                     break;
                 }
             }
@@ -101,21 +103,21 @@ namespace blort_ros
             }
         }
 
-        virtual void switchToTracking(size_t id)
+        virtual void switchToTracking(std::string id)
         {
-          current_confs[id] = TRACKER_CONF_FAIR; 
-          current_modes[id] = TRACKER_TRACKING_MODE; 
+          current_confs[id] = TRACKER_CONF_FAIR;
+          current_modes[id] = TRACKER_TRACKING_MODE;
         }
 
-        virtual void switchToRecovery(size_t id)
+        virtual void switchToRecovery(std::string id)
         {
           current_confs[id] = TRACKER_CONF_LOST;
           current_modes[id] = TRACKER_RECOVERY_MODE;
         }
 
-        virtual void reset(size_t id){ switchToRecovery(id); }
-        const std::vector<tracker_mode> & getModes(){ return current_modes; }
-        const std::vector<tracker_confidence> & getConfidence(){ return current_confs; }
+        virtual void reset(std::string id){ switchToRecovery(id); }
+        const std::map<std::string, tracker_mode> & getModes(){ return current_modes; }
+        tracker_confidence getConfidence(std::string id){ return current_confs[id]; }
     };
 }
 

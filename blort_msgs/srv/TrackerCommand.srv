@@ -14,5 +14,5 @@
 # 8 --> switch tracking on/off
 #
 uint8 code
-uint8[] param
+string[] param
 ---

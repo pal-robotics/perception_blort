@@ -84,12 +84,12 @@ namespace blort_ros
                    const std::string& config_root);
 
         /** @brief Method to run and handle recovery state. */
-        bool recovery(std::vector<size_t> & obj_ids, const cv::Mat& image,
+        bool recovery(std::vector<std::string> & obj_ids, const cv::Mat& image,
                       blort_msgs::RecoveryCall::Response &resp);
 
         /** @brief Method to run on the previously stored image.
          *  @see recovery */
-        bool recoveryWithLast(std::vector<size_t> & obj_ids, blort_msgs::RecoveryCall::Response &resp);
+        bool recoveryWithLast(std::vector<std::string> & obj_ids, blort_msgs::RecoveryCall::Response &resp);
 
         /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param reconfigure_gui messagetype */

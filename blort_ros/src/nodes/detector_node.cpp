@@ -28,10 +28,10 @@ bool DetectorNode::recovery(blort_msgs::RecoveryCall::Request &req,
         ROS_INFO("Detector called the %u-th time.", ++counter);
         bool result;
         resp.object_ids = req.object_ids;
-        std::vector<size_t> object_ids;
+        std::vector<std::string> object_ids;
         for(size_t i = 0; i < req.object_ids.size(); ++i)
         {
-            object_ids.push_back(req.object_ids[i].data);
+            object_ids.push_back(req.object_ids[i]);
         }
         if(!req.Image.data.empty())
         {
