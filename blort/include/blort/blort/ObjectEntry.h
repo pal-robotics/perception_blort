@@ -34,6 +34,7 @@ struct ObjectEntry
     // Tracker data
     Tracking::movement_state movement;
     Tracking::quality_state quality;
+    Tracking::confidence_state tracking_conf;
 };
 
 /*

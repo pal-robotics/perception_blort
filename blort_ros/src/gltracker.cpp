@@ -101,7 +101,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         model_ids[objects_[i].name] = tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[objects_[i].name], objects_[i].name.c_str(), true);
         objects_[i].movement = Tracking::ST_SLOW;
         objects_[i].quality = Tracking::ST_LOST;
-        tracking_confidences[objects_[i].name] = Tracking::ST_BAD;
+        objects_[i].tracking_conf = Tracking::ST_BAD;
         current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
         current_confs[objects_[i].name] = blort_ros::TRACKER_CONF_LOST;
         //tracker_confidences.push_back(boost::shared_ptr<blort_msgs::TrackerConfidences>(new blort_msgs::TrackerConfidences));
@@ -130,7 +130,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
             *trPoses[obj_i], obj.name.c_str(), true);
       obj.movement = Tracking::ST_SLOW;
       obj.quality  = Tracking::ST_LOST;
-      tracking_confidences[obj_i] = Tracking::ST_BAD;
+      obj.tracking_conf = Tracking::ST_BAD;
       tracking_objects[obj_i] = true;
 	  break;
     }
@@ -201,7 +201,7 @@ void GLTracker::track()
           switchToRecovery(objects_[i].name);
         }
 
-        if(tracking_confidences[objects_[i].name] == Tracking::ST_GOOD
+        if(objects_[i].tracking_conf == Tracking::ST_GOOD
            && objects_[i].movement == Tracking::ST_STILL
            && objects_[i].quality != Tracking::ST_LOCKED)
         {
@@ -382,9 +382,9 @@ void GLTracker::update()
             tracker.getModelMovementState(model_ids[obj.name], obj.movement);
             tracker.getModelQualityState(model_ids[obj.name], obj.quality);
             ROS_INFO_STREAM("GLTracker::update: the tracked model for " << obj.name << " has set quality to " << obj.quality);
-            tracker.getModelConfidenceState(model_ids[obj.name], tracking_confidences[obj.name]);
+            tracker.getModelConfidenceState(model_ids[obj.name], obj.tracking_conf);
 
-            switch(tracking_confidences[obj.name])
+            switch(obj.tracking_conf)
             {
             case Tracking::ST_GOOD:
                 this->current_confs[obj.name] = blort_ros::TRACKER_CONF_GOOD;
@@ -405,7 +405,7 @@ void GLTracker::update()
                     updatePoseResult(obj.name);
                 break;
             default:
-                ROS_ERROR("Unknown confidence value: %d", tracking_confidences[obj.name]);
+                ROS_ERROR("Unknown confidence value: %d", obj.tracking_conf);
                 break;
             }
         }
