@@ -99,7 +99,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         trPoses[objects_[i].name]->t = vec3(0.0, 0.1, 0.0);
         trPoses[objects_[i].name]->Rotate(0.0f, 0.0f, 0.5f);
         model_ids[objects_[i].name] = tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[objects_[i].name], objects_[i].name.c_str(), true);
-        movements[objects_[i].name] = Tracking::ST_SLOW;
+        objects_[i].movement = Tracking::ST_SLOW;
         qualities[objects_[i].name] = Tracking::ST_LOST;
         tracking_confidences[objects_[i].name] = Tracking::ST_BAD;
         current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
@@ -120,7 +120,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
 void GLTracker::resetParticleFilter(std::string obj_i)
 {
   //look up object based on name, then update --should be changed to nonbusy lookup
-  BOOST_FOREACH(const blort::ObjectEntry& obj, objects_)
+  BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
   {
     if(obj.name == obj_i)
     {
@@ -128,7 +128,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
       model_ids[obj_i] = tracker.addModelFromFile(
             blort_ros::addRoot(obj.ply_model, config_root_).c_str(),
             *trPoses[obj_i], obj.name.c_str(), true);
-      movements[obj_i] = Tracking::ST_SLOW;
+      obj.movement = Tracking::ST_SLOW;
       qualities[obj_i]  = Tracking::ST_LOST;
       tracking_confidences[obj_i] = Tracking::ST_BAD;
       tracking_objects[obj_i] = true;
@@ -202,7 +202,7 @@ void GLTracker::track()
         }
 
         if(tracking_confidences[objects_[i].name] == Tracking::ST_GOOD
-           && movements[objects_[i].name] == Tracking::ST_STILL
+           && objects_[i].movement == Tracking::ST_STILL
            && qualities[objects_[i].name] != Tracking::ST_LOCKED)
         {
           ROS_DEBUG_STREAM("Tracker is really confident (edge conf: "); //<< tracker_confidences[i]->edgeConf <<
@@ -379,7 +379,7 @@ void GLTracker::update()
             //update confidences based on the currently tracked model
             // !!! the tracker state is now defined by the ONLY object tracked.
             // although the implementation would allow it, at several places, lacks this at several other.
-            tracker.getModelMovementState(model_ids[obj.name], movements[obj.name]);
+            tracker.getModelMovementState(model_ids[obj.name], obj.movement);
             tracker.getModelQualityState(model_ids[obj.name], qualities[obj.name]);
             ROS_INFO_STREAM("GLTracker::update: the tracked model for " << obj.name << " has set quality to " << qualities[obj.name]);
             tracker.getModelConfidenceState(model_ids[obj.name], tracking_confidences[obj.name]);

@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <blort/TomGine/tgPose.h>
+#include <blort/Tracker/TrackingStates.h>
 
 namespace blort
 {
@@ -29,6 +30,9 @@ struct ObjectEntry
     double confThreshold;
     double lostConf;
     double distance;
+
+    // Tracker data
+    Tracking::movement_state movement;
 };
 
 /*

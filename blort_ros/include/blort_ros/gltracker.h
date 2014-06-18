@@ -91,7 +91,6 @@ namespace blort_ros
         // Model for Tracker
         std::map<std::string, boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
         std::map<std::string, int> model_ids;
-        std::map<std::string, Tracking::movement_state> movements;
         std::map<std::string, Tracking::quality_state> qualities;
         std::map<std::string, Tracking::confidence_state> tracking_confidences;
         std::map<std::string, bool> tracking_objects;
