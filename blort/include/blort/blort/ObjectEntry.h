@@ -6,6 +6,7 @@
 #include <map>
 #include <blort/TomGine/tgPose.h>
 #include <blort/Tracker/TrackingStates.h>
+#include <boost/shared_ptr.hpp>
 
 namespace blort
 {
@@ -35,6 +36,7 @@ struct ObjectEntry
     Tracking::movement_state movement;
     Tracking::quality_state quality;
     Tracking::confidence_state tracking_conf;
+    boost::shared_ptr<TomGine::tgPose> tr_pose; // current pose of the object used by the tracker module
 };
 
 /*

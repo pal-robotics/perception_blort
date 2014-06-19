@@ -95,10 +95,11 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
 
     for(size_t i = 0; i < objects_.size(); ++i)
     {
-        trPoses[objects_[i].name] = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose);
-        trPoses[objects_[i].name]->t = vec3(0.0, 0.1, 0.0);
-        trPoses[objects_[i].name]->Rotate(0.0f, 0.0f, 0.5f);
-        model_ids[objects_[i].name] = tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *trPoses[objects_[i].name], objects_[i].name.c_str(), true);
+
+        objects_[i].tr_pose = boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose);
+        objects_[i].tr_pose->t = vec3(0.0, 0.1, 0.0);
+        objects_[i].tr_pose->Rotate(0.0f, 0.0f, 0.5f);
+        model_ids[objects_[i].name] = tracker.addModelFromFile(blort_ros::addRoot(objects_[i].ply_model, config_root).c_str(), *(objects_[i].tr_pose), objects_[i].name.c_str(), true);
         objects_[i].movement = Tracking::ST_SLOW;
         objects_[i].quality = Tracking::ST_LOST;
         objects_[i].tracking_conf = Tracking::ST_BAD;
@@ -127,7 +128,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
       tracker.removeModel(model_ids[obj_i]);
       model_ids[obj_i] = tracker.addModelFromFile(
             blort_ros::addRoot(obj.ply_model, config_root_).c_str(),
-            *trPoses[obj_i], obj.name.c_str(), true);
+            *(obj.tr_pose), obj.name.c_str(), true);
       obj.movement = Tracking::ST_SLOW;
       obj.quality  = Tracking::ST_LOST;
       obj.tracking_conf = Tracking::ST_BAD;
@@ -155,7 +156,7 @@ void GLTracker::track()
     tracker.drawCoordinates();
     BOOST_FOREACH(const blort::ObjectEntry& obj, objects_)
     {
-        tracker.getModelPose(model_ids[obj.name], *trPoses[obj.name]);
+        tracker.getModelPose(model_ids[obj.name], *(obj.tr_pose));
     }
     tracker.drawResult(2.0f);
 
@@ -163,13 +164,13 @@ void GLTracker::track()
     // has to stay right after drawImage(), because of OpenGL
     if( 1 || visualize_obj_pose)
     {
-        for(size_t i = 0; i < trPoses.size(); ++i)
+        for(size_t i = 0; i < objects_.size(); ++i)
         {
             if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !tracking_objects[objects_[i].name])
             {
                 continue;
             }
-            trPoses[objects_[i].name]->Activate();
+            objects_[i].tr_pose->Activate();
             glBegin(GL_LINES);
             glColor3f(1.0f, 0.0f, 0.0f);
             glVertex3f(0.0f, 0.0f, 0.0f);
@@ -183,13 +184,13 @@ void GLTracker::track()
             glVertex3f(0.0f, 0.0f, 0.0f);
             glVertex3f(0.0f, 0.0f, 1.0f);
             glEnd();
-            trPoses[objects_[i].name]->Deactivate();
+            objects_[i].tr_pose->Deactivate();
         }
     }
 
     update();
 
-    for(size_t i = 0; i < trPoses.size(); ++i)
+    for(size_t i = 0; i < objects_.size(); ++i)
     {
         if(objects_[i].quality == Tracking::ST_LOCKED)
         {
@@ -214,8 +215,9 @@ void GLTracker::track()
 void GLTracker::resetWithPose(std::string id, const geometry_msgs::Pose& new_pose)
 {
     boost::mutex::scoped_lock lock(models_mutex);
-    ConvertCam2World(blort_ros::rosPose2TgPose(new_pose), cam_pose, *trPoses[id]);
-    tracker.setModelInitialPose(model_ids[id], *trPoses[id]);
+    blort::ObjectEntry& obj = getObjEntryByName(id); //TODO: ugly
+    ConvertCam2World(blort_ros::rosPose2TgPose(new_pose), cam_pose, *(obj.tr_pose));
+    tracker.setModelInitialPose(model_ids[id], *(obj.tr_pose));
     //2012-11-28: commented by Jordi because the resetParticleFilter will reset the ModelEntry
     //tracker.resetUnlockLock(); // this does one run of the tracker to update the probabilities
 
@@ -448,4 +450,14 @@ void GLTracker::switchToRecovery(std::string id)
 
 GLTracker::~GLTracker()
 {
+}
+
+blort::ObjectEntry& GLTracker::getObjEntryByName(const std::string& name)
+{
+  BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
+  {
+    if(obj.name == name)
+      return obj;
+  }
+  assert(false);
 }

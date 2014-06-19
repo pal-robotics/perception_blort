@@ -89,7 +89,6 @@ namespace blort_ros
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
-        std::map<std::string, boost::shared_ptr<TomGine::tgPose> > trPoses; // current pose of the object used by the tracker module
         std::map<std::string, int> model_ids;
         std::map<std::string, bool> tracking_objects;
 
@@ -171,6 +170,8 @@ namespace blort_ros
         void updatePoseResult(std::string i);
 
         void resetParticleFilter(std::string id);
+
+        blort::ObjectEntry& getObjEntryByName(const std::string& name);
     };
 }
 
