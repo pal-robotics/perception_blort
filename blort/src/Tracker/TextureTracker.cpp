@@ -469,7 +469,6 @@ bool TextureTracker::track(const std::vector<bool> & tracking_objects)
 
 bool TextureTracker::track(ModelEntry *modelEntry)
 {
-
 	// Process model (texture reprojection, edge detection)
   model_processing(modelEntry);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -503,22 +502,20 @@ bool TextureTracker::track(int id)
   if(!m_tracker_initialized)
   {
     ROS_ERROR("[TextureTracker::track(int)] Error tracker not initialised!\n");
-		return false;
-	}
+    return false;
+  }
 	
-	ModelEntryList::iterator it = m_modellist.begin();
-  while(it != m_modellist.end())
+  for(unsigned i=0; i<m_modellist.size(); i++)
   {
-    if(id==(*it)->id)
+    if(m_modellist[i]->id == id)
     {
-			track(m_modellist[id]);
-			tgCheckError("TextureTracker::track(int)");
-			return true;
-		}
-		++it;
-	}
+      track(m_modellist[i]);
+      tgCheckError("TextureTracker::track(int)");
+      return true;
+    }
+  }
 	
-	return false;
+  return false;
 }
 
 // grabs texture from camera image and attaches it to faces of model
