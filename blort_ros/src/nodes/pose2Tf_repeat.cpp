@@ -53,36 +53,38 @@ geometry_msgs::Pose last_pose;
 
 void poseCallback(const geometry_msgs::Pose &msg)
 {
-    last_pose = msg;
-    pose_received = true;
+  last_pose = msg;
+  pose_received = true;
 }
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "pose2Tf");
-    ros::NodeHandle nh;
-    if(argc < 3)
+  ros::init(argc, argv, "pose2Tf");
+  ros::NodeHandle nh;
+  if(argc < 3)
+  {
+    ROS_ERROR("pose2Tf node requires a parent and a child name to publish to tf.");
+    return -1;
+  }
+
+  parent_name = std::string(argv[1]);
+  child_name = std::string(argv[2]);
+
+  pose_received = false;
+  ros::Subscriber sub = nh.subscribe("/pose", 10, &poseCallback);
+  static tf::TransformBroadcaster br;
+
+  while(ros::ok())
+  {
+    ros::spinOnce();
+    if(pose_received)
     {
-        ROS_ERROR("pose2Tf node requires a parent and a child name to publish to tf.");
-        return -1;
+      tf::Transform target_transform;
+      tf::poseMsgToTF(last_pose, target_transform);
+      br.sendTransform(tf::StampedTransform(
+                         target_transform, ros::Time::now(),
+                         parent_name, child_name));
     }
+  }
 
-    parent_name = std::string(argv[1]);
-    child_name = std::string(argv[2]);
-
-    pose_received = false;
-    ros::Subscriber sub = nh.subscribe("/pose", 10, &poseCallback);
-    static tf::TransformBroadcaster br;
-
-    while(ros::ok())
-    {
-        ros::spinOnce();
-        if(pose_received)
-        {
-            tf::Transform target_transform;
-            tf::poseMsgToTF(last_pose, target_transform);
-            br.sendTransform( tf::StampedTransform(target_transform, ros::Time::now(), parent_name, child_name));
-        }
-    }
-
-    return 0;
+  return 0;
 };

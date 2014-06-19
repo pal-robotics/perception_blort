@@ -58,120 +58,120 @@
 
 namespace blort_ros
 {
-    enum TrackerPublishMode
-    {
-        TRACKER_PUBLISH_GOOD = 0,
-        TRACKER_PUBLISH_GOOD_AND_FAIR = 1,
-        TRACKER_PUBLISH_ALL = 2
-    };
+  enum TrackerPublishMode
+  {
+    TRACKER_PUBLISH_GOOD = 0,
+    TRACKER_PUBLISH_GOOD_AND_FAIR = 1,
+    TRACKER_PUBLISH_ALL = 2
+  };
 
-    class GLTracker : public TrackerInterface
-    {
-    private:
-        //config
-        double conf_threshold;
-        bool visualize_obj_pose;
-        int publish_mode;
+  class GLTracker : public TrackerInterface
+  {
+  private:
+    //config
+    double conf_threshold;
+    bool visualize_obj_pose;
+    int publish_mode;
 
-        float recovery_conf_threshold; // threshold used in recovery mode to say OK to a pose proposal
+    float recovery_conf_threshold; // threshold used in recovery mode to say OK to a pose proposal
 
-        // functionality
-        TomGine::tgCamera::Parameter tgcam_params;
-        TomGine::tgTimer timer;
-        TomGine::tgPose cam_pose;
-        Tracking::Tracker::Parameter track_params;
+    // functionality
+    TomGine::tgCamera::Parameter tgcam_params;
+    TomGine::tgTimer timer;
+    TomGine::tgPose cam_pose;
+    Tracking::Tracker::Parameter track_params;
 
-        Tracking::TextureTracker tracker;   // tracking module
+    Tracking::TextureTracker tracker;   // tracking module
 
-        //config files
-        std::string config_root_;
-        std::string pose_cal;   // filename with the pose calibration values
+    //config files
+    std::string config_root_;
+    std::string pose_cal;   // filename with the pose calibration values
 
-        // Model for Tracker
-        std::vector<blort::ObjectEntry> objects_;
-        std::map<std::string, int> model_ids;
+    // Model for Tracker
+    std::vector<blort::ObjectEntry> objects_;
+    std::map<std::string, int> model_ids;
 
-        // Protection mutex for multi-threaded access to the model/poses
-        boost::mutex models_mutex;
+    // Protection mutex for multi-threaded access to the model/poses
+    boost::mutex models_mutex;
 
-        // Initialise image
-        IplImage *image; // iplimage object used be the former blort tracker module
+    // Initialise image
+    IplImage *image; // iplimage object used be the former blort tracker module
 
-        // result variables
-        //std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > tracker_confidences;
-        geometry_msgs::Pose fixed_cam_pose;
-        std::map<std::string, geometry_msgs::Pose> result;
-        
-        //reconf GUI hack
-        bool last_reset;
+    // result variables
+    //std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > tracker_confidences;
+    geometry_msgs::Pose fixed_cam_pose;
+    std::map<std::string, geometry_msgs::Pose> result;
 
-    public:
-        GLTracker(const sensor_msgs::CameraInfo camera_info,
-                  const std::string& config_root,
-                  bool visualize_obj_pose = false);
+    //reconf GUI hack
+    bool last_reset;
 
-        /** @brief Method to run and handle recovery state. */
-        virtual void recovery() {}
+  public:
+    GLTracker(const sensor_msgs::CameraInfo camera_info,
+              const std::string& config_root,
+              bool visualize_obj_pose = false);
 
-        /** @brief Method to run and handle tracking. */
-        virtual void track();
+    /** @brief Method to run and handle recovery state. */
+    virtual void recovery() {}
 
-        void reset(const std::vector<std::string> & params = std::vector<std::string>());
+    /** @brief Method to run and handle tracking. */
+    virtual void track();
 
-        /** @brief Control the tracker using a ROS reconfigure_gui node.
+    void reset(const std::vector<std::string> & params = std::vector<std::string>());
+
+    /** @brief Control the tracker using a ROS reconfigure_gui node.
          *  @param Reconfigure_gui messagetype */
-        void reconfigure(blort_ros::TrackerConfig config);
+    void reconfigure(blort_ros::TrackerConfig config);
 
-        /** @brief Control the tracker with a single int code.
+    /** @brief Control the tracker with a single int code.
          *  @param code integer code associated with command, can be used with enums.
          *  @param param parameter of the command
          */
-        void trackerControl(uint8_t code, const std::vector<std::string> & params);
+    void trackerControl(uint8_t code, const std::vector<std::string> & params);
 
-        void resetWithPose(std::string obj_id, const geometry_msgs::Pose& new_pose);
+    void resetWithPose(std::string obj_id, const geometry_msgs::Pose& new_pose);
 
-        /** @brief Get some statistics of the actual tracking state. */
-        //const std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
+    /** @brief Get some statistics of the actual tracking state. */
+    //const std::vector< boost::shared_ptr<blort_msgs::TrackerConfidences> > & getConfidences(){ return tracker_confidences; }
 
-        /** @brief Get the results of the latest detections. */
-        std::map<std::string, geometry_msgs::Pose>& getDetections(){ return result; }
+    /** @brief Get the results of the latest detections. */
+    std::map<std::string, geometry_msgs::Pose>& getDetections(){ return result; }
 
-        /** @brief Get the constant camera reference of Blort. */
-        const geometry_msgs::Pose getCameraReferencePose(){ return fixed_cam_pose; }
+    /** @brief Get the constant camera reference of Blort. */
+    const geometry_msgs::Pose getCameraReferencePose(){ return fixed_cam_pose; }
 
-        /** @brief Get the rendered image for visualization. */
-        cv::Mat getImage();
+    /** @brief Get the rendered image for visualization. */
+    cv::Mat getImage();
 
-        /** @brief Return model names */
-        const std::string & getModelName(size_t i) { return objects_[i].name; }
+    /** @brief Return model names */
+    const std::string & getModelName(size_t i) { return objects_[i].name; }
 
-        void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
+    void setVisualizeObjPose(bool enable){ visualize_obj_pose = enable; }
 
-        void setPublishMode(TrackerPublishMode mode){ publish_mode = mode; }
+    void setPublishMode(TrackerPublishMode mode){ publish_mode = mode; }
 
-        TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
+    TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-        virtual void switchToTracking(std::string id);
+    virtual void switchToTracking(std::string id);
 
-        virtual void switchToRecovery(std::string id);
+    virtual void switchToRecovery(std::string id);
 
-        virtual void switchTracking(const std::vector<std::string> & params);
+    virtual void switchTracking(const std::vector<std::string> & params);
 
-        ~GLTracker();
+    ~GLTracker();
 
-    private:
-        /** @brief Update confidences and state based on the state and confidences of
+  private:
+    /** @brief Update confidences and state based on the state and confidences of
           * the encapsulated tracker. Also pose result is updated if the state is apropriate.*/
-        void update();
+    void update();
 
-        /** @brief Assemble pose result to be published based on class variables.
+    /** @brief Assemble pose result to be published based on class variables.
           * The result is put in the corresponding variable. */
-        void updatePoseResult(std::string i);
+    void updatePoseResult(std::string i);
 
-        void resetParticleFilter(std::string id);
+    void resetParticleFilter(std::string id);
 
-        blort::ObjectEntry& getObjEntryByName(const std::string& name);
-    };
+    blort::ObjectEntry& getObjEntryByName(const std::string& name);
+  };
 }
 
 #endif // GPUGLTRACKER_H

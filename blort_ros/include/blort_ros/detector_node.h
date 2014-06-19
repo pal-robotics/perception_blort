@@ -29,7 +29,7 @@
  *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE. 
+ *  POSSIBILITY OF SUCH DAMAGE.
  *
  * @file detector_node.cpp
  * @author Bence Magyar
@@ -51,37 +51,37 @@
 class DetectorNode
 {
 private:
-    ros::NodeHandle nh_;
-    image_transport::ImageTransport it_;
-    image_transport::Publisher image_pub;
-    ros::Subscriber cam_info_sub;
-    const std::string root_;
-    ros::ServiceServer pose_service;
-    ros::ServiceServer cam_info_service;
-    std::auto_ptr<dynamic_reconfigure::Server<blort_ros::DetectorConfig> > server_;
-    dynamic_reconfigure::Server<blort_ros::DetectorConfig>::CallbackType f_;
-    blort_ros::GLDetector* detector;
-    unsigned int counter;
+  ros::NodeHandle nh_;
+  image_transport::ImageTransport it_;
+  image_transport::Publisher image_pub;
+  ros::Subscriber cam_info_sub;
+  const std::string root_;
+  ros::ServiceServer pose_service;
+  ros::ServiceServer cam_info_service;
+  std::auto_ptr<dynamic_reconfigure::Server<blort_ros::DetectorConfig> > server_;
+  dynamic_reconfigure::Server<blort_ros::DetectorConfig>::CallbackType f_;
+  blort_ros::GLDetector* detector;
+  unsigned int counter;
 
-    double nn_match_threshold;
-    int ransac_n_points_to_match;
+  double nn_match_threshold;
+  int ransac_n_points_to_match;
 
-    //uncomment corresponding lines if need debug stuff
-    //image_transport::Publisher debug_pub;
+  //uncomment corresponding lines if need debug stuff
+  //image_transport::Publisher debug_pub;
 
 public:
-    DetectorNode(std::string root = ".");
+  DetectorNode(std::string root = ".");
 
-    ~DetectorNode();
+  ~DetectorNode();
 
-    bool recovery(blort_msgs::RecoveryCall::Request &req,
-                  blort_msgs::RecoveryCall::Response &resp);
+  bool recovery(blort_msgs::RecoveryCall::Request &req,
+                blort_msgs::RecoveryCall::Response &resp);
 
-    bool setCameraInfoCb(blort_msgs::SetCameraInfo::Request &req,
-                         blort_msgs::SetCameraInfo::Response &resp);
+  bool setCameraInfoCb(blort_msgs::SetCameraInfo::Request &req,
+                       blort_msgs::SetCameraInfo::Response &resp);
 
-    void reconf_callback(blort_ros::DetectorConfig &config, uint32_t level);
-    
-    void cam_info_callback(const sensor_msgs::CameraInfo &msg);
+  void reconf_callback(blort_ros::DetectorConfig &config, uint32_t level);
+
+  void cam_info_callback(const sensor_msgs::CameraInfo &msg);
 };
 

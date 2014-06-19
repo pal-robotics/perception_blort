@@ -52,25 +52,26 @@ std::string child_name;
 
 void poseCallback(const geometry_msgs::Pose &msg)
 {
-    static tf::TransformBroadcaster br;
-    tf::Transform target_transform;
-    tf::poseMsgToTF(msg, target_transform);
-    br.sendTransform( tf::StampedTransform(target_transform, ros::Time::now(), parent_name, child_name));
+  static tf::TransformBroadcaster br;
+  tf::Transform target_transform;
+  tf::poseMsgToTF(msg, target_transform);
+  br.sendTransform( tf::StampedTransform(target_transform, ros::Time::now(),
+                                         parent_name, child_name));
 }
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "pose2Tf");
-    ros::NodeHandle nh;
-    if(argc < 3)
-    {
-        ROS_ERROR("pose2Tf node requires a parent and a child name to publish to tf.");
-        return -1;
-    }
+  ros::init(argc, argv, "pose2Tf");
+  ros::NodeHandle nh;
+  if(argc < 3)
+  {
+    ROS_ERROR("pose2Tf node requires a parent and a child name to publish to tf.");
+    return -1;
+  }
 
-    parent_name = std::string(argv[1]);
-    child_name = std::string(argv[2]);
+  parent_name = std::string(argv[1]);
+  child_name = std::string(argv[2]);
 
-    ros::Subscriber sub = nh.subscribe("/pose", 10, &poseCallback);
-    ros::spin();
-    return 0;
+  ros::Subscriber sub = nh.subscribe("/pose", 10, &poseCallback);
+  ros::spin();
+  return 0;
 };
