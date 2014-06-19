@@ -85,12 +85,11 @@ namespace blort_ros
 
         //config files
         std::string config_root_;
-        std::vector<blort::ObjectEntry> objects_;
         std::string pose_cal;   // filename with the pose calibration values
 
         // Model for Tracker
+        std::vector<blort::ObjectEntry> objects_;
         std::map<std::string, int> model_ids;
-        std::map<std::string, bool> tracking_objects;
 
         // Protection mutex for multi-threaded access to the model/poses
         boost::mutex models_mutex;

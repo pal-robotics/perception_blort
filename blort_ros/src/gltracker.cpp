@@ -106,7 +106,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
         current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
         current_confs[objects_[i].name] = blort_ros::TRACKER_CONF_LOST;
         //tracker_confidences.push_back(boost::shared_ptr<blort_msgs::TrackerConfidences>(new blort_msgs::TrackerConfidences));
-        tracking_objects[objects_[i].name] = true;
+        objects_[i].tracking = true;
     }
     //result.resize(objects_.size());
     tracker.setLockFlag(true);
@@ -132,7 +132,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
       obj.movement = Tracking::ST_SLOW;
       obj.quality  = Tracking::ST_LOST;
       obj.tracking_conf = Tracking::ST_BAD;
-      tracking_objects[obj_i] = true;
+      obj.tracking = true;
 	  break;
     }
   }
@@ -149,7 +149,7 @@ void GLTracker::track()
     // turn on tracking for all selected objects
     BOOST_FOREACH(const blort::ObjectEntry& obj, objects_)
     {
-      if(tracking_objects[obj.name])
+      if(obj.tracking)
         tracker.track(model_ids[obj.name]);
     }
     tracker.drawImage(0);
@@ -166,7 +166,7 @@ void GLTracker::track()
     {
         for(size_t i = 0; i < objects_.size(); ++i)
         {
-            if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !tracking_objects[objects_[i].name])
+            if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !objects_[i].tracking)
             {
                 continue;
             }
@@ -295,23 +295,21 @@ void GLTracker::trackerControl(uint8_t code, const std::vector<std::string> & pa
 
 void GLTracker::switchTracking(const std::vector<std::string> & params)
 {
-    if(params.size() == 0)
+  if(params.size() == 0)
+  {
+    BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
     {
-        for(size_t i = 0; i < tracking_objects.size(); ++i)
-        {
-            tracking_objects[objects_[i].name] = !tracking_objects[objects_[i].name];
-        }
+      obj.tracking = true;
     }
-    else
+  }
+  else
+  {
+    for(size_t i = 0; i < params.size(); ++i)
     {
-        for(size_t i = 0; i < params.size(); ++i)
-        {
-//            if(params[i] < tracking_objects.size()) // TODO: check if param is valid object name
-//            {
-                tracking_objects[params[i]] = !tracking_objects[params[i]];
-//            }
-        }
+      blort::ObjectEntry& obj = getObjEntryByName(params[i]);
+      obj.tracking = !obj.tracking;
     }
+  }
 }
 
 cv::Mat GLTracker::getImage()
@@ -369,7 +367,7 @@ void GLTracker::update()
 {
     BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
     {
-        if(tracking_objects[obj.name])
+        if(obj.tracking)
         {
             //update confidences for output
             Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[obj.name]);
@@ -429,9 +427,7 @@ void GLTracker::reset(const std::vector<std::string> & params)
         for(size_t i = 0; i < params.size(); ++i)
         {
           //TODO: validate param
-//            if(params[i] < model_ids.size())
-                switchToRecovery(params[i]);
-//            }
+          switchToRecovery(params[i]);
         }
     }
 }
