@@ -113,11 +113,13 @@ bool GLDetector::recoveryWithLast(std::vector<std::string> & obj_ids,
     ROS_INFO_STREAM("object (" << objects[i].name
                     << ") conf: " << confs[recog.sift_file]);
     // if the recovery's confidence is high enough then propose this new pose
-    resp.object_founds[i] = ( confs[recog.sift_file] > recovery_conf_threshold );
-    if(resp.object_founds[i])
+    const bool found = ( confs[recog.sift_file] > recovery_conf_threshold );
+    if(found)
     {
       found_one = true;
-      resp.Poses[i] = blort_ros::tgPose2RosPose(*(recPoses[recog.sift_file]));
+      resp.object_ids.push_back(objects[i].name);
+      resp.object_founds.push_back(true);
+      resp.Poses.push_back(blort_ros::tgPose2RosPose(*(recPoses[recog.sift_file])));
     }
   }
   ROS_WARN_STREAM("Tried to recover for the " << rec3dcounter++ << ". time.");
