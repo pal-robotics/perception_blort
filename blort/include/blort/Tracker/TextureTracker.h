@@ -74,6 +74,8 @@ namespace Tracking{
 	virtual void untextureModels();
 
 	virtual void drawResult(float linewidth=2.0f);
+
+  void drawResult(int id, float linewidth);
 	
 	virtual void drawModelEntry(ModelEntry* modelEntry, float linewidth=1.0f);
 	

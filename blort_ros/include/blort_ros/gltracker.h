@@ -162,6 +162,8 @@ namespace blort_ros
 
     const std::vector<blort::ObjectEntry>& getObjects() const;
 
+    void enableAllTracking(bool enable);
+
     ~GLTracker();
 
   private:

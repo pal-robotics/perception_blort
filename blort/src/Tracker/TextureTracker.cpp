@@ -624,6 +624,32 @@ void TextureTracker::drawResult(float linewidth){
 	tgCheckError("TextureTracker::drawResult B");
 }
 
+// Draw result of texture tracking (particle with maximum likelihood)
+void TextureTracker::drawResult(int id, float linewidth){
+
+  m_cam_perspective.Activate();
+  m_lighting.Activate();
+
+  glEnable(GL_DEPTH_TEST);
+  glClear(GL_DEPTH_BUFFER_BIT);
+
+  for(unsigned i=0; i<m_modellist.size(); i++)
+  {
+    if(m_modellist[i]->id == id)
+    {
+      drawModelEntry(m_modellist[i], linewidth);
+      break;
+    }
+  }
+
+// 	for(int i=0; i<m_hypotheses.size(); i++){
+// 		drawModelEntry(m_hypotheses[i]);
+// 	}
+
+  m_lighting.Deactivate();
+  tgCheckError("TextureTracker::drawResult B");
+}
+
 void TextureTracker::drawModelEntry(ModelEntry* modelEntry, float linewidth){
 
 		modelEntry->pose.Activate();

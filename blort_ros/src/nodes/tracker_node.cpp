@@ -207,6 +207,7 @@ void TrackerNode::TrackingMode::cam_info_callback(const sensor_msgs::CameraInfo 
     cam_info_sub.shutdown();
     parent_->tracker = new blort_ros::GLTracker(msg, parent_->root_, true);
     parent_->tracker->setVisualizeObjPose(true);
+    parent_->tracker->enableAllTracking(true);
 
     image_transport::TransportHints transportHint("raw");
 
@@ -320,7 +321,12 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_msgs::EstimatePose::Re
     else
     {
       parent_->tracker->reset();
+      parent_->recovery_answers.clear();
     }
+    //HACK: hardcoded tracking for pringles
+    parent_->tracker->enableAllTracking(false);
+    parent_->tracker->setTracked("Pringles", true);
+
     parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD);
     parent_->tracker->setVisualizeObjPose(true);
     blort_msgs::SetCameraInfo camera_info;
@@ -385,26 +391,47 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     return;
   }
 
-  std::vector<std::string> obj_names;
+
+  // RUN blort tracking mechanism
+  // initialize tracker if it wasn't, otherwise reset it
+  if(parent_->tracker != 0)
+    delete parent_->tracker;
+
+  parent_->tracker = new blort_ros::GLTracker(*lastCameraInfo, parent_->root_, true);
+  parent_->recovery_client = parent_->nh_.serviceClient<blort_msgs::RecoveryCall>("/blort_detector/pose_service");
+  parent_->recovery_answers.clear();
+  parent_->tracker->enableAllTracking(false);
+
+  // validate goal
+  BOOST_FOREACH(const object_recognition_msgs::ObjectType& obj_type, goal->objects)
+  {
+    bool found = false;
+    BOOST_FOREACH(const blort::ObjectEntry& obj, parent_->tracker->getObjects())
+    {
+      if(obj.name == obj_type.key)
+      {
+        found = true;
+        break;
+      }
+    }
+    if(!found)
+    {
+      ROS_ERROR_STREAM("Unknown object called: " << obj_type.key);
+      gh.setAborted();
+      return;
+    }
+  }
+
   std::stringstream ss;
   BOOST_FOREACH(const object_recognition_msgs::ObjectType& obj_type, goal->objects)
   {
-    obj_names.push_back(obj_type.key);
+    parent_->tracker->setTracked(obj_type.key, true);
     ss << obj_type.key << ",";
   }
-  ROS_INFO_STREAM("Received request to recognize '" << ss.str()
-                  <<"' in " << goal->refine_pose_time << "seconds.");
-  // RUN blort tracking mechanism
-  // initialize tracker if it wasn't, otherwise reset it
-  if(parent_->tracker == 0)
-  {
-    parent_->tracker = new blort_ros::GLTracker(*lastCameraInfo, parent_->root_, true);
-    parent_->recovery_client = parent_->nh_.serviceClient<blort_msgs::RecoveryCall>("/blort_detector/pose_service");
-  }
-  else
-  {
-    parent_->tracker->reset();
-  }
+  ROS_INFO_STREAM("TrackerNode::SingleShotMode::goalCb(): Received request to recognize '"
+                  << ss.str() <<"' in " << goal->refine_pose_time << "seconds.");
+
+
   parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD);
   parent_->tracker->setVisualizeObjPose(true);
   blort_msgs::SetCameraInfo camera_info;

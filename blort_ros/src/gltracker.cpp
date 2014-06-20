@@ -157,9 +157,13 @@ void GLTracker::track()
   tracker.drawCoordinates();
   BOOST_FOREACH(const blort::ObjectEntry& obj, objects_)
   {
-    tracker.getModelPose(model_ids[obj.name], *(obj.tr_pose));
+    if(obj.is_tracked)
+    {
+      tracker.getModelPose(model_ids[obj.name], *(obj.tr_pose));
+      tracker.drawResult(model_ids[obj.name], 2.0);
+    }
   }
-  tracker.drawResult(2.0f);
+  //tracker.drawResult(2.0f);
 
   // visualize current object pose if needed. moving this piece of code is troublesome,
   // has to stay right after drawImage(), because of OpenGL
@@ -434,6 +438,12 @@ void GLTracker::switchToRecovery(const std::string& id)
 {
   TrackerInterface::switchToRecovery(id);
   tracker.getModelEntry(model_ids[id])->st_quality = Tracking::ST_LOST;
+  getObjEntryByName(id).quality = Tracking::ST_LOST;
+  typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
+  BOOST_FOREACH(NameModePair_t item, current_modes)
+  {
+    item.second = blort_ros::TRACKER_RECOVERY_MODE;
+  }
 }
 
 GLTracker::~GLTracker()
@@ -463,4 +473,12 @@ bool GLTracker::isTracked(const std::string& id)
 void GLTracker::setTracked(const std::string& id, bool tracked)
 {
   getObjEntryByName(id).is_tracked = tracked;
+}
+
+void GLTracker::enableAllTracking(bool enable)
+{
+  BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
+  {
+    obj.is_tracked = enable;
+  }
 }
