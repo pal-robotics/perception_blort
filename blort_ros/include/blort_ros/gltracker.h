@@ -160,6 +160,8 @@ namespace blort_ros
     bool isTracked(const std::string& id);
     void setTracked(const std::string& id, bool tracked);
 
+    const std::vector<blort::ObjectEntry>& getObjects() const;
+
     ~GLTracker();
 
   private:

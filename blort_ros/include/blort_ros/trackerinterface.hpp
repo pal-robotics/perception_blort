@@ -116,7 +116,7 @@ namespace blort_ros
         }
 
         virtual void reset(std::string id){ switchToRecovery(id); }
-        const std::map<std::string, tracker_mode> & getModes(){ return current_modes; }
+        tracker_mode getMode(std::string id){ return current_modes[id]; }
         tracker_confidence getConfidence(std::string id){ return current_confs[id]; }
     };
 }

@@ -449,3 +449,8 @@ blort::ObjectEntry& GLTracker::getObjEntryByName(const std::string& name)
   }
   assert(false);
 }
+
+const std::vector<blort::ObjectEntry>& GLTracker::getObjects() const
+{
+  return objects_;
+}

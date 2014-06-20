@@ -51,20 +51,19 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg,
     }
 
     bool should_process = false;
-    std::vector<std::string> lost_ids(0);
-    typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
-    BOOST_FOREACH(NameModePair_t item, tracker->getModes())
+    std::vector<std::string> lost_ids;
+    BOOST_FOREACH(const blort::ObjectEntry& obj, tracker->getObjects())
     {
-      if(item.second == blort_ros::TRACKER_RECOVERY_MODE)
+      if(tracker->getMode(obj.name) == blort_ros::TRACKER_RECOVERY_MODE)
       {
-        if(recovery_answers.count(item.first))
+        if(recovery_answers.count(obj.name))
         {
-          tracker->resetWithPose(item.first, recovery_answers[item.first]);
-          recovery_answers.erase(item.first);
+          tracker->resetWithPose(obj.name, recovery_answers[obj.name]);
+          recovery_answers.erase(obj.name);
         }
         else
         {
-          lost_ids.push_back(item.first);
+          lost_ids.push_back(obj.name);
         }
       }
       else //TRACKER_TRACKING_MODE or TRACKER_LOCKED_MODE
@@ -85,25 +84,24 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg,
       ROS_INFO("----------------------------------------------");
       ROS_INFO("TrackerNode::imageCb: calling tracker->process");
       tracker->process(cv_tracker_ptr->image);
-      typedef std::pair<std::string, blort_ros::tracker_mode> NameModePair_t;
-      BOOST_FOREACH(NameModePair_t item, tracker->getModes())
+      BOOST_FOREACH(const blort::ObjectEntry& obj, tracker->getObjects())
       {
-        if(item.second == blort_ros::TRACKER_RECOVERY_MODE)
+        if(tracker->getMode(obj.name) == blort_ros::TRACKER_RECOVERY_MODE)
         {
           continue;
         }
         //confidences_pub.publish(*(tracker->getConfidences()[item.first]));
-        if(tracker->getConfidence(item.first) == blort_ros::TRACKER_CONF_GOOD ||
-           (tracker->getConfidence(item.first) == blort_ros::TRACKER_CONF_FAIR &&
+        if(tracker->getConfidence(obj.name) == blort_ros::TRACKER_CONF_GOOD ||
+           (tracker->getConfidence(obj.name) == blort_ros::TRACKER_CONF_FAIR &&
             tracker->getPublishMode() == blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR) )
         {
           blort_msgs::TrackerResults msg;
-          msg.obj_name.data = item.first;
+          msg.obj_name.data = obj.name;
           msg.pose.header.seq = pose_seq++;
           msg.pose.header.stamp = ros::Time::now();
           msg.pose.header.frame_id = camera_frame_id;
           msg.pose.pose = blort_ros::blortPosesToRosPose(tracker->getCameraReferencePose(),
-                                                         tracker->getDetections()[item.first]);
+                                                         tracker->getDetections()[obj.name]);
 
           detection_result.publish(msg);
         }
