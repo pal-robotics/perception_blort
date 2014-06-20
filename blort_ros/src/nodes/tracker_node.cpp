@@ -211,10 +211,10 @@ void TrackerNode::TrackingMode::cam_info_callback(const sensor_msgs::CameraInfo 
 
     image_transport::TransportHints transportHint("raw");
 
-    detector_image_sub.reset( new image_transport::SubscriberFilter(
-                                parent_->it_, "/detector_image", 1, transportHint));
-    tracker_image_sub.reset( new image_transport::SubscriberFilter(
-                               parent_->it_, "/tracker_image", 1, transportHint));
+    detector_image_sub.reset(new image_transport::SubscriberFilter(
+                              parent_->it_, "/detector_image", 1, transportHint));
+    tracker_image_sub.reset(new image_transport::SubscriberFilter(
+                              parent_->it_, "/tracker_image", 1, transportHint));
 
     imageSynchronizer.reset( new message_filters::TimeSynchronizer<sensor_msgs::Image,
                              sensor_msgs::Image>(*detector_image_sub, *tracker_image_sub, 1) );
@@ -377,6 +377,13 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
   AcServer::GoalConstPtr goal = gh.getGoal();
   gh.setAccepted();
   result_.recognized_objects.objects.clear();
+
+  if(goal->objects.empty())
+  {
+    gh.setSucceeded(result_);
+    return;
+  }
+
   if(lastImage.use_count() < 1 && lastCameraInfo.use_count() < 1)
   {
     ROS_ERROR("Action called but there was no data on the input topics!");
