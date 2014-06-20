@@ -107,7 +107,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
     current_confs[objects_[i].name] = blort_ros::TRACKER_CONF_LOST;
     //tracker_confidences.push_back(boost::shared_ptr<blort_msgs::TrackerConfidences>(new blort_msgs::TrackerConfidences));
-    objects_[i].is_tracked = true;
+    //objects_[i].is_tracked = true;
   }
   //result.resize(objects_.size());
   tracker.setLockFlag(true);
@@ -167,25 +167,24 @@ void GLTracker::track()
   {
     for(size_t i = 0; i < objects_.size(); ++i)
     {
-      if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !objects_[i].is_tracked)
+      if(current_modes[objects_[i].name] != TRACKER_RECOVERY_MODE  && objects_[i].is_tracked)
       {
-        continue;
+        objects_[i].tr_pose->Activate();
+        glBegin(GL_LINES);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(1.0f, 0.0f, 0.0f);
+
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 1.0f, 0.0f);
+
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 1.0f);
+        glEnd();
+        objects_[i].tr_pose->Deactivate();
       }
-      objects_[i].tr_pose->Activate();
-      glBegin(GL_LINES);
-      glColor3f(1.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(1.0f, 0.0f, 0.0f);
-
-      glColor3f(0.0f, 1.0f, 0.0f);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-
-      glColor3f(0.0f, 0.0f, 1.0f);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glVertex3f(0.0f, 0.0f, 1.0f);
-      glEnd();
-      objects_[i].tr_pose->Deactivate();
     }
   }
 
@@ -193,21 +192,24 @@ void GLTracker::track()
 
   for(size_t i = 0; i < objects_.size(); ++i)
   {
-    if(objects_[i].quality == Tracking::ST_LOCKED)
+    if(objects_[i].is_tracked)
     {
-      this->current_modes[objects_[i].name] = blort_ros::TRACKER_LOCKED_MODE;
-    }
-    else if(objects_[i].quality == Tracking::ST_LOST)
-    {
-      ROS_INFO_STREAM("GLTracker::track: switching tracker to RECOVERY_MODE because object " << objects_[i].name << "LOST");
-      switchToRecovery(objects_[i].name);
-    }
+      if(objects_[i].quality == Tracking::ST_LOCKED)
+      {
+        this->current_modes[objects_[i].name] = blort_ros::TRACKER_LOCKED_MODE;
+      }
+      else if(objects_[i].quality == Tracking::ST_LOST)
+      {
+        ROS_INFO_STREAM("GLTracker::track: switching tracker to RECOVERY_MODE because object " << objects_[i].name << "LOST");
+        switchToRecovery(objects_[i].name);
+      }
 
-    if(objects_[i].tracking_conf == Tracking::ST_GOOD
-       && objects_[i].movement == Tracking::ST_STILL
-       && objects_[i].quality != Tracking::ST_LOCKED)
-    {
-      ROS_DEBUG_STREAM("Tracker is really confident (edge conf: " << objects_[i].edgeConf);
+      if(objects_[i].tracking_conf == Tracking::ST_GOOD
+         && objects_[i].movement == Tracking::ST_STILL
+         && objects_[i].quality != Tracking::ST_LOCKED)
+      {
+        ROS_DEBUG_STREAM("Tracker is really confident (edge conf: " << objects_[i].edgeConf);
+      }
     }
   }
 }
@@ -369,8 +371,6 @@ void GLTracker::update()
       obj.distance = myModelEntry->t;
 
       //update confidences based on the currently tracked model
-      // !!! the tracker state is now defined by the ONLY object tracked.
-      // although the implementation would allow it, at several places, lacks this at several other.
       tracker.getModelMovementState(model_ids[obj.name], obj.movement);
       tracker.getModelQualityState(model_ids[obj.name], obj.quality);
       ROS_INFO_STREAM("GLTracker::update: the tracked model for " << obj.name << " has set quality to " << obj.quality);
@@ -453,4 +453,14 @@ blort::ObjectEntry& GLTracker::getObjEntryByName(const std::string& name)
 const std::vector<blort::ObjectEntry>& GLTracker::getObjects() const
 {
   return objects_;
+}
+
+bool GLTracker::isTracked(const std::string& id)
+{
+  return getObjEntryByName(id).is_tracked;
+}
+
+void GLTracker::setTracked(const std::string& id, bool tracked)
+{
+  getObjEntryByName(id).is_tracked = tracked;
 }
