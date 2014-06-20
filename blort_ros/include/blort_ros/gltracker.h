@@ -151,11 +151,14 @@ namespace blort_ros
 
     TrackerPublishMode getPublishMode() { return (TrackerPublishMode)publish_mode; }
 
-    virtual void switchToTracking(std::string id);
+    virtual void switchToTracking(const std::string& id);
 
-    virtual void switchToRecovery(std::string id);
+    virtual void switchToRecovery(const std::string& id);
 
     virtual void switchTracking(const std::vector<std::string> & params);
+
+    bool isTracked(const std::string& id);
+    void setTracked(const std::string& id, bool tracked);
 
     ~GLTracker();
 

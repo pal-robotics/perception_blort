@@ -37,7 +37,11 @@ namespace blort
     Tracking::quality_state quality;
     Tracking::confidence_state tracking_conf;
     boost::shared_ptr<TomGine::tgPose> tr_pose; // current pose of the object used by the tracker module
-    bool tracking; // whether the object should be tracked or not
+    bool is_tracked; // whether the object should be tracked or not
+
+    ObjectEntry()
+      : is_tracked(false)
+    {}
   };
 
   /*

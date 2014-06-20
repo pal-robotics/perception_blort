@@ -388,7 +388,6 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
   ROS_INFO_STREAM("Received request to recognize '" << ss.str()
                   <<"' in " << goal->refine_pose_time << "seconds.");
   // RUN blort tracking mechanism
-
   // initialize tracker if it wasn't, otherwise reset it
   if(parent_->tracker == 0)
   {
@@ -404,7 +403,6 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
   if(!detector_set_caminfo_service.call(camera_info))
     ROS_ERROR("blort_tracker failed to call blort_detector/set_camera_info service");
 
-
   std::map< std::string, std::vector<geometry_msgs::Pose> > results;
   double start_secs = ros::Time::now().toSec();
   while(ros::Time::now().toSec()-start_secs < goal->refine_pose_time)
@@ -415,7 +413,6 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     ROS_INFO("Remaining time %f", feedback_.time_left);
 
     parent_->imageCb(lastImage, lastImage);
-    // do for all objects
 
     BOOST_FOREACH(const object_recognition_msgs::ObjectType& obj, goal->objects)
     {

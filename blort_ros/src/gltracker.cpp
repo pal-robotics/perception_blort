@@ -107,7 +107,7 @@ GLTracker::GLTracker(const sensor_msgs::CameraInfo camera_info,
     current_modes[objects_[i].name] = blort_ros::TRACKER_RECOVERY_MODE;
     current_confs[objects_[i].name] = blort_ros::TRACKER_CONF_LOST;
     //tracker_confidences.push_back(boost::shared_ptr<blort_msgs::TrackerConfidences>(new blort_msgs::TrackerConfidences));
-    objects_[i].tracking = true;
+    objects_[i].is_tracked = true;
   }
   //result.resize(objects_.size());
   tracker.setLockFlag(true);
@@ -133,7 +133,7 @@ void GLTracker::resetParticleFilter(std::string obj_i)
       obj.movement = Tracking::ST_SLOW;
       obj.quality  = Tracking::ST_LOST;
       obj.tracking_conf = Tracking::ST_BAD;
-      obj.tracking = true;
+      obj.is_tracked = true;
       break;
     }
   }
@@ -150,7 +150,7 @@ void GLTracker::track()
   // turn on tracking for all selected objects
   BOOST_FOREACH(const blort::ObjectEntry& obj, objects_)
   {
-    if(obj.tracking)
+    if(obj.is_tracked)
       tracker.track(model_ids[obj.name]);
   }
   tracker.drawImage(0);
@@ -167,7 +167,7 @@ void GLTracker::track()
   {
     for(size_t i = 0; i < objects_.size(); ++i)
     {
-      if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !objects_[i].tracking)
+      if(current_modes[objects_[i].name] == TRACKER_RECOVERY_MODE || !objects_[i].is_tracked)
       {
         continue;
       }
@@ -291,7 +291,7 @@ void GLTracker::switchTracking(const std::vector<std::string> & params)
   {
     BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
     {
-      obj.tracking = true;
+      obj.is_tracked = true;
     }
   }
   else
@@ -299,7 +299,7 @@ void GLTracker::switchTracking(const std::vector<std::string> & params)
     for(size_t i = 0; i < params.size(); ++i)
     {
       blort::ObjectEntry& obj = getObjEntryByName(params[i]);
-      obj.tracking = !obj.tracking;
+      obj.is_tracked = !obj.is_tracked;
     }
   }
 }
@@ -359,7 +359,7 @@ void GLTracker::update()
 {
   BOOST_FOREACH(blort::ObjectEntry& obj, objects_)
   {
-    if(obj.tracking)
+    if(obj.is_tracked)
     {
       //update confidences for output
       Tracking::ModelEntry* myModelEntry = tracker.getModelEntry(model_ids[obj.name]);
@@ -424,13 +424,13 @@ void GLTracker::reset(const std::vector<std::string> & params)
   }
 }
 
-void GLTracker::switchToTracking(std::string id)
+void GLTracker::switchToTracking(const std::string& id)
 {
   TrackerInterface::switchToTracking(id);
   tracker.getModelEntry(model_ids[id])->st_quality = Tracking::ST_OK;
 }
 
-void GLTracker::switchToRecovery(std::string id)
+void GLTracker::switchToRecovery(const std::string& id)
 {
   TrackerInterface::switchToRecovery(id);
   tracker.getModelEntry(model_ids[id])->st_quality = Tracking::ST_LOST;
