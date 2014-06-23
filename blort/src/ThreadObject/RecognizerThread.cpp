@@ -136,7 +136,7 @@ BOOL CRecognizerThread::OnTask()
 			
 			case LEARN:
 				m_mutex.Lock();
-					m_recognizer.learnSifts(m_image, *m_models[0], *m_poses[0]);
+        m_recognizer.learnSifts(m_image, *m_models[0], *(m_poses.begin()->second));
 					m_evData.Set();
 					cmd = IDLE;
 				m_mutex.Unlock();
