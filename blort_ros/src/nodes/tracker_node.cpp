@@ -480,6 +480,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     {
       object_recognition_msgs::RecognizedObject r_obj;
       //pose.header.frame_id = camera frame name
+      r_obj.pose.header.frame_id = lastCameraInfo->header.frame_id;
       r_obj.pose.header.stamp = ros::Time::now(); // or take the stamp of the last image
       r_obj.type.key = obj.key;
       //convert results to a tf style transform and multiply them
