@@ -212,7 +212,7 @@ void TrackerNode::TrackingMode::cam_info_callback(const sensor_msgs::CameraInfo 
     image_transport::TransportHints transportHint("raw");
 
     detector_image_sub.reset(new image_transport::SubscriberFilter(
-                              parent_->it_, "/detector_image", 1, transportHint));
+                               parent_->it_, "/detector_image", 1, transportHint));
     tracker_image_sub.reset(new image_transport::SubscriberFilter(
                               parent_->it_, "/tracker_image", 1, transportHint));
 
@@ -457,17 +457,25 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
 
     parent_->imageCb(lastImage, lastImage);
 
-    BOOST_FOREACH(const object_recognition_msgs::ObjectType& obj, goal->objects)
+    BOOST_FOREACH(const blort::ObjectEntry& obj, parent_->tracker->getObjects())
     {
-      if(parent_->tracker->getConfidence(obj.key) == blort_ros::TRACKER_CONF_FAIR)
+      bool found = false;
+      BOOST_FOREACH(const object_recognition_msgs::ObjectType& obj_type, goal->objects)
       {
-        // instead of returning right away let's store the result
-        // to see if the tracker can get better
-        results[obj.key].push_back(parent_->tracker->getDetections()[obj.key]);
+        found = found || (obj.name == obj_type.key);
       }
-      else if(parent_->tracker->getConfidence(obj.key) == blort_ros::TRACKER_CONF_LOST)
+      if(found)
       {
-        results[obj.key].clear();
+        if(obj.edgeConf > 0.3) //TODO: magic number, open it up to tune
+        {
+          // instead of returning right away let's store the result
+          // to see if the tracker can get better
+          results[obj.name].push_back(parent_->tracker->getDetections()[obj.name]);
+        }
+        else
+        {
+          results[obj.name].clear();
+        }
       }
     }
   }
