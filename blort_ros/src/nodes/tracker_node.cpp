@@ -56,7 +56,6 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg,
     {
       if(obj.is_tracked)
       {
-        ROS_WARN_STREAM("TrackerNode::imageCb(): " << obj.name << " is tracked.");
         if(tracker->getMode(obj.name) == blort_ros::TRACKER_RECOVERY_MODE)
         {
           if(recovery_answers.count(obj.name))
@@ -66,7 +65,6 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg,
           }
           else
           {
-            ROS_WARN_STREAM("TrackerNode::imageCb() lost id pushback " << obj.name);
             lost_ids.push_back(obj.name);
           }
         }
@@ -132,7 +130,7 @@ void TrackerNode::recovery(blort_msgs::RecoveryCall srv)
       ss << srv.request.object_ids[i];
       if(++i != srv.request.object_ids.size()) { ss << ", "; }
     }
-    ROS_INFO_STREAM(ss.str());
+    ROS_WARN_STREAM(ss.str());
   }
   if(recovery_client.call(srv))
   {

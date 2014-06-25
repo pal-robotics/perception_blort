@@ -45,6 +45,7 @@
 #include <sstream>
 #include <iostream>
 #include <blort/blort/pal_util.h>
+#include <boost/foreach.hpp>
 
 using namespace blort_ros;
 
@@ -93,13 +94,23 @@ bool GLDetector::recoveryWithLast(std::vector<std::string> & obj_ids,
   std::map< std::string, boost::shared_ptr<TomGine::tgPose> > recPoses;
   std::map<std::string, double> confs;
   std::map<std::string, bool> select;
-  for(size_t i = 0; i < objects.size(); ++i)
+  BOOST_FOREACH(const blort::ObjectEntry& obj, objects)
   {
-    for(size_t j = 0; j < objects[i].recog_data.size(); ++j)
+    // initialize a pose and set the select flag for each sift file
+    for(size_t j = 0; j < obj.recog_data.size(); ++j)
     {
-      recPoses[objects[i].recog_data[j].sift_file] =
+      recPoses[obj.recog_data[j].sift_file] =
           boost::shared_ptr<TomGine::tgPose>(new TomGine::tgPose());
-      select[objects[i].recog_data[j].sift_file] = true;
+      // if the object is in the query, select flag will be true, false otherwise
+      if(std::find(obj_ids.begin(), obj_ids.end(), obj.name) != obj_ids.end())
+      {
+        select[obj.recog_data[j].sift_file] = true;
+        ROS_ERROR_STREAM("Recoverycall for sift file: " << obj.recog_data[j].sift_file);
+      }
+      else
+      {
+        select[obj.recog_data[j].sift_file] = false;
+      }
     }
   }
   recognizer->recognize(image_, recPoses, confs, select);
