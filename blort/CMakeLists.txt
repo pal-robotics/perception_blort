@@ -26,7 +26,6 @@ add_library(module_glwindow
     src/GLWindow/GLXWindow.cpp 
     src/GLWindow/glxhidingwindow.cpp
 )
-target_link_libraries(module_glwindow GLU GL glut X11 rt)
 
 add_library(module_tomgine
     src/TomGine/tgVector3.cpp 

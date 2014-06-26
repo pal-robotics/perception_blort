@@ -34,10 +34,8 @@ add_executable(gltracker_node
 target_link_libraries(gltracker_node module_tomgine
                                    module_tracker
                                    module_glwindow
-                                   ${catkin_LIBRARIES}
-                                   GLU GL glut X11 rt)
+                                   ${catkin_LIBRARIES})
 add_dependencies(gltracker_node blort_msgs_generate_messages_cpp)
-
 
 add_executable(gldetector_node
   src/nodes/detector_node.cpp
