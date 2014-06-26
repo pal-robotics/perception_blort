@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(OpenCV REQUIRED)
+find_package(GLUT REQUIRED)
 
 set(SIFTGPU_INC /usr/local/include/SiftGPU CACHE PATH "Path to SiftGPU header files")
 
