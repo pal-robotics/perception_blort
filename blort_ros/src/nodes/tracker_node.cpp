@@ -74,7 +74,7 @@ void TrackerNode::imageCb(const sensor_msgs::ImageConstPtr& detectorImgMsg,
         }
       }
     }
-    if(lost_ids.size())
+    if(!lost_ids.empty())
     {
       boost::mutex::scoped_lock lock(recovery_mutex, boost::try_to_lock);
       if(lock)
