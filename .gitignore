@@ -1,6 +1,1 @@
 *.swp
-build
-*.ply
-*.sift
-blort_ros/bin/tracking.ini
-blort_ros/Resources/ply/*.jpg
