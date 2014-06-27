@@ -1,0 +1,18 @@
+<launch>
+    <env name="DISPLAY" value=":0"/>
+    <env name="XAUTHORITY" value="/var/run/lightdm/root/:0"/>
+        <arg name="camera_ns" default="/head_mount_xtion/rgb"/>
+    <!-- Tracker node -->
+    <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)" output="screen">
+        <param name="launch_mode" value="singleshot" />
+        <remap from="/detector_camera_info" to="$(arg camera_ns)/camera_info" />
+        <remap from="/detector_image" to="$(arg camera_ns)/image_raw"/>
+        <remap from="/tracker_image" to="$(arg camera_ns)/image_raw"/>
+        <param name="conf_threshold" value="0.35"/>
+    </node>
+
+    <!-- Detector node -->
+    <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)">
+        <remap from="/blort_camera_info" to="$(arg camera_ns)/camera_info" />
+    </node>
+</launch>
