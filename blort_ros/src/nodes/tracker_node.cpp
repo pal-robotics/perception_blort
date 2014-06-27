@@ -125,10 +125,9 @@ void TrackerNode::recovery(blort_msgs::RecoveryCall srv)
   {
     std::stringstream ss;
     ss << "tracker_node calling detector_node recovery service for object(s): ";
-    for(size_t i = 0; i < srv.request.object_ids.size();)
+    for(size_t i = 0; i < srv.request.object_ids.size();++i)
     {
-      ss << srv.request.object_ids[i];
-      if(++i != srv.request.object_ids.size()) { ss << ", "; }
+      ss << srv.request.object_ids[i]  << ", ";
     }
     ROS_WARN_STREAM(ss.str());
   }
@@ -247,6 +246,7 @@ TrackerNode::SingleShotMode::SingleShotMode(TrackerNode* parent)
 
   time_to_run_singleshot = 10.;
   inServiceCall = false;
+  parent->nh_.param<double>("conf_threshold", conf_treshold_, 0.3);
 
   as_.registerGoalCallback(boost::bind(&TrackerNode::SingleShotMode::goalCb, this, _1));
   as_.start();
@@ -286,6 +286,7 @@ blort_msgs::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vecto
     srv.request.object_ids.resize(ids.size());
     for(size_t i = 0; i < ids.size(); ++i)
     {
+      ROS_WARN_STREAM("TrackerNode::SingleShotMode::getRecoveryCall: "  << ids[i]);
       srv.request.object_ids[i] = ids[i];
     }
     srv.request.Image = *msg;
@@ -464,7 +465,9 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
       }
       if(found)
       {
-        if(obj.edgeConf > 0.3) //TODO: magic number, open it up to tune
+        ROS_ERROR_STREAM(obj.name << " with confidence " << obj.edgeConf
+                         << ", when threshold is " << conf_treshold_);
+        if(obj.edgeConf > conf_treshold_)
         {
           // instead of returning right away let's store the result
           // to see if the tracker can get better

@@ -159,6 +159,7 @@ private:
     double time_to_run_singleshot;
     ros::ServiceClient detector_set_caminfo_service;
     bool inServiceCall;
+    double conf_treshold_;
     TrackerNode* parent_;
     std::vector<geometry_msgs::Pose> results_list;
 
