@@ -118,7 +118,8 @@ add_library(module_recognizer3d
     src/Recognizer3D/Config.cc 
     src/Recognizer3D/CodebookEntry.cc 
 )
-target_link_libraries(module_recognizer3d ${catkin_LIBRARIES})
+target_link_libraries(module_recognizer3d ${catkin_LIBRARIES}
+                                          ${OpenCV_LIBS})
 
 #############
 ## Install ##
