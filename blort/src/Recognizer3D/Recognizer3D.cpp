@@ -224,7 +224,7 @@ bool Recognizer3D::recognize(IplImage* tFrame, std::map<std::string, boost::shar
   {
     bool detectResult = false;
     // if there are objects selected, handle only those, if not, look for all
-    if(select.count(m_sift_models[i]->file_name) && select.at(m_sift_models[i]->file_name) || select.empty()) // ABSOLUTE FILENAME FULLPATH
+    if((select.count(m_sift_models[i]->file_name) && select.at(m_sift_models[i]->file_name)) || select.empty()) // ABSOLUTE FILENAME FULLPATH
     {
       ROS_ERROR_STREAM("Recognizer3D::recognize: filename: " << m_sift_models[i]->file_name);
       detectResult = m_detect.Detect(m_image_keys, *m_sift_models[i]);
