@@ -458,6 +458,8 @@ blort::ObjectEntry& GLTracker::getObjEntryByName(const std::string& name)
       return obj;
   }
   assert(false);
+  ROS_ERROR_STREAM("GLTracker::reset: No object that coincides with name '" << name << "'', RETURNING FIRST ONE, THIS IS WRONG (but fixes compilation)");
+  return objects_[0]; // corrects cppcheck: error: control reaches end of non-void function [-Werror=return-type]
 }
 
 const std::vector<blort::ObjectEntry>& GLTracker::getObjects() const
