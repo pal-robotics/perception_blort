@@ -467,7 +467,13 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
       {
         ROS_ERROR_STREAM(obj.name << " with confidence " << obj.edgeConf
                          << ", when threshold is " << conf_treshold_);
-        if(obj.edgeConf > conf_treshold_)
+        // Check that the edge confidence is high enought BUT ALSO that the pose
+        // has been updated. If not, it means that model confidence state is not
+        // the required by the /blort_tracker/publish_mode
+        if(obj.edgeConf > conf_treshold_ &&
+           !(parent_->tracker->getDetections()[obj.name].position.x == 0 &&
+             parent_->tracker->getDetections()[obj.name].position.y == 0 &&
+             parent_->tracker->getDetections()[obj.name].position.z == 0) )
         {
           // instead of returning right away let's store the result
           // to see if the tracker can get better
