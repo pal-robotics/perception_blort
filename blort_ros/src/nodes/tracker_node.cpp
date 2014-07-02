@@ -326,7 +326,7 @@ bool TrackerNode::SingleShotMode::singleShotService(blort_msgs::EstimatePose::Re
     parent_->tracker->enableAllTracking(false);
     parent_->tracker->setTracked("Pringles", true);
 
-    parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD);
+    parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR);
     parent_->tracker->setVisualizeObjPose(true);
     blort_msgs::SetCameraInfo camera_info;
     camera_info.request.CameraInfo = *lastCameraInfo;
