@@ -438,7 +438,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
                   << ss.str() <<"' in " << goal->refine_pose_time << "seconds.");
 
 
-  parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD);
+  parent_->tracker->setPublishMode(blort_ros::TRACKER_PUBLISH_GOOD_AND_FAIR);
   parent_->tracker->setVisualizeObjPose(true);
   blort_msgs::SetCameraInfo camera_info;
   camera_info.request.CameraInfo = *lastCameraInfo;
