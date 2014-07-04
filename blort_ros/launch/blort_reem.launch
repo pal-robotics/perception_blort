@@ -6,8 +6,8 @@
     <node pkg="blort_ros" type="gltracker_node" name="blort_tracker" args="$(find blort_ros)" output="screen">
         <param name="launch_mode" value="singleshot" />
         <remap from="/detector_camera_info" to="$(arg camera_ns)/camera_info" />
-        <remap from="/detector_image" to="$(arg camera_ns)/image_raw"/>
-        <remap from="/tracker_image" to="$(arg camera_ns)/image_raw"/>
+        <remap from="/detector_image" to="/depth_segmentation/image_masked"/>
+        <remap from="/tracker_image" to="/depth_segmentation/image_masked"/>
         <param name="conf_threshold" value="0.35"/>
     </node>
 
@@ -15,4 +15,11 @@
     <node pkg="blort_ros" type="gldetector_node" name="blort_detector" args="$(find blort_ros)">
         <remap from="/blort_camera_info" to="$(arg camera_ns)/camera_info" />
     </node>
+
+    <!-- image segmentator from depth -->
+    <node pkg="pal_vision_segmentation" type="depth_segmentation" name="depth_segmentation">
+        <remap from="image" to="/head_mount_xtion/rgb/image_raw" />
+        <remap from="depth_image" to="/head_mount_xtion/depth_registered/image_raw" />
+    </node>
+
 </launch>
