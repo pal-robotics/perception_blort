@@ -235,7 +235,6 @@ TrackerNode::SingleShotMode::SingleShotMode(TrackerNode* parent)
   ROS_INFO("Blort tracker launched in singleshot mode.");
   detector_set_caminfo_service = parent_->nh_.serviceClient<blort_msgs::SetCameraInfo>("/blort_detector/set_camera_info");
   singleshot_service = parent_->nh_.advertiseService("singleshot_service", &TrackerNode::SingleShotMode::singleShotService, this);
-  image_sub = parent_->it_.subscribe("/detector_image", 10, &TrackerNode::SingleShotMode::imageCallback, this);
   cam_info_sub = parent_->nh_.subscribe("/detector_camera_info", 10, &TrackerNode::SingleShotMode::cameraCallback, this);
 
   parent_->control_service = parent_->nh_.advertiseService("tracker_control", &TrackerNode::trackerControlServiceCb, parent_);
@@ -302,6 +301,8 @@ blort_msgs::RecoveryCall TrackerNode::SingleShotMode::getRecoveryCall(std::vecto
 bool TrackerNode::SingleShotMode::singleShotService(blort_msgs::EstimatePose::Request &req,
                                                     blort_msgs::EstimatePose::Response &resp)
 {
+  lastImage.reset();
+  lastImage = ros::topic::waitForMessage<sensor_msgs::Image>("/detector_image", parent_->nh_, ros::Duration(5.0));
   if(lastImage.use_count() < 1 && lastCameraInfo.use_count() < 1)
   {
     ROS_ERROR("Service called but there was no data on the input topics!");
@@ -383,6 +384,8 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     return;
   }
 
+  lastImage.reset();
+  lastImage = ros::topic::waitForMessage<sensor_msgs::Image>("/detector_image", parent_->nh_, ros::Duration(5.0));
   if(lastImage.use_count() < 1 && lastCameraInfo.use_count() < 1)
   {
     ROS_ERROR("Action called but there was no data on the input topics!");

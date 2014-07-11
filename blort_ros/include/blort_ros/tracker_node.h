@@ -164,7 +164,6 @@ private:
     std::vector<geometry_msgs::Pose> results_list;
 
     ros::Subscriber cam_info_sub;
-    image_transport::Subscriber image_sub;
     sensor_msgs::ImageConstPtr lastImage;
     sensor_msgs::CameraInfoConstPtr lastCameraInfo;
 
