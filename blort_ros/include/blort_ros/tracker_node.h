@@ -163,7 +163,6 @@ private:
     TrackerNode* parent_;
     std::vector<geometry_msgs::Pose> results_list;
 
-    ros::Subscriber cam_info_sub;
     sensor_msgs::ImageConstPtr lastImage;
     sensor_msgs::CameraInfoConstPtr lastCameraInfo;
 
