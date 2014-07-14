@@ -8,6 +8,7 @@
         <remap from="/detector_camera_info" to="$(arg camera_ns)/camera_info" />
         <remap from="/detector_image" to="/depth_segmentation/image_masked"/>
         <remap from="/tracker_image" to="/depth_segmentation/image_masked"/>
+        <remap from="/depth_image" to="/camera/depth_registered/image_raw" />
         <param name="conf_threshold" value="0.35"/>
     </node>
 
