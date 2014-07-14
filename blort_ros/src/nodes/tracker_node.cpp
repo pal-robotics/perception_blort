@@ -523,7 +523,23 @@ double TrackerNode::SingleShotMode::getDistance(const sensor_msgs::ImageConstPtr
     return 0.0;
   }
 
-  return depth_ptr->image.at<float>(round(v), round(u));
+  // compute the median of the 3x3 neighborhood of the point
+  float arr[] = {depth_ptr->image.at<float>(round(v)-1, round(u)-1), depth_ptr->image.at<float>(round(v)-1, round(u)),
+                 depth_ptr->image.at<float>(round(v)-1, round(u)+1), depth_ptr->image.at<float>(round(v), round(u)-1),
+                 depth_ptr->image.at<float>(round(v), round(u)), depth_ptr->image.at<float>(round(v), round(u)+1),
+                 depth_ptr->image.at<float>(round(v)+1, round(u)-1), depth_ptr->image.at<float>(round(v)+1, round(u)),
+                 depth_ptr->image.at<float>(round(v)+1, round(u)+1)};
+  std::nth_element(arr, arr+5, arr+9);
+
+// print neighbouring elements
+//  ROS_ERROR_STREAM(
+//        "-| " << depth_ptr->image.at<float>(round(v)-1, round(u)-1) << " | " << depth_ptr->image.at<float>(round(v)-1, round(u)) <<  " | " << depth_ptr->image.at<float>(round(v)-1, round(u)+1) <<  " |-" <<
+//        "-| " << depth_ptr->image.at<float>(round(v), round(u)-1) << " | " << depth_ptr->image.at<float>(round(v), round(u)) <<  " | " << depth_ptr->image.at<float>(round(v), round(u)+1) <<  " |-" <<
+//        "-| " << depth_ptr->image.at<float>(round(v)+1, round(u)-1) << " | " << depth_ptr->image.at<float>(round(v)+1, round(u)) <<  " | " << depth_ptr->image.at<float>(round(v)+1, round(u)+1) <<  " |-"
+//                  );
+  ROS_WARN_STREAM("Median is " << arr[5]);
+
+  return arr[5];
 }
 
 
