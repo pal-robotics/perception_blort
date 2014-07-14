@@ -367,9 +367,10 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
   }
 
   lastImage.reset();
-  lastImage = ros::topic::waitForMessage<sensor_msgs::Image>("/detector_image", parent_->nh_);//, ros::Duration(2.0));
+  lastImage = ros::topic::waitForMessage<sensor_msgs::Image>("/detector_image", parent_->nh_, ros::Duration(3.0));
+  sensor_msgs::ImageConstPtr lastDepth = ros::topic::waitForMessage<sensor_msgs::Image>("/depth_image", parent_->nh_, ros::Duration(3.0));
   lastCameraInfo.reset();
-  lastCameraInfo = ros::topic::waitForMessage<sensor_msgs::CameraInfo>("/detector_camera_info", parent_->nh_);//, ros::Duration(3.0));
+  lastCameraInfo = ros::topic::waitForMessage<sensor_msgs::CameraInfo>("/detector_camera_info", parent_->nh_, ros::Duration(3.0));
   if(lastImage.use_count() < 1 && lastCameraInfo.use_count() < 1)
   {
     ROS_ERROR("Action called but there was no data on the input topics!");
@@ -465,7 +466,7 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
           // instead of returning right away let's store the result
           // to see if the tracker can get better
           results[obj.name].push_back(parent_->tracker->getDetections()[obj.name]);
-        }
+		}
         else
         {
           results[obj.name].clear();
@@ -489,6 +490,11 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
       //to get the camera-to-target transformation
       r_obj.pose.pose.pose = blort_ros::blortPosesToRosPose(parent_->tracker->getCameraReferencePose(),
                                                             results[obj.key].back());
+      //TODO copy Z element of depth[X,Y]
+      r_obj.pose.pose.pose.position.z = getDistance(lastDepth,
+                                               r_obj.pose.pose.pose.position.x,
+                                               r_obj.pose.pose.pose.position.y,
+                                               r_obj.pose.pose.pose.position.z);
       result_.recognized_objects.objects.push_back(r_obj);
       //NOTE: check the pose in vec3 location + mat3x3 rotation could be added here
       // if we have any previous knowledge of the given scene
@@ -497,6 +503,27 @@ void TrackerNode::SingleShotMode::goalCb(AcServer::GoalHandle gh)
     }
   }
   gh.setSucceeded(result_);
+}
+
+double TrackerNode::SingleShotMode::getDistance(const sensor_msgs::ImageConstPtr& img, double x, double y, double z)
+{
+  double u = (lastCameraInfo->P[0]*x)/z + lastCameraInfo->P[2];
+  double v = (lastCameraInfo->P[5]*y)/z + lastCameraInfo->P[6];
+
+  cv_bridge::CvImagePtr depth_ptr;
+  try
+  {
+    depth_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::TYPE_32FC1);
+    ROS_WARN_STREAM("[x,y,z] : " << "[" << x << "," << y << "," << z << "]   --- " <<
+          "[u,v] : [" << u << "," << v << "] in an image of [" << depth_ptr->image.rows << "," << depth_ptr->image.cols << "]");
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+    return 0.0;
+  }
+
+  return depth_ptr->image.at<float>(round(v), round(u));
 }
 
 

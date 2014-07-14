@@ -169,6 +169,8 @@ private:
     blort_msgs::RecognizeFeedback feedback_;
     blort_msgs::RecognizeResult result_;
 
+    double getDistance(const sensor_msgs::ImageConstPtr& img, double x, double y, double z);
+
   public:
     SingleShotMode(TrackerNode* parent);
 
