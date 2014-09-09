@@ -177,9 +177,9 @@ int	Resources::AddShader(	const char* shadername,
 	char vertex_fullname[FN_LEN];
 	char fragment_fullname[FN_LEN];
 	char header_fullname[FN_LEN];
-	sprintf(vertex_fullname, "%s%s", m_shaderPath, vertex_file);
-	sprintf(fragment_fullname, "%s%s", m_shaderPath, fragment_file);
-	sprintf(header_fullname, "%s%s", m_shaderPath, header);
+	sprintf(vertex_fullname, "%s/%s", m_shaderPath, vertex_file);
+	sprintf(fragment_fullname, "%s/%s", m_shaderPath, fragment_file);
+	sprintf(header_fullname, "%s/%s", m_shaderPath, header);
 		
 	if(vertex_file)
 		vertex_file = &vertex_fullname[0];
