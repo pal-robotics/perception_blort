@@ -18,3 +18,21 @@ You can get further info on how to use it following the tutorials: http://wiki.r
 
 Be aware that perception_blort is a work in progress and may change it's behaviour.
 
+## Videos
+### Summary
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=TN9WguYpXTE
+" target="_blank"><img src="http://img.youtube.com/vi/TN9WguYpXTE/0.jpg" 
+alt="summary" width="240" height="180" border="10" style="float" /></a>
+
+### Training
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=pp6RwxbUwrI
+" target="_blank"><img src="http://img.youtube.com/vi/pp6RwxbUwrI/0.jpg" 
+alt="summary" width="240" height="180" border="10" style="float" /></a>
+  
+### Detecting & tracking
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=HoMSHIzhERI
+" target="_blank"><img src="http://img.youtube.com/vi/HoMSHIzhERI/0.jpg" 
+alt="summary" width="240" height="180" border="10" style="float" /></a>
