@@ -52,6 +52,12 @@ target_link_libraries(pose2Tf ${catkin_LIBRARIES})
 add_executable(pose2Tf_repeat src/nodes/pose2Tf_repeat.cpp)
 target_link_libraries(pose2Tf_repeat ${catkin_LIBRARIES})
 
+##############################################
+## Unit test of image processing algorithms ##
+##############################################
+add_executable(testImageProcessor test/testImageProcessor)
+target_link_libraries(testImageProcessor ${catkin_LIBRARIES} module_tracker module_tomgine)
+
 #############
 ## Install ##
 #############
